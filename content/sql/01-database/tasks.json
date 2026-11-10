@@ -1,0 +1,24 @@
+[
+  {
+    "id": "select-all-customers",
+    "title": "顧客の表を全部見る",
+    "text": "<p><code>customers</code>(顧客)表の中身を、すべての列・すべての行について取り出してください。</p>",
+    "answer": "SELECT * FROM customers;",
+    "hints": [
+      "表の中身を見るには SELECT を使います。すべての列は * で表します。",
+      "SELECT * FROM のあとに表名 customers を書きます。"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "select-by-pk",
+    "title": "主キーで1行だけ取り出す",
+    "text": "<p><code>products</code>(商品)表から、主キー <code>id</code> が 10 の商品を、すべての列について取り出してください。結果は1行になるはずです。</p>",
+    "answer": "SELECT * FROM products WHERE id = 10;",
+    "hints": [
+      "行を絞るには、FROM products のあとに WHERE 条件 を付けます。",
+      "条件は id = 10 です。数値なので '(クォート)で囲みません。"
+    ],
+    "ordered": false
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "create-index",
+    "title": "インデックスを作って検索する",
+    "text": "<p><code>orders</code> 表の <code>customer_id</code> 列にインデックスを作ってから、顧客番号が 1 の注文をすべての列について取り出してください。SQLは2文続けて書けます。</p>",
+    "answer": "CREATE INDEX idx_orders_customer ON orders (customer_id); SELECT * FROM orders WHERE customer_id = 1;",
+    "hints": [
+      "CREATE INDEX 名前 ON orders (customer_id); のあとに SELECT 文を書きます。",
+      "CREATE INDEX idx_orders_customer ON orders (customer_id); SELECT * FROM orders WHERE customer_id = 1;"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "transaction-commit",
+    "title": "2つの変更をまとめて確定する",
+    "text": "<p>トランザクションの中で、注文番号 17 と 18 の <code>status</code> を両方「発送済」に変え、確定してください。</p>",
+    "answer": "BEGIN; UPDATE orders SET status = '発送済' WHERE id = 17; UPDATE orders SET status = '発送済' WHERE id = 18; COMMIT;",
+    "hints": [
+      "BEGIN; で始め、UPDATE を2つ書き、COMMIT; で確定します。",
+      "BEGIN; UPDATE orders SET status = '発送済' WHERE id = 17; UPDATE orders SET status = '発送済' WHERE id = 18; COMMIT;"
+    ],
+    "mutation": true
+  },
+  {
+    "id": "transaction-rollback",
+    "title": "取り消す",
+    "text": "<p>トランザクションの中で <code>order_items</code> 表の行をすべて消し、そのあと取り消して、表を元のままにしてください。最後に <code>SELECT COUNT(*) FROM order_items;</code> で30行あることを確かめましょう。</p>",
+    "answer": "BEGIN; DELETE FROM order_items; ROLLBACK;",
+    "hints": [
+      "BEGIN; のあとに DELETE を書き、確定せずに ROLLBACK; で取り消します。",
+      "BEGIN; DELETE FROM order_items; ROLLBACK;"
+    ],
+    "mutation": true
+  }
+]

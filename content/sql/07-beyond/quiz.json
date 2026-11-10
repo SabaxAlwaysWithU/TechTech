@@ -1,0 +1,37 @@
+[
+  {
+    "question": "インデックスを付けると何が起きますか?",
+    "options": [
+      "その列での検索が速くなるが、書き込みは少し遅くなる",
+      "表の行数が減る",
+      "すべてのSQLが必ず速くなる",
+      "主キーが不要になる"
+    ],
+    "explanation": "インデックスは検索用の見出しです。検索は速くなりますが、行を足したり変えたりするたびに見出しも更新されるため、書き込みは少し遅くなります。"
+  },
+  {
+    "question": "orders 表の customer_id 列にインデックスを作るSQLはどれですか?",
+    "options": [
+      "CREATE INDEX idx ON orders (customer_id);",
+      "CREATE INDEX orders.customer_id;",
+      "ADD INDEX customer_id TO orders;",
+      "INDEX orders (customer_id);"
+    ],
+    "explanation": "CREATE INDEX 名前 ON 表 (列) の形です。名前は自由に付けられます。"
+  },
+  {
+    "question": "BEGIN で始めた変更を確定する命令はどれですか?",
+    "options": ["COMMIT", "ROLLBACK", "END", "SAVE"],
+    "explanation": "COMMIT で変更が確定します。ROLLBACK は逆に、BEGIN 以降の変更をすべて取り消します。"
+  },
+  {
+    "question": "BEGIN; DELETE FROM orders; ROLLBACK; を実行したあと、orders 表はどうなっていますか?",
+    "options": [
+      "何も変わっていない(行はすべて残っている)",
+      "すべての行が消えている",
+      "半分の行が消えている",
+      "表そのものが消えている"
+    ],
+    "explanation": "ROLLBACK は BEGIN 以降の変更を取り消します。DELETE は仮の状態だったので、なかったことになります。"
+  }
+]

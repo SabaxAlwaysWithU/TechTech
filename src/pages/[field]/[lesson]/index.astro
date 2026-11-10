@@ -1,0 +1,65 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import { getLessons } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  const lessons = await getLessons();
+  const articles = await getCollection('articles');
+  return lessons.map((l) => ({
+    params: { field: l.field, lesson: l.slug },
+    props: { lesson: l, article: articles.find((a) => a.id === l.id)! },
+  }));
+}
+const { lesson, article } = Astro.props;
+const { Content } = await render(article);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const practiceHref = `${base}/${lesson.field}/${lesson.slug}/practice/`;
+const quizHref = `${base}/${lesson.field}/${lesson.slug}/quiz/`;
+---
+<Base title={`${lesson.title} — ${lesson.field.toUpperCase()}`}>
+  <main class="prose article" data-lesson={lesson.id} data-practice={practiceHref}>
+    <p class="eyebrow muted"><a href={`${base}/${lesson.field}/`}>{lesson.field.toUpperCase()}</a> · レッスン{lesson.number}</p>
+    <h1>{lesson.title}</h1>
+    <Content />
+    <hr />
+    <p class="muted">記事を読み終えたら、クイズで確かめましょう。</p>
+    <p>
+      <a class="btn" href={quizHref}>クイズへ進む</a>
+      <a class="btn secondary" href={practiceHref}>練習場へ</a>
+    </p>
+  </main>
+
+  <script>
+    import { markRead } from '../../../lib/progress';
+    const main = document.querySelector<HTMLElement>('main.article')!;
+    markRead(main.dataset.lesson!);
+
+    // SQLのコード例に「練習場で試す」ボタンを付ける
+    const practice = main.dataset.practice!;
+    for (const pre of main.querySelectorAll<HTMLElement>('pre[data-language="sql"]')) {
+      const sql = pre.textContent?.trim() ?? '';
+      if (!sql) continue;
+      const wrap = document.createElement('div');
+      wrap.className = 'try';
+      const a = document.createElement('a');
+      a.href = `${practice}?sql=${encodeURIComponent(sql)}`;
+      a.textContent = '練習場で試す →';
+      wrap.appendChild(a);
+      pre.insertAdjacentElement('afterend', wrap);
+    }
+  </script>
+
+  <style>
+    .eyebrow { font-size: 0.85rem; margin: 0 0 0.5rem; }
+    .eyebrow a { color: var(--muted); text-decoration: none; }
+    :global(.try) { text-align: right; font-size: 0.85rem; margin: -0.8rem 0 1.5rem; }
+    .article :global(pre) { margin-bottom: 1.2rem; }
+    .article :global(h2) { border-bottom: 1px solid var(--line); padding-bottom: 0.3rem; }
+    .article :global(h3) { font-size: 1.05rem; margin: 2rem 0 0.6rem; }
+    .article :global(ul), .article :global(ol) { padding-left: 1.5rem; margin: 0 0 1.2rem; }
+    .article :global(li) { margin-bottom: 0.3rem; }
+    .article :global(blockquote) { margin: 0 0 1.2rem; padding: 0.2rem 1rem; border-left: 3px solid var(--line); color: var(--muted); }
+    .article :global(strong) { font-weight: 600; }
+  </style>
+</Base>

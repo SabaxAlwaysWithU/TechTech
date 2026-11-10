@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import { getFields, getLessons } from '../lib/content';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const fields = await Promise.all(
+  getFields().map(async (f) => ({
+    ...f,
+    lessons: (await getLessons(f.id)).map((l) => ({ id: l.id, quiz: l.quiz.length, tasks: l.tasks.length })),
+  })),
+);
+---
+<Base title="PC基礎学習">
+  <main class="prose">
+    <h1>分野を選ぶ</h1>
+    <ul class="lesson-list">
+      {fields.map((f, i) => (
+        <li data-field={JSON.stringify(f.lessons)}>
+          <span class="num">{i + 1}</span>
+          <div style="flex: 1; min-width: 0;">
+            <a href={`${base}/${f.id}/`}>{f.title}</a>
+            <span class="desc">{f.description}</span>
+            <span class="rate muted" data-rate></span>
+          </div>
+        </li>
+      ))}
+    </ul>
+    <p class="muted" style="margin-top: 2rem;">次の分野: HTMLとCSS(準備中)</p>
+  </main>
+
+  <script>
+    import { getProgress, lessonScore } from '../lib/progress';
+    for (const li of document.querySelectorAll<HTMLElement>('[data-field]')) {
+      const lessons = JSON.parse(li.dataset.field!) as { id: string; quiz: number; tasks: number }[];
+      let done = 0;
+      for (const l of lessons) done += lessonScore(getProgress(l.id), l.quiz, l.tasks);
+      const total = lessons.length * 3;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      li.querySelector<HTMLElement>('[data-rate]')!.textContent = `達成率 ${pct}%`;
+    }
+  </script>
+  <style>
+    .rate { display: block; font-size: 0.8rem; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
+  </style>
+</Base>

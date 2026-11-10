@@ -1,0 +1,52 @@
+[
+  {
+    "question": "products 表から name 列だけを取り出すSQLはどれですか?",
+    "options": [
+      "SELECT name FROM products;",
+      "SELECT products FROM name;",
+      "FROM products SELECT name;",
+      "GET name FROM products;"
+    ],
+    "explanation": "SELECT のあとに列名、FROM のあとに表名を書きます。順番を入れ替えると動きません。"
+  },
+  {
+    "question": "WHERE 句で「category が '記憶装置' の行だけ」を取り出す条件はどれですか?",
+    "options": [
+      "WHERE category = '記憶装置'",
+      "WHERE category = 記憶装置",
+      "WHERE category == \"記憶装置\"",
+      "WHERE '記憶装置' IN category"
+    ],
+    "explanation": "文字は '(シングルクォート)で囲みます。囲まないと列名と解釈されてエラーになります。等しいかどうかは = 1つで書きます。"
+  },
+  {
+    "question": "価格の高い順に並べるにはどう書きますか?",
+    "options": [
+      "ORDER BY price DESC",
+      "ORDER BY price ASC",
+      "SORT BY price DOWN",
+      "ORDER price DESC"
+    ],
+    "explanation": "ORDER BY 列名 で並べ、降順(大きい順)にするには DESC を付けます。何も付けない、または ASC を付けると昇順(小さい順)です。"
+  },
+  {
+    "question": "SELECT、FROM、WHERE、ORDER BY を正しい順に並べたものはどれですか?",
+    "options": [
+      "SELECT → FROM → WHERE → ORDER BY",
+      "SELECT → WHERE → FROM → ORDER BY",
+      "FROM → SELECT → WHERE → ORDER BY",
+      "SELECT → FROM → ORDER BY → WHERE"
+    ],
+    "explanation": "SQLの句には決まった順番があります。SELECT、FROM、WHERE、ORDER BY の順で書きます。"
+  },
+  {
+    "question": "「価格が5,000円より高く、かつ分類が周辺機器」の行を取り出す条件はどれですか?",
+    "options": [
+      "WHERE price > 5000 AND category = '周辺機器'",
+      "WHERE price > 5000 OR category = '周辺機器'",
+      "WHERE price >= 5000 AND category = '周辺機器'",
+      "WHERE price > '5000' AND category = 周辺機器"
+    ],
+    "explanation": "「かつ」は AND です。「より高い」は > で、5,000円ちょうどは含みません(>= だと含んでしまいます)。数値は ' で囲まず、文字は囲みます。"
+  }
+]

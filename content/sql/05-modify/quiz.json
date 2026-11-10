@@ -1,0 +1,47 @@
+[
+  {
+    "question": "products 表に新しい行を足す命令はどれですか?",
+    "options": ["INSERT", "UPDATE", "DELETE", "SELECT"],
+    "explanation": "行を足すのは INSERT です。UPDATE は書き換え、DELETE は削除、SELECT は読み出しです。"
+  },
+  {
+    "question": "UPDATE orders SET status = '発送済'; を実行するとどうなりますか?",
+    "options": [
+      "orders 表のすべての行の status が '発送済' になる",
+      "エラーになって何も変わらない",
+      "1行目だけ status が '発送済' になる",
+      "'発送済' の行が消える"
+    ],
+    "explanation": "WHERE がないと、条件なしですべての行が対象になります。UPDATE では WHERE の書き忘れに注意してください。"
+  },
+  {
+    "question": "INSERT INTO products (id, name, category, price) VALUES (4, 'マウスパッド', '周辺機器', 900); がエラーになる理由はどれですか?",
+    "options": [
+      "id = 4 の行がすでにあり、主キーが重複するから",
+      "文字を ' で囲んでいるから",
+      "列を4つ指定しているから",
+      "価格が安すぎるから"
+    ],
+    "explanation": "主キー(id)は重複できません。id = 4 はマウスがすでに使っているので、別の値にする必要があります。"
+  },
+  {
+    "question": "注文番号 5 の行を orders 表から消す命令はどれですか?",
+    "options": [
+      "DELETE FROM orders WHERE id = 5;",
+      "DELETE orders WHERE id = 5;",
+      "DELETE * FROM orders WHERE id = 5;",
+      "REMOVE FROM orders WHERE id = 5;"
+    ],
+    "explanation": "DELETE FROM 表名 WHERE 条件 の形です。行ごと消すので列や * は指定しません。"
+  },
+  {
+    "question": "UPDATE や DELETE を実行する前にやっておくとよいことはどれですか?",
+    "options": [
+      "同じ WHERE 条件で SELECT して、対象の行を確かめる",
+      "表の名前を大文字にする",
+      "先に INSERT で同じ行を足しておく",
+      "ORDER BY で並べ替えておく"
+    ],
+    "explanation": "UPDATE や DELETE は取り消せません。先に同じ条件で SELECT して、何行が対象になるかを見てから実行するのが安全です。"
+  }
+]

@@ -1,0 +1,123 @@
+/* 色: 白・黒・グレー + アクセント1色。アクセント候補は :root の --accent を差し替えて選ぶ。 */
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b6b6b;
+  --line: #e2e2e2;
+  --surface: #f6f6f6;
+  /* アクセント: 深緑(2026-11-10 決定) */
+  --accent: #1f7a5c;
+  --error: #b42318;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+  color-scheme: light dark;
+}
+
+:root[data-theme="dark"] {
+  --bg: #141414;
+  --fg: #e8e8e8;
+  --muted: #9a9a9a;
+  --line: #333333;
+  --surface: #1f1f1f;
+  --accent: #5fbf98;
+  --error: #f07a6c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141414;
+    --fg: #e8e8e8;
+    --muted: #9a9a9a;
+    --line: #333333;
+    --surface: #1f1f1f;
+    --accent: #5fbf98;
+    --error: #f07a6c;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 17px; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  line-height: 1.8;
+}
+
+a { color: var(--accent); }
+
+.site-header {
+  border-bottom: 1px solid var(--line);
+}
+.site-header .inner {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0.8rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+.site-header a { color: var(--fg); text-decoration: none; }
+.site-header .brand { font-weight: 600; }
+.site-header nav a { color: var(--muted); margin-left: 1rem; font-size: 0.9rem; }
+
+main.prose {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1rem 6rem;
+}
+main.prose h1 { font-size: 1.7rem; line-height: 1.4; margin: 0 0 2rem; }
+main.prose h2 { font-size: 1.25rem; margin: 3rem 0 1rem; }
+main.prose p { margin: 0 0 1.2rem; }
+main.prose code { font-family: var(--mono); font-size: 0.9em; background: var(--surface); padding: 0.1em 0.35em; }
+main.prose pre { background: var(--surface); padding: 1rem; overflow-x: auto; font-family: var(--mono); font-size: 0.9rem; line-height: 1.6; }
+main.prose pre code { background: none; padding: 0; }
+main.prose table { border-collapse: collapse; width: 100%; margin: 0 0 1.5rem; font-size: 0.95rem; }
+main.prose th, main.prose td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.6rem; text-align: left; }
+main.prose th { color: var(--muted); font-weight: 600; }
+
+hr { border: 0; border-top: 1px solid var(--line); margin: 2.5rem 0; }
+
+.btn {
+  display: inline-block;
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn.secondary {
+  background: transparent;
+  color: var(--fg);
+  border-color: var(--line);
+}
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+.muted { color: var(--muted); }
+
+.lesson-list { list-style: none; padding: 0; margin: 0; }
+.lesson-list li { border-bottom: 1px solid var(--line); padding: 1rem 0; display: flex; gap: 1rem; align-items: baseline; }
+.lesson-list .num { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 1.5rem; }
+.lesson-list a { color: var(--fg); text-decoration: none; font-weight: 600; }
+.lesson-list .desc { color: var(--muted); font-size: 0.9rem; display: block; font-weight: 400; }
+
+/* Shiki のコード色分け。暗い表示のときは dark テーマの色を使う */
+main.prose pre.astro-code { border: 1px solid var(--line); }
+:root[data-theme="dark"] .astro-code,
+:root[data-theme="dark"] .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .astro-code,
+  :root:not([data-theme="light"]) .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+  }
+}

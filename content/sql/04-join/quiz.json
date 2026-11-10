@@ -1,0 +1,37 @@
+[
+  {
+    "question": "orders 表と customers 表を、注文の customer_id と顧客の id でつなぐ書き方はどれですか?",
+    "options": [
+      "FROM orders JOIN customers ON orders.customer_id = customers.id",
+      "FROM orders JOIN customers WHERE orders.customer_id = customers.id",
+      "FROM orders, customers ON orders.id = customers.id",
+      "FROM orders JOIN customers ON orders.id = customers.id"
+    ],
+    "explanation": "つなぐ条件は ON のあとに書きます。注文の customer_id と顧客の id が同じ行同士をつなぎます。orders.id(注文番号)と customers.id(顧客番号)をつなぐのは意味が違います。"
+  },
+  {
+    "question": "JOIN で列名の前に「表名.」を付ける理由はどれですか?",
+    "options": [
+      "両方の表に同じ名前の列があると、どちらか区別できないから",
+      "付けないとSQLが遅くなるから",
+      "列名を大文字にするため",
+      "JOIN では必ず付けなければエラーになるから"
+    ],
+    "explanation": "id のように両方の表にある列名は、表名.列名 の形でどちらの列かをはっきりさせます。片方にしかない列名なら省略できます。"
+  },
+  {
+    "question": "一度も注文していない顧客も結果に残したいとき、どれを使いますか?",
+    "options": ["LEFT JOIN", "JOIN", "GROUP BY", "HAVING"],
+    "explanation": "LEFT JOIN は左側(FROM に書いた表)の行をすべて残し、相手がいない部分は NULL になります。普通の JOIN は相手がいる行だけを残します。"
+  },
+  {
+    "question": "FROM orders AS o JOIN customers AS c ... と書いたとき、AS o の o は何ですか?",
+    "options": [
+      "orders 表の短い別名",
+      "orders 表の主キー",
+      "注文の件数",
+      "並べ替えの指定"
+    ],
+    "explanation": "AS で表に短い別名を付けられます。以後は o.id、c.name のように短く書けます。"
+  }
+]

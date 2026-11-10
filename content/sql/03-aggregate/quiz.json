@@ -1,0 +1,32 @@
+[
+  {
+    "question": "customers 表の行数(顧客の人数)を数えるSQLはどれですか?",
+    "options": [
+      "SELECT COUNT(*) FROM customers;",
+      "SELECT SUM(*) FROM customers;",
+      "SELECT COUNT FROM customers;",
+      "COUNT customers;"
+    ],
+    "explanation": "行数は COUNT(*) で数えます。SUM は合計を出す関数で、* は使えません。"
+  },
+  {
+    "question": "注文(orders)を status ごとに数えるには、どの句を使いますか?",
+    "options": ["GROUP BY status", "ORDER BY status", "WHERE status", "HAVING status"],
+    "explanation": "「〜ごとに」は GROUP BY です。ORDER BY は並べ替え、WHERE は行の絞り込みです。"
+  },
+  {
+    "question": "SELECT category, COUNT(*) FROM products GROUP BY category; の結果は何行になりますか?",
+    "options": [
+      "category の種類の数だけ",
+      "products の行数と同じ",
+      "必ず1行",
+      "COUNT(*) の値と同じ数"
+    ],
+    "explanation": "GROUP BY で指定した列の値ごとに1行にまとまるので、category の種類の数(このデータでは4行)になります。"
+  },
+  {
+    "question": "「平均価格が10,000円を超える分類だけ」を表示したいとき、集計結果で絞るのに使う句はどれですか?",
+    "options": ["HAVING", "WHERE", "LIMIT", "AS"],
+    "explanation": "集計した後の結果で絞るのは HAVING です。WHERE はグループにまとめる前の行を絞るので、AVG のような集計関数は使えません。"
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "follow-fk",
+    "title": "外部キーをたどる",
+    "text": "<p><code>orders</code> 表から、顧客番号(<code>customer_id</code>)が 2 の注文を、すべての列について取り出してください。これが「鈴木 花子さんの注文」です。</p>",
+    "answer": "SELECT * FROM orders WHERE customer_id = 2;",
+    "hints": [
+      "orders 表の customer_id が customers 表の id を指しています。WHERE で絞ります。",
+      "SELECT * FROM orders WHERE customer_id = 2;"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "join-prefecture",
+    "title": "分けた表をつないで集計する",
+    "text": "<p>都道府県(<code>customers.prefecture</code>)ごとの注文件数を、都道府県名と件数の2列で取り出してください。<code>orders</code> と <code>customers</code> をつなぐ必要があります。注文がない都道府県は含めなくて構いません。</p>",
+    "answer": "SELECT c.prefecture, COUNT(*) FROM orders AS o JOIN customers AS c ON o.customer_id = c.id GROUP BY c.prefecture;",
+    "hints": [
+      "都道府県は customers 表にしかないので、orders と customers を customer_id = id で JOIN します。",
+      "JOIN したあと GROUP BY customers.prefecture で都道府県ごとにまとめ、COUNT(*) で数えます。"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "create-table",
+    "title": "レビューの表を作る",
+    "text": "<p>商品のレビューを入れる <code>reviews</code> 表を作り、1行足してください。</p><p>列は次の3つです: <code>id</code>(整数、主キー)、<code>product_id</code>(整数、<code>products.id</code> を指す外部キー、空にできない)、<code>score</code>(整数、空にできない)。</p><p>作ったら、id: 1、product_id: 4、score: 5 の行を1つ足してください。</p>",
+    "answer": "CREATE TABLE reviews (id INTEGER PRIMARY KEY, product_id INTEGER NOT NULL REFERENCES products(id), score INTEGER NOT NULL); INSERT INTO reviews (id, product_id, score) VALUES (1, 4, 5);",
+    "hints": [
+      "CREATE TABLE reviews ( 列名 型 制約, ... ); の形で作ります。そのあとに INSERT 文を続けて書けます。",
+      "CREATE TABLE reviews (id INTEGER PRIMARY KEY, product_id INTEGER NOT NULL REFERENCES products(id), score INTEGER NOT NULL); INSERT INTO reviews (id, product_id, score) VALUES (1, 4, 5);"
+    ],
+    "mutation": true
+  }
+]

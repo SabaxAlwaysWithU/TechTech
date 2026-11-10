@@ -1,0 +1,375 @@
+---
+// 練習場。課題あり(レッスン)と課題なし(フリーモード)の両方で使う。
+import type { Task } from '../lib/content';
+interface Props {
+  lessonId?: string; // 例: sql/02-select。フリーモードでは未指定
+  lessonTitle?: string;
+  tasks?: Task[];
+  backHref?: string;
+  nextHref?: string;
+  nextLabel?: string;
+}
+const { lessonId, lessonTitle, tasks = [], backHref, nextHref, nextLabel } = Astro.props;
+const hasTasks = tasks.length > 0;
+---
+<main class="practice">
+  <div class="pane left">
+    <section class="task">
+      {hasTasks ? (
+        <>
+          <p class="eyebrow">{lessonTitle} の練習</p>
+          <nav class="task-tabs" id="task-tabs" aria-label="課題">
+            {tasks.map((t, i) => (
+              <button type="button" class="tab" data-index={i} aria-current={i === 0 ? 'true' : undefined}>
+                課題{i + 1}
+              </button>
+            ))}
+          </nav>
+          <h1 id="task-title">{tasks[0].title}</h1>
+          <div id="task-text" class="task-text" set:html={tasks[0].text} />
+          <div id="hints" class="hints">
+            <button type="button" class="btn secondary" id="hint-btn">ヒントを見る</button>
+            <ol id="hint-list" class="hint-list"></ol>
+            <details id="answer-box" hidden>
+              <summary>模範解答を見る</summary>
+              <pre id="answer-sql"></pre>
+            </details>
+          </div>
+          <div id="verdict" class="verdict" hidden></div>
+        </>
+      ) : (
+        <>
+          <h1>フリーモード</h1>
+          <p class="muted">課題はありません。4つの表に対して自由にSQLを試せます。</p>
+        </>
+      )}
+    </section>
+    <section class="tables">
+      <h2>使える表</h2>
+      <p class="muted small">表名を押すと中身が見られます。* は主キー。</p>
+      <ul id="table-list" class="table-list"><li class="muted">読み込み中…</li></ul>
+      <div id="table-view"></div>
+    </section>
+  </div>
+  <div class="pane right">
+    <section class="editor">
+      <label for="sql-input" class="label">SQL入力欄 <span class="muted">(Ctrl+Enter で実行)</span></label>
+      <textarea id="sql-input" spellcheck="false" placeholder="SELECT * FROM products;"></textarea>
+      <div class="actions">
+        <button id="run" class="btn" disabled>実行</button>
+        <button id="reset" class="btn secondary" disabled>リセット</button>
+        <span id="status" class="muted"></span>
+      </div>
+      {hasTasks && <p class="muted small">課題を選んでいる間は、実行のたびに表が初期状態に戻ってから実行されます。</p>}
+    </section>
+    <section class="output">
+      <h2>実行結果</h2>
+      <div id="result"><p class="muted">まだ実行していません。</p></div>
+    </section>
+    {hasTasks && (
+      <nav class="lesson-nav">
+        {backHref && <a href={backHref}>← 記事に戻る</a>}
+        {nextHref && <a href={nextHref}>{nextLabel ?? '次へ'} →</a>}
+      </nav>
+    )}
+  </div>
+</main>
+
+<script type="application/json" id="practice-data" set:html={JSON.stringify({ lessonId, tasks })} />
+
+<script>
+  import { createDb, listTables, tableColumns, tableContents, runSql, formatCell, type ResultSet, type RunResult, type RunError } from '../lib/sqldb';
+  import { judge } from '../lib/judge';
+  import { getProgress, markTaskCleared } from '../lib/progress';
+  import type { Task } from '../lib/content';
+  import type { Database } from 'sql.js';
+
+  const data = JSON.parse(document.getElementById('practice-data')!.textContent!) as { lessonId?: string; tasks: Task[] };
+  const tasks = data.tasks;
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const input = $<HTMLTextAreaElement>('sql-input');
+  const runBtn = $<HTMLButtonElement>('run');
+  const resetBtn = $<HTMLButtonElement>('reset');
+  const status = $('status');
+  const result = $('result');
+  const tableList = $('table-list');
+  const tableView = $('table-view');
+
+  let db: Database;
+  let openTable: string | null = null;
+  let taskIndex = 0;
+  let hintsShown = 0;
+
+  function renderTable(rs: ResultSet, limit = 200): HTMLElement {
+    const wrap = document.createElement('div');
+    wrap.className = 'table-wrap';
+    const t = document.createElement('table');
+    const thead = t.createTHead().insertRow();
+    for (const c of rs.columns) { const th = document.createElement('th'); th.textContent = c; thead.appendChild(th); }
+    const tbody = t.createTBody();
+    for (const row of rs.values.slice(0, limit)) {
+      const tr = tbody.insertRow();
+      for (const v of row) {
+        const td = tr.insertCell();
+        td.textContent = formatCell(v);
+        if (v === null) td.className = 'null';
+        if (typeof v === 'number') td.className = 'num';
+      }
+    }
+    wrap.appendChild(t);
+    const note = document.createElement('p');
+    note.className = 'muted small';
+    note.textContent = rs.values.length > limit ? `${rs.values.length}行(最初の${limit}行を表示)` : `${rs.values.length}行`;
+    wrap.appendChild(note);
+    return wrap;
+  }
+
+  function refreshTables() {
+    tableList.innerHTML = '';
+    for (const name of listTables(db)) {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'table-btn' + (openTable === name ? ' open' : '');
+      const cols = tableColumns(db, name).map((c) => (c.pk ? `${c.name}*` : c.name)).join(', ');
+      btn.innerHTML = `<strong></strong><span class="cols"></span>`;
+      btn.querySelector('strong')!.textContent = name;
+      btn.querySelector('.cols')!.textContent = cols;
+      btn.addEventListener('click', () => { openTable = openTable === name ? null : name; refreshTables(); });
+      li.appendChild(btn);
+      tableList.appendChild(li);
+    }
+    tableView.innerHTML = '';
+    if (openTable) tableView.appendChild(renderTable(tableContents(db, openTable)));
+  }
+
+  function showRun(r: RunResult | RunError) {
+    result.innerHTML = '';
+    if (!r.ok) {
+      const box = document.createElement('div');
+      box.className = 'error';
+      box.innerHTML = `<p class="hint"></p><p class="raw"></p>`;
+      box.querySelector('.hint')!.textContent = r.hint;
+      box.querySelector('.raw')!.textContent = `エラー: ${r.message}`;
+      result.appendChild(box);
+      return;
+    }
+    if (r.results.length === 0) {
+      const p = document.createElement('p');
+      p.className = 'ok';
+      p.textContent = r.rowsModified > 0 ? `${r.rowsModified}行を変更しました。` : '実行しました(表示する結果はありません)。';
+      result.appendChild(p);
+    } else {
+      for (const rs of r.results) result.appendChild(renderTable(rs));
+    }
+  }
+
+  // ---- 課題 ----
+  function currentTask(): Task | undefined { return tasks[taskIndex]; }
+
+  function renderTask() {
+    const t = currentTask();
+    if (!t) return;
+    hintsShown = 0;
+    $('task-title').textContent = t.title;
+    $('task-text').innerHTML = t.text;
+    $('hint-list').innerHTML = '';
+    const hintBtn = $<HTMLButtonElement>('hint-btn');
+    hintBtn.hidden = t.hints.length === 0;
+    hintBtn.textContent = 'ヒントを見る';
+    const ans = $<HTMLDetailsElement>('answer-box');
+    ans.hidden = true;
+    ans.open = false;
+    $('answer-sql').textContent = t.answer;
+    const verdict = $('verdict');
+    verdict.hidden = true;
+    verdict.className = 'verdict';
+    const cleared = data.lessonId ? getProgress(data.lessonId).tasks?.[t.id] : false;
+    for (const tab of document.querySelectorAll<HTMLButtonElement>('#task-tabs .tab')) {
+      const i = Number(tab.dataset.index);
+      tab.toggleAttribute('aria-current', i === taskIndex);
+      const done = data.lessonId ? getProgress(data.lessonId).tasks?.[tasks[i].id] : false;
+      tab.classList.toggle('done', !!done);
+    }
+    if (cleared) { verdict.hidden = false; verdict.classList.add('correct'); verdict.textContent = 'クリア済み。別の書き方も試してみましょう。'; }
+    input.value = '';
+    result.innerHTML = '<p class="muted">まだ実行していません。</p>';
+  }
+
+  function showHint() {
+    const t = currentTask();
+    if (!t) return;
+    if (hintsShown < t.hints.length) {
+      const li = document.createElement('li');
+      li.textContent = t.hints[hintsShown];
+      $('hint-list').appendChild(li);
+      hintsShown++;
+    }
+    const btn = $<HTMLButtonElement>('hint-btn');
+    if (hintsShown >= t.hints.length) {
+      btn.hidden = true;
+      $('answer-box').hidden = false;
+    } else {
+      btn.textContent = `次のヒントを見る(${hintsShown}/${t.hints.length})`;
+    }
+  }
+
+  async function run() {
+    const sql = input.value.trim();
+    if (!sql) return;
+    runBtn.disabled = true;
+    const t = currentTask();
+    if (t) {
+      // 課題モード: 初期状態のDBで実行し、模範解答の結果と比べる
+      const { judgement, userDb, userRun } = await judge(sql, t);
+      db?.close();
+      db = userDb;
+      showRun(userRun);
+      const verdict = $('verdict');
+      verdict.hidden = false;
+      verdict.className = 'verdict ' + (judgement.correct ? 'correct' : 'wrong');
+      if (judgement.correct) {
+        verdict.textContent = '正解です。';
+        if (data.lessonId) markTaskCleared(data.lessonId, t.id);
+        document.querySelector<HTMLButtonElement>(`#task-tabs .tab[data-index="${taskIndex}"]`)?.classList.add('done');
+      } else if (!userRun.ok) {
+        verdict.textContent = 'エラーになりました。右の実行結果を確認してください。';
+      } else {
+        verdict.textContent = `不正解: ${judgement.message}`;
+      }
+    } else {
+      showRun(runSql(db, sql));
+    }
+    status.textContent = `実行: ${new Date().toLocaleTimeString('ja-JP')}`;
+    refreshTables();
+    runBtn.disabled = false;
+  }
+
+  async function reset() {
+    runBtn.disabled = resetBtn.disabled = true;
+    status.textContent = '初期状態に戻しています…';
+    db?.close();
+    db = await createDb();
+    refreshTables();
+    runBtn.disabled = resetBtn.disabled = false;
+    status.textContent = '表を初期状態に戻しました。';
+  }
+
+  runBtn.addEventListener('click', run);
+  resetBtn.addEventListener('click', reset);
+  input.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(); }
+  });
+  document.getElementById('hint-btn')?.addEventListener('click', showHint);
+  document.getElementById('task-tabs')?.addEventListener('click', (e) => {
+    const tab = (e.target as HTMLElement).closest<HTMLButtonElement>('.tab');
+    if (!tab) return;
+    taskIndex = Number(tab.dataset.index);
+    renderTask();
+  });
+
+  // 記事の「練習場で試す」ボタンからは ?sql=... で開く
+  const params = new URLSearchParams(location.search);
+  const preset = params.get('sql');
+  const presetTask = Number(params.get('task'));
+  if (tasks.length && presetTask >= 1 && presetTask <= tasks.length) taskIndex = presetTask - 1;
+
+  (async () => {
+    try {
+      db = await createDb();
+      refreshTables();
+      if (tasks.length) renderTask();
+      if (preset) input.value = preset;
+      runBtn.disabled = resetBtn.disabled = false;
+      status.textContent = '';
+      if (preset && !tasks.length) run();
+    } catch (e) {
+      tableList.innerHTML = '';
+      result.innerHTML = `<div class="error"><p class="hint">データベースを読み込めませんでした。ページを再読み込みしてください。</p><p class="raw"></p></div>`;
+      result.querySelector('.raw')!.textContent = String(e);
+    }
+  })();
+</script>
+
+<style>
+  .practice {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+    display: grid;
+    grid-template-columns: minmax(16rem, 1fr) minmax(0, 2fr);
+    gap: 2rem;
+    font-size: 0.95rem;
+  }
+  @media (max-width: 760px) {
+    .practice { grid-template-columns: 1fr; }
+  }
+  .pane { min-width: 0; }
+  h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  h2 { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 2rem 0 0.4rem; font-weight: 600; }
+  .eyebrow { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.6rem; }
+  .task p { margin: 0 0 1rem; }
+  .task-text :global(p) { margin: 0 0 0.8rem; }
+  .task-text :global(code) { font-family: var(--mono); background: var(--surface); padding: 0.1em 0.35em; font-size: 0.9em; }
+  .task-tabs { display: flex; gap: 0.3rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .task-tabs .tab {
+    font: inherit; font-size: 0.85rem; padding: 0.3rem 0.8rem; cursor: pointer;
+    background: transparent; color: var(--muted); border: 1px solid var(--line);
+  }
+  .task-tabs .tab[aria-current] { color: var(--fg); border-color: var(--fg); }
+  .task-tabs .tab.done::after { content: ' ✓'; color: var(--accent); }
+  .hints { margin-top: 1rem; }
+  .hint-list { margin: 0.8rem 0 0; padding-left: 1.4rem; }
+  .hint-list :global(li) { margin-bottom: 0.4rem; }
+  details { margin-top: 0.8rem; }
+  summary { cursor: pointer; color: var(--accent); }
+  #answer-sql { font-family: var(--mono); font-size: 0.85rem; background: var(--surface); padding: 0.8rem; white-space: pre-wrap; margin: 0.5rem 0 0; }
+  .verdict { margin-top: 1rem; padding: 0.6rem 1rem; border-left: 3px solid var(--line); background: var(--surface); font-weight: 600; }
+  .verdict.correct { border-left-color: var(--accent); color: var(--accent); }
+  .verdict.wrong { border-left-color: var(--error); }
+  .label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; font-weight: 600; }
+  textarea {
+    width: 100%;
+    min-height: 10rem;
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding: 0.8rem;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--fg);
+    resize: vertical;
+    tab-size: 2;
+  }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+  .actions { display: flex; gap: 0.6rem; align-items: center; margin-top: 0.6rem; }
+  .actions .muted { font-size: 0.85rem; }
+  .small { font-size: 0.8rem; margin: 0.3rem 0 0.6rem; }
+  .lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+
+  /* 表の一覧はJavaScriptで生成するため :global で指定する */
+  .table-list { list-style: none; margin: 0; padding: 0; }
+  .table-list :global(li) { border-top: 1px solid var(--line); }
+  .table-list :global(li:last-child) { border-bottom: 1px solid var(--line); }
+  .table-list :global(.table-btn) {
+    display: block; width: 100%; text-align: left; font: inherit; color: var(--fg);
+    background: none; border: 0; padding: 0.6rem 0.3rem; cursor: pointer;
+  }
+  .table-list :global(.table-btn strong) { font-family: var(--mono); font-weight: 600; }
+  .table-list :global(.table-btn .cols) { display: block; color: var(--muted); font-family: var(--mono); font-size: 0.8rem; }
+  .table-list :global(.table-btn.open) { color: var(--accent); }
+  .table-list :global(.table-btn:hover) { background: var(--surface); }
+
+  :global(.table-wrap) { overflow-x: auto; margin: 0.8rem 0 1.2rem; }
+  :global(.table-wrap table) { border-collapse: collapse; font-family: var(--mono); font-size: 0.85rem; white-space: nowrap; }
+  :global(.table-wrap th), :global(.table-wrap td) { border: 1px solid var(--line); padding: 0.3rem 0.6rem; text-align: left; }
+  :global(.table-wrap th) { background: var(--surface); font-weight: 600; }
+  :global(.table-wrap td.num) { text-align: right; font-variant-numeric: tabular-nums; }
+  :global(.table-wrap td.null) { color: var(--muted); font-style: italic; }
+  :global(.table-wrap .small) { font-size: 0.8rem; margin: 0.3rem 0 0; }
+  :global(.error) { border-left: 3px solid var(--error); padding: 0.6rem 1rem; background: var(--surface); }
+  :global(.error .hint) { margin: 0 0 0.4rem; font-weight: 600; }
+  :global(.error .raw) { margin: 0; font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+  :global(.ok) { color: var(--accent); font-weight: 600; }
+</style>

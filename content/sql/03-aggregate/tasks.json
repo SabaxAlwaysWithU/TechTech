@@ -1,0 +1,35 @@
+[
+  {
+    "id": "count-orders",
+    "title": "注文の件数を数える",
+    "text": "<p><code>orders</code>(注文)表の行数を数えてください。結果は1行1列です。</p>",
+    "answer": "SELECT COUNT(*) FROM orders;",
+    "hints": [
+      "行数を数える関数は COUNT(*) です。",
+      "SELECT COUNT(*) FROM orders; と書きます。"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "group-by-category",
+    "title": "分類ごとの件数",
+    "text": "<p><code>products</code> 表を分類(<code>category</code>)ごとにまとめ、分類名と件数の2列を取り出してください。</p>",
+    "answer": "SELECT category, COUNT(*) FROM products GROUP BY category;",
+    "hints": [
+      "「〜ごとに」は GROUP BY category です。FROM products のあとに書きます。",
+      "SELECT には category と COUNT(*) の2つを書きます。"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "avg-by-category",
+    "title": "分類ごとの平均価格を高い順に",
+    "text": "<p><code>products</code> 表を分類ごとにまとめ、分類名と平均価格(<code>AVG(price)</code>)の2列を、平均価格の高い順に取り出してください。</p>",
+    "answer": "SELECT category, AVG(price) AS avg_price FROM products GROUP BY category ORDER BY avg_price DESC;",
+    "hints": [
+      "平均は AVG(price) です。GROUP BY category でまとめたあと、ORDER BY で並べます。",
+      "ORDER BY AVG(price) DESC と書くか、AS で名前を付けてその名前で並べます。"
+    ],
+    "ordered": true
+  }
+]

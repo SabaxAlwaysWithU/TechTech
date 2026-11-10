@@ -1,0 +1,35 @@
+[
+  {
+    "id": "insert-product",
+    "title": "商品を1つ足す",
+    "text": "<p><code>products</code> 表に、次の商品を足してください。</p><p>id: 16、name: マウスパッド、category: 周辺機器、price: 900</p>",
+    "answer": "INSERT INTO products (id, name, category, price) VALUES (16, 'マウスパッド', '周辺機器', 900);",
+    "hints": [
+      "INSERT INTO products (列名の並び) VALUES (値の並び) の形です。文字は ' で囲みます。",
+      "INSERT INTO products (id, name, category, price) VALUES (16, 'マウスパッド', '周辺機器', 900);"
+    ],
+    "mutation": true
+  },
+  {
+    "id": "update-status",
+    "title": "注文の状態を変える",
+    "text": "<p><code>orders</code> 表で、注文番号(<code>id</code>)が 17 の行の <code>status</code> を「発送済」に書き換えてください。ほかの行は変えないでください。</p>",
+    "answer": "UPDATE orders SET status = '発送済' WHERE id = 17;",
+    "hints": [
+      "UPDATE orders SET status = '新しい値' WHERE 条件 の形です。WHERE を忘れると全行が変わります。",
+      "UPDATE orders SET status = '発送済' WHERE id = 17;"
+    ],
+    "mutation": true
+  },
+  {
+    "id": "delete-items",
+    "title": "キャンセルされた注文の明細を消す",
+    "text": "<p><code>order_items</code> 表から、注文番号(<code>order_id</code>)が 5 の明細をすべて消してください。</p>",
+    "answer": "DELETE FROM order_items WHERE order_id = 5;",
+    "hints": [
+      "DELETE FROM 表名 WHERE 条件 の形です。列は指定しません。",
+      "DELETE FROM order_items WHERE order_id = 5;"
+    ],
+    "mutation": true
+  }
+]

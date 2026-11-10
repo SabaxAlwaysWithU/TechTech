@@ -1,0 +1,158 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { getLessons } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  const lessons = await getLessons();
+  return lessons.map((l) => ({ params: { field: l.field, lesson: l.slug }, props: { lesson: l } }));
+}
+const { lesson } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const practiceHref = `${base}/${lesson.field}/${lesson.slug}/practice/`;
+const articleHref = `${base}/${lesson.field}/${lesson.slug}/`;
+---
+<Base title={`クイズ — ${lesson.title}`}>
+  <main class="prose quiz">
+    <p class="eyebrow muted"><a href={articleHref}>{lesson.number}. {lesson.title}</a> · クイズ</p>
+    <h1>クイズ</h1>
+    <div id="quiz"></div>
+  </main>
+
+  <script type="application/json" id="quiz-data" set:html={JSON.stringify({ lessonId: lesson.id, questions: lesson.quiz, practiceHref, articleHref })} />
+
+  <script>
+    import { recordQuiz } from '../../../lib/progress';
+    import type { QuizQuestion } from '../../../lib/content';
+
+    const data = JSON.parse(document.getElementById('quiz-data')!.textContent!) as {
+      lessonId: string; questions: QuizQuestion[]; practiceHref: string; articleHref: string;
+    };
+    const root = document.getElementById('quiz')!;
+
+    function shuffle<T>(arr: T[]): T[] {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+      return a;
+    }
+
+    // 1回分の出題。indices は出題する問題番号(全問またはやり直し分)
+    function startRound(indices: number[], isRetry: boolean) {
+      let pos = 0;
+      const wrong: number[] = [];
+      let correctCount = 0;
+
+      function showQuestion() {
+        const qi = indices[pos];
+        const q = data.questions[qi];
+        const correctText = q.options[0];
+        const options = shuffle(q.options);
+        root.innerHTML = '';
+        const prog = document.createElement('p');
+        prog.className = 'muted progress';
+        prog.textContent = `${pos + 1} / ${indices.length} 問目${isRetry ? '(やり直し)' : ''}`;
+        const h = document.createElement('h2');
+        h.textContent = q.question;
+        const list = document.createElement('div');
+        list.className = 'options';
+        const fb = document.createElement('div');
+        fb.className = 'feedback';
+        fb.hidden = true;
+        root.append(prog, h, list, fb);
+
+        let answered = false;
+        for (const opt of options) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'option';
+          b.textContent = opt;
+          b.addEventListener('click', () => {
+            if (answered) return;
+            answered = true;
+            const ok = opt === correctText;
+            if (ok) correctCount++; else wrong.push(qi);
+            for (const other of list.querySelectorAll<HTMLButtonElement>('.option')) {
+              other.disabled = true;
+              if (other.textContent === correctText) other.classList.add('correct');
+              else if (other === b) other.classList.add('wrong');
+            }
+            fb.hidden = false;
+            fb.innerHTML = `<p class="result"></p><p class="explanation"></p>`;
+            fb.querySelector('.result')!.textContent = ok ? '正解' : '不正解';
+            fb.querySelector('.result')!.className = 'result ' + (ok ? 'is-correct' : 'is-wrong');
+            fb.querySelector('.explanation')!.textContent = q.explanation;
+            const next = document.createElement('button');
+            next.type = 'button';
+            next.className = 'btn';
+            next.textContent = pos + 1 < indices.length ? '次の問題へ' : '結果を見る';
+            next.addEventListener('click', () => { pos++; pos < indices.length ? showQuestion() : showResult(); });
+            fb.appendChild(next);
+            next.focus();
+          });
+          list.appendChild(b);
+        }
+      }
+
+      function showResult() {
+        if (!isRetry) recordQuiz(data.lessonId, correctCount, indices.length);
+        root.innerHTML = '';
+        const h = document.createElement('h2');
+        h.textContent = '結果';
+        const p = document.createElement('p');
+        p.className = 'score';
+        p.textContent = `${indices.length}問中 ${correctCount}問 正解`;
+        const actions = document.createElement('p');
+        actions.className = 'actions';
+        if (wrong.length) {
+          const retry = document.createElement('button');
+          retry.type = 'button';
+          retry.className = 'btn secondary';
+          retry.textContent = `間違えた${wrong.length}問をやり直す`;
+          retry.addEventListener('click', () => startRound(wrong, true));
+          actions.appendChild(retry);
+        }
+        const again = document.createElement('button');
+        again.type = 'button';
+        again.className = 'btn secondary';
+        again.textContent = '最初からやり直す';
+        again.addEventListener('click', () => startRound(data.questions.map((_, i) => i), false));
+        actions.appendChild(again);
+        const go = document.createElement('a');
+        go.className = 'btn';
+        go.href = data.practiceHref;
+        go.textContent = '練習場へ進む';
+        actions.appendChild(go);
+        root.append(h, p, actions);
+      }
+
+      showQuestion();
+    }
+
+    if (data.questions.length === 0) {
+      root.innerHTML = '<p class="muted">このレッスンのクイズはまだありません。</p>';
+    } else {
+      startRound(data.questions.map((_, i) => i), false);
+    }
+  </script>
+
+  <style>
+    .eyebrow { font-size: 0.85rem; margin: 0 0 0.5rem; }
+    .eyebrow a { color: var(--muted); text-decoration: none; }
+    .quiz :global(h2) { margin-top: 0.5rem; font-size: 1.2rem; }
+    .quiz :global(.progress) { font-size: 0.85rem; margin: 0; }
+    .quiz :global(.options) { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem 0; }
+    .quiz :global(.option) {
+      font: inherit; text-align: left; padding: 0.7rem 1rem; cursor: pointer;
+      background: transparent; color: var(--fg); border: 1px solid var(--line);
+    }
+    .quiz :global(.option:hover:not(:disabled)) { border-color: var(--fg); }
+    .quiz :global(.option:disabled) { cursor: default; color: var(--muted); }
+    .quiz :global(.option.correct) { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+    .quiz :global(.option.wrong) { border-color: var(--error); color: var(--error); }
+    .quiz :global(.feedback) { border-top: 1px solid var(--line); padding-top: 1rem; }
+    .quiz :global(.result) { font-weight: 600; margin: 0 0 0.4rem; }
+    .quiz :global(.result.is-correct) { color: var(--accent); }
+    .quiz :global(.result.is-wrong) { color: var(--error); }
+    .quiz :global(.score) { font-size: 1.4rem; font-weight: 600; }
+    .quiz :global(.actions) { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  </style>
+</Base>

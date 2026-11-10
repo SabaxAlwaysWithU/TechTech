@@ -1,0 +1,13 @@
+---
+import Base from '../../layouts/Base.astro';
+import Practice from '../../components/Practice.astro';
+import { getFields } from '../../lib/content';
+
+export function getStaticPaths() {
+  return getFields().map((f) => ({ params: { field: f.id }, props: { field: f } }));
+}
+const { field } = Astro.props;
+---
+<Base title={`練習場 — ${field.title}`} wide>
+  <Practice />
+</Base>

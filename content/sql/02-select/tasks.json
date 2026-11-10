@@ -1,0 +1,35 @@
+[
+  {
+    "id": "select-columns",
+    "title": "商品名と価格を取り出す",
+    "text": "<p><code>products</code> 表から、<code>name</code> と <code>price</code> の2列を、すべての行について取り出してください。</p>",
+    "answer": "SELECT name, price FROM products;",
+    "hints": [
+      "SELECT のあとに列名をカンマで区切って書き、FROM のあとに表名を書きます。",
+      "SELECT name, price FROM ... の「...」に表名 products を入れます。"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "where-category",
+    "title": "分類で絞る",
+    "text": "<p><code>products</code> 表から、分類(<code>category</code>)が「ケーブル」の商品の <code>name</code> と <code>price</code> を取り出してください。</p>",
+    "answer": "SELECT name, price FROM products WHERE category = 'ケーブル';",
+    "hints": [
+      "行を絞るには WHERE を使います。FROM products のあとに書きます。",
+      "文字と比べるときは、値を '(シングルクォート)で囲みます: WHERE category = 'ケーブル'"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "order-desc",
+    "title": "高い順に並べる",
+    "text": "<p><code>products</code> 表から、価格(<code>price</code>)が10,000円以上の商品の <code>name</code> と <code>price</code> を、価格の高い順に取り出してください。</p>",
+    "answer": "SELECT name, price FROM products WHERE price >= 10000 ORDER BY price DESC;",
+    "hints": [
+      "「以上」は >= で書きます。並べ替えは ORDER BY で、WHERE のあとに書きます。",
+      "高い順(降順)にするには ORDER BY price DESC のように DESC を付けます。"
+    ],
+    "ordered": true
+  }
+]

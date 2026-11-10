@@ -1,0 +1,35 @@
+[
+  {
+    "id": "join-orders-customers",
+    "title": "注文に顧客の名前を付ける",
+    "text": "<p><code>orders</code> 表と <code>customers</code> 表をつなぎ、注文番号(<code>orders.id</code>)と顧客名(<code>customers.name</code>)の2列を、すべての注文について取り出してください。</p>",
+    "answer": "SELECT o.id, c.name FROM orders AS o JOIN customers AS c ON o.customer_id = c.id;",
+    "hints": [
+      "FROM orders JOIN customers ON ... の形で、注文の customer_id と顧客の id をつなぎます。",
+      "SELECT orders.id, customers.name FROM orders JOIN customers ON orders.customer_id = customers.id;"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "join-items-products",
+    "title": "注文1の中身",
+    "text": "<p><code>order_items</code> 表と <code>products</code> 表をつなぎ、注文番号(<code>order_id</code>)が 1 の明細について、商品名(<code>products.name</code>)と数量(<code>quantity</code>)の2列を取り出してください。</p>",
+    "answer": "SELECT p.name, oi.quantity FROM order_items AS oi JOIN products AS p ON oi.product_id = p.id WHERE oi.order_id = 1;",
+    "hints": [
+      "明細の product_id と商品の id でつなぎます。絞り込みは WHERE order_id = 1 です。",
+      "SELECT products.name, order_items.quantity FROM order_items JOIN products ON order_items.product_id = products.id WHERE order_items.order_id = 1;"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "join-count",
+    "title": "顧客ごとの注文件数",
+    "text": "<p><code>orders</code> と <code>customers</code> をつなぎ、顧客名と注文件数の2列を取り出してください。注文が1件もない顧客は含めなくて構いません。並び順は問いません。</p>",
+    "answer": "SELECT c.name, COUNT(*) AS n FROM orders AS o JOIN customers AS c ON o.customer_id = c.id GROUP BY c.id;",
+    "hints": [
+      "JOIN したあとに GROUP BY customers.id で顧客ごとにまとめ、COUNT(*) で数えます。",
+      "SELECT c.name, COUNT(*) FROM orders o JOIN customers c ON o.customer_id = c.id GROUP BY c.id;"
+    ],
+    "ordered": false
+  }
+]

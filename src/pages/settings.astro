@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="設定 — PC基礎学習">
+  <main class="prose">
+    <h1>設定</h1>
+
+    <h2>表示</h2>
+    <p>
+      <button class="btn secondary" data-theme="light">明るい表示</button>
+      <button class="btn secondary" data-theme="dark">暗い表示</button>
+      <button class="btn secondary" data-theme="">端末の設定に合わせる</button>
+    </p>
+
+    <h2>記録</h2>
+    <p class="muted">記事の既読、クイズの正答数、練習場のクリア状況はこのブラウザの中にだけ保存されています。</p>
+    <p><button id="reset-progress" class="btn secondary">進捗をすべて消す</button> <span id="reset-msg" class="muted"></span></p>
+  </main>
+
+  <script>
+    import { resetProgress } from '../lib/progress';
+    for (const b of document.querySelectorAll<HTMLButtonElement>('[data-theme]')) {
+      b.addEventListener('click', () => {
+        const t = b.dataset.theme!;
+        try { t ? localStorage.setItem('theme', t) : localStorage.removeItem('theme'); } catch {}
+        if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
+      });
+    }
+    document.getElementById('reset-progress')!.addEventListener('click', () => {
+      if (!confirm('進捗の記録をすべて消します。よろしいですか?')) return;
+      resetProgress();
+      document.getElementById('reset-msg')!.textContent = '消しました。';
+    });
+  </script>
+</Base>
