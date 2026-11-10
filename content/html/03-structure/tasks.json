@@ -1,0 +1,35 @@
+[
+  {
+    "id": "skeleton",
+    "title": "骨組みを書く",
+    "text": "<p>完全な形のページを書いてください。</p><ul><li><code>head</code> の中に <code>meta charset=\"UTF-8\"</code> と、題名「自己紹介」の <code>title</code></li><li><code>body</code> の中に <code>h1</code> を1つ</li></ul>",
+    "starter": "<!DOCTYPE html>\n<html lang=\"ja\">\n  <head>\n\n  </head>\n  <body>\n\n  </body>\n</html>\n",
+    "answer": "<!DOCTYPE html>\n<html lang=\"ja\">\n  <head>\n    <meta charset=\"UTF-8\">\n    <title>自己紹介</title>\n  </head>\n  <body>\n    <h1>自己紹介</h1>\n  </body>\n</html>",
+    "hints": [
+      "head の中に <meta charset=\"UTF-8\"> と <title>自己紹介</title> を書きます。",
+      "body の中に <h1>自己紹介</h1> を書きます。title はタブの題名、h1 は画面の見出しです。"
+    ],
+    "checks": [
+      { "selector": "head > meta[charset]", "message": "head の中に <meta charset=\"UTF-8\"> がありません。" },
+      { "selector": "head > title", "text": "自己紹介", "message": "head の中に <title>自己紹介</title> がありません。" },
+      { "selector": "body > h1", "message": "body の中に h1 がありません。" }
+    ]
+  },
+  {
+    "id": "sections",
+    "title": "場所を区切る",
+    "text": "<p><code>body</code> の中を3つに区切ってください。</p><ul><li><code>header</code> の中に <code>h1</code></li><li><code>main</code> の中に <code>p</code> を1つ以上</li><li><code>footer</code> の中に <code>p</code> を1つ</li></ul>",
+    "starter": "<header>\n\n</header>\n<main>\n\n</main>\n<footer>\n\n</footer>\n",
+    "answer": "<header>\n  <h1>さばのレシピ帳</h1>\n</header>\n<main>\n  <p>卵焼きの作り方です。</p>\n</main>\n<footer>\n  <p>© 2026 さば</p>\n</footer>",
+    "hints": [
+      "header、main、footer はそれぞれ入れ物です。その中に h1 や p を書きます。",
+      "<header><h1>題名</h1></header> <main><p>本文</p></main> <footer><p>©...</p></footer>"
+    ],
+    "checks": [
+      { "selector": "header h1", "message": "header の中に h1 がありません。" },
+      { "selector": "main p", "message": "main の中に p がありません。" },
+      { "selector": "footer p", "message": "footer の中に p がありません。" },
+      { "selector": "main", "count": 1, "message": "main は1つだけにしてください。" }
+    ]
+  }
+]

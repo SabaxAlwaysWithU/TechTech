@@ -1,0 +1,48 @@
+[
+  {
+    "id": "color",
+    "title": "見出しを赤にする",
+    "text": "<p><code>style</code> の中にCSSを書いて、<code>h1</code> の文字色(<code>color</code>)を <code>red</code> にしてください。</p>",
+    "starter": "<style>\n\n</style>\n<h1>今日の献立</h1>\n<p>朝はトーストにしました。</p>\n",
+    "answer": "<style>\n  h1 {\n    color: red;\n  }\n</style>\n<h1>今日の献立</h1>\n<p>朝はトーストにしました。</p>",
+    "hints": [
+      "style の中に h1 { ... } を書き、その中にプロパティを入れます。",
+      "h1 { color: red; } と書きます。値のあとの ; を忘れずに。"
+    ],
+    "checks": [
+      { "selector": "h1", "message": "h1 がありません。" },
+      { "selector": "h1", "css": { "color": "rgb(255, 0, 0)" }, "message": "h1 の文字色が赤(red)になっていません。" }
+    ]
+  },
+  {
+    "id": "class",
+    "title": "class で一部だけ変える",
+    "text": "<p>2つ目の段落にだけ class <code>note</code> を付け、CSSで <code>.note</code> の背景色(<code>background-color</code>)を <code>yellow</code> にしてください。1つ目の段落の背景は変えないでください。</p>",
+    "starter": "<style>\n\n</style>\n<p>普通の段落です。</p>\n<p>この段落だけ背景を黄色にします。</p>\n",
+    "answer": "<style>\n  .note {\n    background-color: yellow;\n  }\n</style>\n<p>普通の段落です。</p>\n<p class=\"note\">この段落だけ背景を黄色にします。</p>",
+    "hints": [
+      "HTML側で <p class=\"note\"> と目印を付け、CSS側では .note { ... } で選びます。",
+      ".note { background-color: yellow; } と書き、2つ目の p に class=\"note\" を付けます。"
+    ],
+    "checks": [
+      { "selector": "p.note", "count": 1, "message": "class=\"note\" を付けた p が1つだけ必要です。" },
+      { "selector": "p.note", "css": { "background-color": "rgb(255, 255, 0)" }, "message": ".note の背景色が yellow になっていません。" },
+      { "selector": "p:not(.note)", "css": { "background-color": "rgba(0, 0, 0, 0)" }, "message": "class のない段落の背景色は変えないでください。" }
+    ]
+  },
+  {
+    "id": "font-size",
+    "title": "文字の大きさと寄せ",
+    "text": "<p><code>h1</code> を中央寄せ(<code>text-align: center</code>)にし、<code>p</code> の文字の大きさ(<code>font-size</code>)を <code>20px</code> にしてください。</p>",
+    "starter": "<style>\n\n</style>\n<h1>今日の献立</h1>\n<p>朝はトーストにしました。</p>\n",
+    "answer": "<style>\n  h1 {\n    text-align: center;\n  }\n  p {\n    font-size: 20px;\n  }\n</style>\n<h1>今日の献立</h1>\n<p>朝はトーストにしました。</p>",
+    "hints": [
+      "h1 { ... } と p { ... } の2つのまとまりを style の中に書きます。",
+      "h1 { text-align: center; } p { font-size: 20px; }"
+    ],
+    "checks": [
+      { "selector": "h1", "css": { "text-align": "center" }, "message": "h1 が中央寄せになっていません。" },
+      { "selector": "p", "css": { "font-size": "20px" }, "message": "p の文字の大きさが 20px になっていません。" }
+    ]
+  }
+]

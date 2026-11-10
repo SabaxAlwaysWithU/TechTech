@@ -1,0 +1,27 @@
+[
+  {
+    "question": "画面に表示する中身を書く場所はどこですか?",
+    "options": ["body", "head", "title", "html"],
+    "explanation": "表示する中身は body に書きます。head はページの情報(文字コードや題名)で、画面には出ません。"
+  },
+  {
+    "question": "ブラウザのタブに表示される題名を決める要素はどれですか?",
+    "options": ["title", "h1", "header", "name"],
+    "explanation": "title は head の中に書き、タブや検索結果に出る題名になります。h1 はページ内に表示される見出しです。"
+  },
+  {
+    "question": "<meta charset=\"UTF-8\"> の役割はどれですか?",
+    "options": [
+      "文字コードを指定して、文字化けを防ぐ",
+      "ページの背景色を決める",
+      "ページを日本語に翻訳する",
+      "文字の大きさを決める"
+    ],
+    "explanation": "charset は文字コードの指定です。UTF-8 を指定しておくと日本語が正しく表示されます。"
+  },
+  {
+    "question": "ページの本体を表し、1ページに1つだけ置く要素はどれですか?",
+    "options": ["main", "div", "section", "body"],
+    "explanation": "main はページの本体で、1ページに1つだけです。div は役割のない入れ物、section は章で、いくつでも置けます。body は全体の入れ物です。"
+  }
+]

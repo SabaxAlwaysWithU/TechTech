@@ -1,8 +1,10 @@
 ---
 import '../styles/global.css';
+import { getFields } from '../lib/content';
 interface Props { title: string; wide?: boolean }
 const { title, wide = false } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const fields = getFields();
 ---
 <!doctype html>
 <html lang="ja">
@@ -20,11 +22,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   </head>
   <body>
     <header class="site-header">
-      <div class="inner" style={wide ? 'max-width: 72rem' : ''}>
+      <div class="inner" style={wide ? 'max-width: 80rem' : ''}>
         <a class="brand" href={`${base}/`}>PC基礎学習</a>
         <nav>
-          <a href={`${base}/sql/`}>SQL</a>
-          <a href={`${base}/sql/practice/`}>練習場</a>
+          {fields.map((f) => <a href={`${base}/${f.id}/`}>{f.title.replace(/\(.*\)$/, '')}</a>)}
           <a href={`${base}/settings/`}>設定</a>
         </nav>
       </div>

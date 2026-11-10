@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
-import { getLessons } from '../../../lib/content';
+import { getLessons, getField } from '../../../lib/content';
 
 export async function getStaticPaths() {
   const lessons = await getLessons();
@@ -12,14 +12,17 @@ export async function getStaticPaths() {
   }));
 }
 const { lesson, article } = Astro.props;
+const field = getField(lesson.field)!;
 const { Content } = await render(article);
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const practiceHref = `${base}/${lesson.field}/${lesson.slug}/practice/`;
 const quizHref = `${base}/${lesson.field}/${lesson.slug}/quiz/`;
+// 練習場に渡すときのパラメータ名(SQLは ?sql=、HTMLは ?code=)
+const param = field.practice === 'sql' ? 'sql' : 'code';
 ---
-<Base title={`${lesson.title} — ${lesson.field.toUpperCase()}`}>
-  <main class="prose article" data-lesson={lesson.id} data-practice={practiceHref}>
-    <p class="eyebrow muted"><a href={`${base}/${lesson.field}/`}>{lesson.field.toUpperCase()}</a> · レッスン{lesson.number}</p>
+<Base title={`${lesson.title} — ${field.title}`}>
+  <main class="prose article" data-lesson={lesson.id} data-practice={practiceHref} data-param={param} data-languages={field.languages.join(',')}>
+    <p class="eyebrow muted"><a href={`${base}/${lesson.field}/`}>{field.title}</a> · レッスン{lesson.number}</p>
     <h1>{lesson.title}</h1>
     <Content />
     <hr />
@@ -35,15 +38,18 @@ const quizHref = `${base}/${lesson.field}/${lesson.slug}/quiz/`;
     const main = document.querySelector<HTMLElement>('main.article')!;
     markRead(main.dataset.lesson!);
 
-    // SQLのコード例に「練習場で試す」ボタンを付ける
+    // 分野の言語のコード例に「練習場で試す」ボタンを付ける
     const practice = main.dataset.practice!;
-    for (const pre of main.querySelectorAll<HTMLElement>('pre[data-language="sql"]')) {
-      const sql = pre.textContent?.trim() ?? '';
-      if (!sql) continue;
+    const param = main.dataset.param!;
+    const languages = main.dataset.languages!.split(',');
+    for (const pre of main.querySelectorAll<HTMLElement>('pre[data-language]')) {
+      if (!languages.includes(pre.dataset.language!)) continue;
+      const code = pre.textContent?.trim() ?? '';
+      if (!code) continue;
       const wrap = document.createElement('div');
       wrap.className = 'try';
       const a = document.createElement('a');
-      a.href = `${practice}?sql=${encodeURIComponent(sql)}`;
+      a.href = `${practice}?${param}=${encodeURIComponent(code)}`;
       a.textContent = '練習場で試す →';
       wrap.appendChild(a);
       pre.insertAdjacentElement('afterend', wrap);

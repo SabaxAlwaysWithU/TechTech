@@ -314,18 +314,19 @@ const hasTasks = tasks.length > 0;
   .task-text :global(code) { font-family: var(--mono); background: var(--surface); padding: 0.1em 0.35em; font-size: 0.9em; }
   .task-tabs { display: flex; gap: 0.3rem; margin-bottom: 1rem; flex-wrap: wrap; }
   .task-tabs .tab {
-    font: inherit; font-size: 0.85rem; padding: 0.3rem 0.8rem; cursor: pointer;
-    background: transparent; color: var(--muted); border: 1px solid var(--line);
+    font: inherit; font-size: 0.85rem; padding: 0.3rem 0.9rem; cursor: pointer;
+    background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px;
   }
-  .task-tabs .tab[aria-current] { color: var(--fg); border-color: var(--fg); }
+  .task-tabs .tab:hover { background: var(--surface); }
+  .task-tabs .tab[aria-current] { color: var(--fg); border-color: var(--fg); background: var(--surface); }
   .task-tabs .tab.done::after { content: ' ✓'; color: var(--accent); }
   .hints { margin-top: 1rem; }
   .hint-list { margin: 0.8rem 0 0; padding-left: 1.4rem; }
   .hint-list :global(li) { margin-bottom: 0.4rem; }
   details { margin-top: 0.8rem; }
   summary { cursor: pointer; color: var(--accent); }
-  #answer-sql { font-family: var(--mono); font-size: 0.85rem; background: var(--surface); padding: 0.8rem; white-space: pre-wrap; margin: 0.5rem 0 0; }
-  .verdict { margin-top: 1rem; padding: 0.6rem 1rem; border-left: 3px solid var(--line); background: var(--surface); font-weight: 600; }
+  #answer-sql { font-family: var(--mono); font-size: 0.85rem; background: var(--surface); padding: 0.8rem 1rem; white-space: pre-wrap; margin: 0.5rem 0 0; border-radius: var(--radius-sm); }
+  .verdict { margin-top: 1rem; padding: 0.7rem 1rem; border-left: 4px solid var(--line); background: var(--surface); font-weight: 600; border-radius: var(--radius-sm); }
   .verdict.correct { border-left-color: var(--accent); color: var(--accent); }
   .verdict.wrong { border-left-color: var(--error); }
   .label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; font-weight: 600; }
@@ -337,6 +338,7 @@ const hasTasks = tasks.length > 0;
     line-height: 1.6;
     padding: 0.8rem;
     border: 1px solid var(--line);
+    border-radius: var(--radius);
     background: var(--surface);
     color: var(--fg);
     resize: vertical;
@@ -349,26 +351,27 @@ const hasTasks = tasks.length > 0;
   .lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
 
   /* 表の一覧はJavaScriptで生成するため :global で指定する */
-  .table-list { list-style: none; margin: 0; padding: 0; }
-  .table-list :global(li) { border-top: 1px solid var(--line); }
-  .table-list :global(li:last-child) { border-bottom: 1px solid var(--line); }
+  .table-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
   .table-list :global(.table-btn) {
     display: block; width: 100%; text-align: left; font: inherit; color: var(--fg);
-    background: none; border: 0; padding: 0.6rem 0.3rem; cursor: pointer;
+    background: none; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0.5rem 0.8rem; cursor: pointer;
   }
+  .table-list :global(.table-btn.open) { border-color: var(--accent); }
   .table-list :global(.table-btn strong) { font-family: var(--mono); font-weight: 600; }
   .table-list :global(.table-btn .cols) { display: block; color: var(--muted); font-family: var(--mono); font-size: 0.8rem; }
   .table-list :global(.table-btn.open) { color: var(--accent); }
   .table-list :global(.table-btn:hover) { background: var(--surface); }
 
   :global(.table-wrap) { overflow-x: auto; margin: 0.8rem 0 1.2rem; }
-  :global(.table-wrap table) { border-collapse: collapse; font-family: var(--mono); font-size: 0.85rem; white-space: nowrap; }
-  :global(.table-wrap th), :global(.table-wrap td) { border: 1px solid var(--line); padding: 0.3rem 0.6rem; text-align: left; }
+  :global(.table-wrap table) { border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; font-family: var(--mono); font-size: 0.85rem; white-space: nowrap; }
+  :global(.table-wrap th), :global(.table-wrap td) { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); padding: 0.35rem 0.7rem; text-align: left; }
+  :global(.table-wrap th:last-child), :global(.table-wrap td:last-child) { border-right: 0; }
+  :global(.table-wrap tr:last-child td) { border-bottom: 0; }
   :global(.table-wrap th) { background: var(--surface); font-weight: 600; }
   :global(.table-wrap td.num) { text-align: right; font-variant-numeric: tabular-nums; }
   :global(.table-wrap td.null) { color: var(--muted); font-style: italic; }
   :global(.table-wrap .small) { font-size: 0.8rem; margin: 0.3rem 0 0; }
-  :global(.error) { border-left: 3px solid var(--error); padding: 0.6rem 1rem; background: var(--surface); }
+  :global(.error) { border-left: 4px solid var(--error); padding: 0.7rem 1rem; background: var(--surface); border-radius: var(--radius-sm); }
   :global(.error .hint) { margin: 0 0 0.4rem; font-weight: 600; }
   :global(.error .raw) { margin: 0; font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
   :global(.ok) { color: var(--accent); font-weight: 600; }

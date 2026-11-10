@@ -51,7 +51,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   </script>
 
   <style>
-    .status { display: block; font-size: 0.8rem; margin-top: 0.2rem; }
+    .status { display: block; font-size: 0.8rem; margin-top: 0.3rem; }
+    .lesson-list li.complete { border-color: var(--accent); }
     .lesson-list li.complete .num { color: var(--accent); }
     .lesson-list li.complete .num::after { content: ' ✓'; }
   </style>

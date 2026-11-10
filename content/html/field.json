@@ -1,0 +1,7 @@
+{
+  "title": "HTMLとCSS",
+  "description": "全6レッスン。Webページの骨組みを書き、見た目を整える。",
+  "order": 2,
+  "practice": "html",
+  "languages": ["html", "css"]
+}

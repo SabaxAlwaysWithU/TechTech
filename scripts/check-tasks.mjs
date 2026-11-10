@@ -9,9 +9,9 @@ const root = join(import.meta.dirname, '..', 'content');
 let failures = 0;
 
 for (const field of readdirSync(root)) {
+  if (!statSync(join(root, field)).isDirectory()) continue;
   const schemaPath = join(root, field, 'schema.sql');
-  if (!existsSync(schemaPath)) continue;
-  const schema = readFileSync(schemaPath, 'utf8');
+  const schema = existsSync(schemaPath) ? readFileSync(schemaPath, 'utf8') : '';
   for (const lesson of readdirSync(join(root, field)).filter((d) => statSync(join(root, field, d)).isDirectory())) {
     const dir = join(root, field, lesson);
     const tasksPath = join(dir, 'tasks.json');
@@ -32,7 +32,17 @@ for (const field of readdirSync(root)) {
       }
       console.log(`  クイズ: ${quiz.length}問`);
     }
-    if (existsSync(tasksPath)) {
+    if (existsSync(tasksPath) && !existsSync(schemaPath)) {
+      // SQL以外(HTMLなど): 構造だけ確かめる。模範解答の検証はブラウザのテストで行う
+      const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
+      for (const t of tasks) {
+        if (!Array.isArray(t.checks) || t.checks.length === 0) { console.log(`  !! 課題 ${t.id}: checks がありません`); failures++; }
+        if (!t.answer) { console.log(`  !! 課題 ${t.id}: answer(模範解答)がありません`); failures++; }
+        if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); failures++; }
+        console.log(`  課題 ${t.id}: 判定条件 ${t.checks?.length ?? 0}件`);
+      }
+    }
+    if (existsSync(tasksPath) && existsSync(schemaPath)) {
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
         const db = new SQL.Database();

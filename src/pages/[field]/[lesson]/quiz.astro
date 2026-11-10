@@ -141,14 +141,15 @@ const articleHref = `${base}/${lesson.field}/${lesson.slug}/`;
     .quiz :global(.progress) { font-size: 0.85rem; margin: 0; }
     .quiz :global(.options) { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem 0; }
     .quiz :global(.option) {
-      font: inherit; text-align: left; padding: 0.7rem 1rem; cursor: pointer;
-      background: transparent; color: var(--fg); border: 1px solid var(--line);
+      font: inherit; text-align: left; padding: 0.8rem 1.1rem; cursor: pointer;
+      background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: var(--radius);
+      transition: border-color 0.15s, background-color 0.15s;
     }
-    .quiz :global(.option:hover:not(:disabled)) { border-color: var(--fg); }
+    .quiz :global(.option:hover:not(:disabled)) { border-color: var(--fg); background: var(--surface); }
     .quiz :global(.option:disabled) { cursor: default; color: var(--muted); }
     .quiz :global(.option.correct) { border-color: var(--accent); color: var(--accent); font-weight: 600; }
     .quiz :global(.option.wrong) { border-color: var(--error); color: var(--error); }
-    .quiz :global(.feedback) { border-top: 1px solid var(--line); padding-top: 1rem; }
+    .quiz :global(.feedback) { background: var(--surface); border-radius: var(--radius); padding: 1rem 1.2rem; }
     .quiz :global(.result) { font-weight: 600; margin: 0 0 0.4rem; }
     .quiz :global(.result.is-correct) { color: var(--accent); }
     .quiz :global(.result.is-wrong) { color: var(--error); }

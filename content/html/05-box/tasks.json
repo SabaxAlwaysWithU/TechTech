@@ -1,0 +1,50 @@
+[
+  {
+    "id": "border-padding",
+    "title": "枠線と内側の余白",
+    "text": "<p>class <code>box</code> の要素に、<code>2px</code> の実線(<code>solid</code>)の枠線と、<code>16px</code> の内側の余白(<code>padding</code>)を付けてください。枠線の色は自由です。</p>",
+    "starter": "<style>\n  .box {\n\n  }\n</style>\n<p class=\"box\">この段落は箱です。</p>\n",
+    "answer": "<style>\n  .box {\n    border: 2px solid #1f7a5c;\n    padding: 16px;\n  }\n</style>\n<p class=\"box\">この段落は箱です。</p>",
+    "hints": [
+      "枠線は border: 太さ 種類 色; です。内側の余白は padding: 16px; です。",
+      ".box { border: 2px solid green; padding: 16px; }"
+    ],
+    "checks": [
+      { "selector": ".box", "message": "class=\"box\" の要素がありません。" },
+      { "selector": ".box", "css": { "border-top-width": "2px", "border-top-style": "solid" }, "message": "2px の実線の枠線(border: 2px solid 色)になっていません。" },
+      { "selector": ".box", "css": { "padding-top": "16px", "padding-left": "16px" }, "message": "padding が 16px になっていません。" }
+    ]
+  },
+  {
+    "id": "margin",
+    "title": "箱同士の距離",
+    "text": "<p>2つの箱(class <code>box</code>)の間を空けるため、<code>.box</code> の外側の余白(<code>margin</code>)を上下左右 <code>24px</code> にしてください。枠線は付けたままにします。</p>",
+    "starter": "<style>\n  .box {\n    border: 2px solid #1f7a5c;\n    padding: 16px;\n  }\n</style>\n<p class=\"box\">1つ目の箱</p>\n<p class=\"box\">2つ目の箱</p>\n",
+    "answer": "<style>\n  .box {\n    border: 2px solid #1f7a5c;\n    padding: 16px;\n    margin: 24px;\n  }\n</style>\n<p class=\"box\">1つ目の箱</p>\n<p class=\"box\">2つ目の箱</p>",
+    "hints": [
+      "外側の余白は margin です。.box の中に1行足します。",
+      "margin: 24px; を .box に追加します。"
+    ],
+    "checks": [
+      { "selector": ".box", "count": 2, "message": "class=\"box\" の要素が2つ必要です。" },
+      { "selector": ".box", "css": { "margin-top": "24px", "margin-left": "24px" }, "message": ".box の margin が 24px になっていません。" },
+      { "selector": ".box", "css": { "border-top-width": "2px" }, "message": "枠線は消さないでください。" }
+    ]
+  },
+  {
+    "id": "width-center",
+    "title": "幅を決めて中央に置く",
+    "text": "<p><code>.card</code> の幅(<code>width</code>)を <code>300px</code> にし、<code>margin: 0 auto</code> で中央に置いてください。</p>",
+    "starter": "<style>\n  .card {\n    border: 2px solid #1f7a5c;\n    padding: 16px;\n  }\n</style>\n<div class=\"card\">\n  <h2>カード</h2>\n  <p>幅を決めて中央に置きます。</p>\n</div>\n",
+    "answer": "<style>\n  .card {\n    border: 2px solid #1f7a5c;\n    padding: 16px;\n    width: 300px;\n    margin: 0 auto;\n  }\n</style>\n<div class=\"card\">\n  <h2>カード</h2>\n  <p>幅を決めて中央に置きます。</p>\n</div>",
+    "hints": [
+      "幅は width: 300px; です。中央寄せは margin の左右を auto にします。",
+      "width: 300px; margin: 0 auto; の2行を .card に追加します。"
+    ],
+    "checks": [
+      { "selector": ".card", "css": { "width": "300px" }, "message": ".card の幅が 300px になっていません。" },
+      { "selector": ".card", "css": { "margin-top": "0px" }, "message": "margin の上下は 0 にしてください(margin: 0 auto)。" },
+      { "selector": ".card", "message": "class=\"card\" の要素がありません。" }
+    ]
+  }
+]

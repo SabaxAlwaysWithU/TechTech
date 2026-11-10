@@ -47,13 +47,27 @@ public/sql-wasm-browser.wasm sql.js 本体(node_modules/sql.js/dist/ からコ�
 
 ### 分野を足す
 
-`content/<分野>/` に `field.json` と `schema.sql` とレッスンのフォルダを置く。ただし練習場は今のところ SQL 専用なので、HTML/CSS などの分野では `components/Practice.astro` に相当するものを別に作る必要がある。
+`content/<分野>/` に `field.json` とレッスンのフォルダを置く。`field.json` の `practice` で練習場の種類を選ぶ:
+
+- `"sql"`: [Practice.astro](src/components/Practice.astro)。`schema.sql` が必要
+- `"html"`: [HtmlPractice.astro](src/components/HtmlPractice.astro)。入力欄の横にプレビュー
+
+別の種類(コマンド操作など)を足すときは、コンポーネントを1つ作って `[field]/practice.astro` と `[field]/[lesson]/practice.astro` の分岐に加える。
 
 ### 課題の判定
+
+SQL(`tasks.json` の `answer` を同じ初期状態で実行して比べる):
 
 - `ordered: true` のときだけ行の順番を比べる
 - `mutation: true` のときは実行後の全表の中身を比べる(INSERT / UPDATE / DELETE / CREATE TABLE 用)
 - 列名は比べない。列数、行数、各セルの値が一致すれば正解
+
+HTML(プレビューにできたページを `checks` で調べる。すべて満たせば正解):
+
+- `selector`: 調べる要素。`count` を指定しなければ1つ以上あればよい
+- `text` / `textIncludes`: 文字の一致、`attr`: 属性の値、`css`: `getComputedStyle` の値(色は `rgb(255, 0, 0)` 形式)
+- `message`: 満たさないときに出す1行
+- `answer` は「模範解答を見る」用。模範解答が実際に正解になるかはブラウザのテストで確かめる
 
 ## 公開(GitHub Pages)
 
@@ -68,7 +82,8 @@ public/sql-wasm-browser.wasm sql.js 本体(node_modules/sql.js/dist/ からコ�
 1. 練習場だけ作る — 完了
 2. 正誤判定を付ける — 完了
 3. 記事とクイズを付ける — 完了
-4. レッスンを増やして公開する — コンテンツ7レッスン完了。公開は GitHub への push 待ち
+4. レッスンを増やして公開する — SQL 7レッスン完了、GitHub に push 済み
+5. HTMLとCSS分野 — 練習場(プレビュー、要素の判定)と6レッスン完了
 
 ## 未決事項
 

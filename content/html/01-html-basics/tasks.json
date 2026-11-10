@@ -1,0 +1,35 @@
+[
+  {
+    "id": "heading-paragraph",
+    "title": "見出しと段落",
+    "text": "<p>いちばん大きな見出し(<code>h1</code>)で「自己紹介」と書き、その下に段落(<code>p</code>)を1つ書いてください。段落の中身は自由です。</p>",
+    "starter": "",
+    "answer": "<h1>自己紹介</h1>\n<p>はじめまして。プログラミングを勉強しています。</p>",
+    "hints": [
+      "見出しは <h1>...</h1>、段落は <p>...</p> です。終了タグを忘れずに。",
+      "<h1>自己紹介</h1> の次の行に <p>好きな文章</p> を書きます。"
+    ],
+    "checks": [
+      { "selector": "h1", "text": "自己紹介", "message": "「自己紹介」という h1 見出しがありません。" },
+      { "selector": "p", "message": "段落(p)がありません。" }
+    ]
+  },
+  {
+    "id": "heading-levels",
+    "title": "見出しの階層",
+    "text": "<p>次の構成のページを作ってください。</p><ul><li><code>h1</code>: 今日の献立</li><li><code>h2</code>: 朝 と、その下に段落1つ</li><li><code>h2</code>: 昼 と、その下に段落1つ</li></ul><p>つまり <code>h1</code> が1つ、<code>h2</code> が2つ、<code>p</code> が2つです。</p>",
+    "starter": "<h1>今日の献立</h1>\n",
+    "answer": "<h1>今日の献立</h1>\n<h2>朝</h2>\n<p>トーストと卵。</p>\n<h2>昼</h2>\n<p>うどん。</p>",
+    "hints": [
+      "h2 は h1 より小さい見出しです。h2 のあとに p を書く、を2回繰り返します。",
+      "<h2>朝</h2> <p>...</p> <h2>昼</h2> <p>...</p> の順に書きます。"
+    ],
+    "checks": [
+      { "selector": "h1", "count": 1, "text": "今日の献立", "message": "h1 は「今日の献立」1つだけにしてください。" },
+      { "selector": "h2", "count": 2, "message": "h2 を2つ(朝、昼)書いてください。" },
+      { "selector": "h2", "text": "朝", "message": "「朝」という h2 がありません。" },
+      { "selector": "h2", "text": "昼", "message": "「昼」という h2 がありません。" },
+      { "selector": "p", "count": 2, "message": "段落(p)を2つ書いてください。" }
+    ]
+  }
+]

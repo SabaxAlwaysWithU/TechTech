@@ -1,0 +1,49 @@
+[
+  {
+    "id": "flex-row",
+    "title": "横に並べる",
+    "text": "<p>3つの <code>.item</code> を横一列に並べてください。並べたい要素を包んでいる <code>.row</code> に <code>display: flex</code> を付けます。</p>",
+    "starter": "<style>\n  .row {\n\n  }\n  .item {\n    border: 2px solid #1f7a5c;\n    padding: 16px;\n  }\n</style>\n<div class=\"row\">\n  <div class=\"item\">1</div>\n  <div class=\"item\">2</div>\n  <div class=\"item\">3</div>\n</div>\n",
+    "answer": "<style>\n  .row {\n    display: flex;\n  }\n  .item {\n    border: 2px solid #1f7a5c;\n    padding: 16px;\n  }\n</style>\n<div class=\"row\">\n  <div class=\"item\">1</div>\n  <div class=\"item\">2</div>\n  <div class=\"item\">3</div>\n</div>",
+    "hints": [
+      "display: flex は .item ではなく、それを包む .row に付けます。",
+      ".row { display: flex; }"
+    ],
+    "checks": [
+      { "selector": ".row", "css": { "display": "flex" }, "message": ".row に display: flex が付いていません。" },
+      { "selector": ".row > .item", "count": 3, "message": ".row の中に .item が3つ必要です。" }
+    ]
+  },
+  {
+    "id": "gap-center",
+    "title": "間を空けて中央に寄せる",
+    "text": "<p><code>.row</code> に、箱の間 <code>16px</code>(<code>gap</code>)と、横方向の中央寄せ(<code>justify-content: center</code>)を付けてください。</p>",
+    "starter": "<style>\n  .row {\n    display: flex;\n  }\n  .item {\n    border: 2px solid #1f7a5c;\n    padding: 16px;\n  }\n</style>\n<div class=\"row\">\n  <div class=\"item\">1</div>\n  <div class=\"item\">2</div>\n  <div class=\"item\">3</div>\n</div>\n",
+    "answer": "<style>\n  .row {\n    display: flex;\n    gap: 16px;\n    justify-content: center;\n  }\n  .item {\n    border: 2px solid #1f7a5c;\n    padding: 16px;\n  }\n</style>\n<div class=\"row\">\n  <div class=\"item\">1</div>\n  <div class=\"item\">2</div>\n  <div class=\"item\">3</div>\n</div>",
+    "hints": [
+      "gap と justify-content はどちらも、display: flex を付けた親(.row)に書きます。",
+      ".row { display: flex; gap: 16px; justify-content: center; }"
+    ],
+    "checks": [
+      { "selector": ".row", "css": { "display": "flex" }, "message": ".row の display: flex は消さないでください。" },
+      { "selector": ".row", "css": { "column-gap": "16px" }, "message": ".row の gap が 16px になっていません。" },
+      { "selector": ".row", "css": { "justify-content": "center" }, "message": ".row が中央寄せ(justify-content: center)になっていません。" }
+    ]
+  },
+  {
+    "id": "header",
+    "title": "ヘッダーを作る",
+    "text": "<p><code>header</code> の中のサイト名とメニューを両端に寄せ(<code>justify-content: space-between</code>)、上下を中央にそろえて(<code>align-items: center</code>)ください。<code>nav</code> の中のリンクは横並びで、間を <code>16px</code> 空けます。</p>",
+    "starter": "<style>\n  header {\n    padding: 16px;\n    border-bottom: 1px solid #ccc;\n  }\n  nav {\n\n  }\n</style>\n<header>\n  <strong>さばのレシピ帳</strong>\n  <nav>\n    <a href=\"#\">レシピ</a>\n    <a href=\"#\">について</a>\n  </nav>\n</header>\n",
+    "answer": "<style>\n  header {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    padding: 16px;\n    border-bottom: 1px solid #ccc;\n  }\n  nav {\n    display: flex;\n    gap: 16px;\n  }\n</style>\n<header>\n  <strong>さばのレシピ帳</strong>\n  <nav>\n    <a href=\"#\">レシピ</a>\n    <a href=\"#\">について</a>\n  </nav>\n</header>",
+    "hints": [
+      "header と nav の両方に display: flex を付けます。両端寄せは header に、gap は nav に書きます。",
+      "header { display: flex; justify-content: space-between; align-items: center; ... } nav { display: flex; gap: 16px; }"
+    ],
+    "checks": [
+      { "selector": "header", "css": { "display": "flex", "justify-content": "space-between", "align-items": "center" }, "message": "header に display: flex、justify-content: space-between、align-items: center の3つが必要です。" },
+      { "selector": "nav", "css": { "display": "flex", "column-gap": "16px" }, "message": "nav に display: flex と gap: 16px が必要です。" },
+      { "selector": "nav > a", "count": 2, "message": "nav の中のリンクは2つのままにしてください。" }
+    ]
+  }
+]

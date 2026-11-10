@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Practice from '../../components/Practice.astro';
+import HtmlPractice from '../../components/HtmlPractice.astro';
 import { getFields } from '../../lib/content';
 
 export function getStaticPaths() {
@@ -9,5 +10,5 @@ export function getStaticPaths() {
 const { field } = Astro.props;
 ---
 <Base title={`練習場 — ${field.title}`} wide>
-  <Practice />
+  {field.practice === 'html' ? <HtmlPractice /> : <Practice />}
 </Base>

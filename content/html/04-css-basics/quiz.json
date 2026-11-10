@@ -1,0 +1,32 @@
+[
+  {
+    "question": "すべての h1 の文字色を赤にするCSSはどれですか?",
+    "options": [
+      "h1 { color: red; }",
+      "h1 { text: red; }",
+      "h1 = red",
+      "<h1 color=\"red\">"
+    ],
+    "explanation": "CSSは セレクタ { プロパティ: 値; } の形です。文字色のプロパティは color です。"
+  },
+  {
+    "question": "class=\"note\" が付いた要素だけを選ぶセレクタはどれですか?",
+    "options": [".note", "#note", "note", "class.note"],
+    "explanation": "class は . を前に付けて選びます。# は id 用です。"
+  },
+  {
+    "question": "文字の大きさを変えるプロパティはどれですか?",
+    "options": ["font-size", "text-size", "size", "font-weight"],
+    "explanation": "font-size が文字の大きさです。font-weight は太さを変えます。"
+  },
+  {
+    "question": "class と id の違いとして正しいものはどれですか?",
+    "options": [
+      "class は何か所にも付けられるが、id は1ページに1つだけ",
+      "id は何か所にも付けられるが、class は1ページに1つだけ",
+      "class は文字色、id は背景色に使う",
+      "違いはなく、どちらを使ってもよい"
+    ],
+    "explanation": "同じ class は複数の要素に付けられます。id はページ内で1つだけという決まりがあるので、迷ったら class を使います。"
+  }
+]

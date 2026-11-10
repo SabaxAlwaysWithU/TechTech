@@ -1,23 +1,26 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import Practice from '../../../components/Practice.astro';
-import { getLessons } from '../../../lib/content';
+import HtmlPractice from '../../../components/HtmlPractice.astro';
+import { getLessons, getField } from '../../../lib/content';
 
 export async function getStaticPaths() {
   const lessons = await getLessons();
   return lessons.map((l) => ({ params: { field: l.field, lesson: l.slug }, props: { lesson: l, all: lessons.filter((x) => x.field === l.field) } }));
 }
 const { lesson, all } = Astro.props;
+const field = getField(lesson.field)!;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const next = all.find((l) => l.number === lesson.number + 1);
+const props = {
+  lessonId: lesson.id,
+  lessonTitle: `${lesson.number}. ${lesson.title}`,
+  tasks: lesson.tasks,
+  backHref: `${base}/${lesson.field}/${lesson.slug}/`,
+  nextHref: next ? `${base}/${next.field}/${next.slug}/` : `${base}/${lesson.field}/`,
+  nextLabel: next ? `次のレッスン: ${next.title}` : 'レッスン一覧へ',
+};
 ---
 <Base title={`練習 — ${lesson.title}`} wide>
-  <Practice
-    lessonId={lesson.id}
-    lessonTitle={`${lesson.number}. ${lesson.title}`}
-    tasks={lesson.tasks}
-    backHref={`${base}/${lesson.field}/${lesson.slug}/`}
-    nextHref={next ? `${base}/${next.field}/${next.slug}/` : `${base}/${lesson.field}/`}
-    nextLabel={next ? `次のレッスン: ${next.title}` : 'レッスン一覧へ'}
-  />
+  {field.practice === 'html' ? <HtmlPractice {...props} /> : <Practice {...props} />}
 </Base>

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "list",
+    "title": "買い物リスト",
+    "text": "<p>見出し(<code>h1</code>)「買い物リスト」の下に、箇条書き(<code>ul</code>)で項目(<code>li</code>)を3つ書いてください。項目の中身は自由です。</p>",
+    "starter": "<h1>買い物リスト</h1>\n",
+    "answer": "<h1>買い物リスト</h1>\n<ul>\n  <li>卵</li>\n  <li>牛乳</li>\n  <li>砂糖</li>\n</ul>",
+    "hints": [
+      "箇条書きは <ul> ... </ul> で囲み、その中に <li>項目</li> を並べます。",
+      "<ul><li>卵</li><li>牛乳</li><li>砂糖</li></ul> のように3つ並べます。"
+    ],
+    "checks": [
+      { "selector": "h1", "text": "買い物リスト", "message": "「買い物リスト」という h1 がありません。" },
+      { "selector": "ul", "message": "箇条書き(ul)がありません。" },
+      { "selector": "ul > li", "count": 3, "message": "ul の中に li を3つ書いてください。" }
+    ]
+  },
+  {
+    "id": "link",
+    "title": "リンクを張る",
+    "text": "<p>段落(<code>p</code>)の中に、<code>https://example.com/</code> へ飛ぶリンク(<code>a</code>)を作ってください。リンクの文字は「例のサイト」にします。</p>",
+    "starter": "<p></p>\n",
+    "answer": "<p><a href=\"https://example.com/\">例のサイト</a></p>",
+    "hints": [
+      "リンクは <a href=\"飛び先\">文字</a> です。href の値は \" で囲みます。",
+      "<p><a href=\"https://example.com/\">例のサイト</a></p>"
+    ],
+    "checks": [
+      { "selector": "p a", "message": "段落(p)の中にリンク(a)がありません。" },
+      { "selector": "a", "attr": { "href": "https://example.com/" }, "message": "href が https://example.com/ になっていません。" },
+      { "selector": "a", "text": "例のサイト", "message": "リンクの文字を「例のサイト」にしてください。" }
+    ]
+  },
+  {
+    "id": "image",
+    "title": "画像と強調",
+    "text": "<p>次の2つを書いてください。</p><ul><li><code>src</code> が <code>cake.jpg</code>、<code>alt</code> が「完成したケーキ」の画像(<code>img</code>)</li><li>段落の中に <code>strong</code> で強調した部分を含む文</li></ul><p>画像ファイルは実際にはないので、プレビューには alt の文字が表示されます。</p>",
+    "starter": "",
+    "answer": "<img src=\"cake.jpg\" alt=\"完成したケーキ\">\n<p>オーブンは<strong>必ず予熱</strong>してください。</p>",
+    "hints": [
+      "画像は <img src=\"ファイル名\" alt=\"説明\"> で、終了タグはありません。強調は <strong>...</strong> です。",
+      "<img src=\"cake.jpg\" alt=\"完成したケーキ\"> と <p>...<strong>...</strong>...</p> を書きます。"
+    ],
+    "checks": [
+      { "selector": "img", "attr": { "src": "cake.jpg" }, "message": "src が cake.jpg の img がありません。" },
+      { "selector": "img", "attr": { "alt": "完成したケーキ" }, "message": "alt を「完成したケーキ」にしてください。" },
+      { "selector": "p strong", "message": "段落(p)の中に strong がありません。" }
+    ]
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "question": "3つの div を横に並べたいとき、display: flex はどこに付けますか?",
+    "options": [
+      "3つの div を包んでいる親の要素",
+      "3つの div それぞれ",
+      "1つ目の div だけ",
+      "body"
+    ],
+    "explanation": "display: flex は並べたい要素を包む親に付けます。すると、その直下の子が横に並びます。"
+  },
+  {
+    "question": "横に並んだ箱と箱の間だけを空けるプロパティはどれですか?",
+    "options": ["gap", "padding", "border", "space"],
+    "explanation": "gap は flex の親に付けて、子と子の間だけを空けます。両端には空きができません。"
+  },
+  {
+    "question": "flex で並べた箱を横方向の中央に寄せる書き方はどれですか?",
+    "options": [
+      "justify-content: center;",
+      "align-items: center;",
+      "text-align: center;",
+      "margin: center;"
+    ],
+    "explanation": "横方向の位置は justify-content で決めます。align-items は縦方向のそろえ方です。"
+  },
+  {
+    "question": "左にロゴ、右にメニューを置き、両端に寄せたいときの justify-content の値はどれですか?",
+    "options": ["space-between", "center", "flex-start", "stretch"],
+    "explanation": "space-between は両端に寄せて間を均等に空けます。ヘッダーでよく使います。"
+  }
+]

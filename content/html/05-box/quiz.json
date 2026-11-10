@@ -1,0 +1,37 @@
+[
+  {
+    "question": "中身と枠線の間の余白を決めるプロパティはどれですか?",
+    "options": ["padding", "margin", "border", "gap"],
+    "explanation": "padding は内側(中身と枠線の間)の余白です。margin は枠線の外側、隣との距離です。"
+  },
+  {
+    "question": "2px の緑の実線の枠線を付ける書き方はどれですか?",
+    "options": [
+      "border: 2px solid green;",
+      "border: green 2px;",
+      "border-line: 2px green;",
+      "outline: solid;"
+    ],
+    "explanation": "border は「太さ 種類 色」の順で書きます。種類には solid(実線)、dashed(破線)などがあります。"
+  },
+  {
+    "question": "背景色が付く範囲はどこまでですか?",
+    "options": [
+      "padding まで(margin には付かない)",
+      "margin まで",
+      "中身だけ",
+      "border の外側まで"
+    ],
+    "explanation": "背景色は中身と padding に付きます。margin は透明なので、背景を広げたいときは padding を使います。"
+  },
+  {
+    "question": "幅を決めた箱を中央に置くための書き方はどれですか?",
+    "options": [
+      "margin: 0 auto;",
+      "padding: 0 auto;",
+      "text-align: center;",
+      "position: center;"
+    ],
+    "explanation": "margin: 0 auto で左右の余白が自動で等しくなり、箱が中央に寄ります。text-align: center は箱の中の文字を中央に寄せるもので、箱自体は動きません。"
+  }
+]
