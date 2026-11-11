@@ -1,0 +1,32 @@
+[
+  {
+    "question": "ディレクトリを作るコマンドはどれですか?",
+    "options": ["mkdir", "touch", "cp", "cd"],
+    "explanation": "mkdir(make directory)です。touch は空のファイルを作ります。"
+  },
+  {
+    "question": "ls -l で「-rw-r--r--」と表示されたファイルについて、正しいものはどれですか?",
+    "options": [
+      "持ち主は読み書きでき、他の人は読むことだけできる",
+      "誰でも読み書きできる",
+      "持ち主だけが読める",
+      "誰でも実行できる"
+    ],
+    "explanation": "rw-(持ち主: 読み書き)、r--(グループ: 読む)、r--(その他: 読む)です。x がないので誰も実行はできません。"
+  },
+  {
+    "question": "script.sh を実行できるようにするコマンドはどれですか?",
+    "options": ["chmod +x script.sh", "chmod +r script.sh", "run script.sh", "touch script.sh"],
+    "explanation": "実行権限は x です。chmod +x で付けられます。"
+  },
+  {
+    "question": "rm で消したファイルはどうなりますか?",
+    "options": [
+      "ゴミ箱には入らず、元に戻せない",
+      "ゴミ箱に入り、あとで戻せる",
+      "30日後に自動で消える",
+      "名前が変わるだけで中身は残る"
+    ],
+    "explanation": "rm にゴミ箱はありません。消したら戻らないので、打つ前に名前を確かめる習慣が大切です。"
+  }
+]

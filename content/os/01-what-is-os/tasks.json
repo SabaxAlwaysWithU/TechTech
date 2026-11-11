@@ -1,0 +1,41 @@
+[
+  {
+    "id": "whoami",
+    "title": "自分は誰か",
+    "text": "<p>ターミナルで <code>whoami</code> と打って Enter を押し、今ログインしているユーザー名を表示してください。</p>",
+    "answer": "whoami",
+    "hints": [
+      "コマンド名を打って Enter を押すだけです。",
+      "whoami と打つと saba と表示されます。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "whoami", "lastOutputIncludes": "saba", "message": "whoami を実行してください。" }
+    ]
+  },
+  {
+    "id": "uname",
+    "title": "OSの名前",
+    "text": "<p><code>uname</code> で、このコンピュータのOS(カーネル)の名前を表示してください。</p>",
+    "answer": "uname",
+    "hints": [
+      "uname は「unix name」の略です。",
+      "uname と打つと Linux と表示されます。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "uname", "lastOutputIncludes": "Linux", "message": "uname を実行してください。" }
+    ]
+  },
+  {
+    "id": "os-release",
+    "title": "OSの詳しい情報",
+    "text": "<p>OSの名前やバージョンは <code>/etc/os-release</code> というファイルに書いてあります。<code>cat</code> コマンドでこのファイルの中身を表示してください。</p>",
+    "answer": "cat /etc/os-release",
+    "hints": [
+      "cat はファイルの中身を表示するコマンドです。cat ファイルの場所 の形で使います。",
+      "cat /etc/os-release"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "cat", "lastOutputIncludes": "Study Linux", "message": "cat /etc/os-release を実行して、中身を表示してください。" }
+    ]
+  }
+]

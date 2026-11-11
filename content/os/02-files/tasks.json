@@ -1,0 +1,42 @@
+[
+  {
+    "id": "cd-docs",
+    "title": "docs に移動する",
+    "text": "<p>ホームディレクトリにある <code>docs</code> ディレクトリの中に移動してください。移動できたら <code>pwd</code> で確かめてみましょう。</p>",
+    "answer": "cd docs",
+    "hints": [
+      "移動は cd です。今いる場所(ホーム)から見た相対パスで書けます。",
+      "cd docs と打ちます。pwd で /home/saba/docs と出れば成功です。"
+    ],
+    "shellChecks": [
+      { "cwd": "/home/saba/docs", "message": "今いる場所が /home/saba/docs になっていません。cd docs で移動してください。" }
+    ]
+  },
+  {
+    "id": "cat-report",
+    "title": "レポートを読む",
+    "text": "<p><code>docs</code> の中にある <code>report.txt</code> の中身を表示してください。今どこにいるかによって、パスの書き方が変わります。</p>",
+    "answer": "cat ~/docs/report.txt",
+    "hints": [
+      "ファイルの中身は cat で表示します。ホームにいるなら cat docs/report.txt です。",
+      "どこにいても使える書き方: cat /home/saba/docs/report.txt"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "cat", "lastOutputIncludes": "売上レポート", "message": "cat で report.txt の中身を表示してください。" }
+    ]
+  },
+  {
+    "id": "relative",
+    "title": "相対パスで移動する",
+    "text": "<p>まず <code>cd docs</code> で <code>docs</code> に入ってから、<code>..</code> を使った<strong>相対パス1回の cd</strong> で、隣の <code>photos</code> ディレクトリに移動してください。</p>",
+    "answer": "cd docs\ncd ../photos",
+    "hints": [
+      ".. は「1つ上」です。1つ上に行ってから photos に入る、を1つのパスで書けます。",
+      "docs の中で cd ../photos と打ちます。"
+    ],
+    "shellChecks": [
+      { "cwd": "/home/saba/photos", "message": "今いる場所が /home/saba/photos になっていません。" },
+      { "lastCommandIncludes": "..", "message": "最後の cd に .. を使ってください(例: cd ../photos)。" }
+    ]
+  }
+]

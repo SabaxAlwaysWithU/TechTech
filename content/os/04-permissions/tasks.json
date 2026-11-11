@@ -1,0 +1,57 @@
+[
+  {
+    "id": "mkdir-touch",
+    "title": "ディレクトリとファイルを作る",
+    "text": "<p>ホームに <code>work</code> というディレクトリを作り、その中に <code>todo.txt</code> という空のファイルを作ってください。</p>",
+    "answer": "mkdir work\ntouch work/todo.txt",
+    "hints": [
+      "ディレクトリは mkdir、空のファイルは touch です。",
+      "mkdir work のあと、touch work/todo.txt と打ちます。ls work で確かめられます。"
+    ],
+    "shellChecks": [
+      { "isDir": "/home/saba/work", "message": "work ディレクトリがまだありません。mkdir work で作ってください。" },
+      { "exists": "/home/saba/work/todo.txt", "message": "work の中に todo.txt がありません。touch work/todo.txt で作ってください。" }
+    ]
+  },
+  {
+    "id": "cp",
+    "title": "コピーする",
+    "text": "<p><code>docs/report.txt</code> を <code>notes</code> ディレクトリの中にコピーしてください。コピー後も元のファイルは残ります。</p>",
+    "answer": "cp docs/report.txt notes/",
+    "hints": [
+      "cp 元 先 の形です。先にディレクトリを指定すると、その中にコピーされます。",
+      "cp docs/report.txt notes/"
+    ],
+    "shellChecks": [
+      { "exists": "/home/saba/notes/report.txt", "message": "notes の中に report.txt がありません。" },
+      { "exists": "/home/saba/docs/report.txt", "message": "元の docs/report.txt が消えています。cp(コピー)を使ってください。mv だと移動になります。" }
+    ]
+  },
+  {
+    "id": "chmod",
+    "title": "実行できるようにする",
+    "text": "<p>ホームにある <code>script.sh</code> には実行権限がありません。<code>ls -l script.sh</code> で確かめてから、<code>chmod</code> で実行権限を付けてください。</p>",
+    "answer": "ls -l script.sh\nchmod +x script.sh",
+    "hints": [
+      "実行権限は x です。chmod +x ファイル名 で付けられます。",
+      "chmod +x script.sh のあと、ls -l script.sh で rwx になったことを確かめましょう。"
+    ],
+    "shellChecks": [
+      { "executable": "/home/saba/script.sh", "message": "script.sh にまだ実行権限(x)がありません。" }
+    ]
+  },
+  {
+    "id": "rm",
+    "title": "いらないファイルを消す",
+    "text": "<p><code>docs</code> の中の <code>old.txt</code> を削除してください。ほかのファイルは消さないでください。</p>",
+    "answer": "rm docs/old.txt",
+    "hints": [
+      "削除は rm です。パスは docs/old.txt です。",
+      "rm docs/old.txt のあと、ls docs で消えたことを確かめましょう。"
+    ],
+    "shellChecks": [
+      { "notExists": "/home/saba/docs/old.txt", "message": "docs/old.txt がまだあります。" },
+      { "exists": "/home/saba/docs/report.txt", "message": "report.txt まで消えています。「初期状態に戻す」でやり直してください。" }
+    ]
+  }
+]

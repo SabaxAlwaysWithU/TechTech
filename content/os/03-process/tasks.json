@@ -1,0 +1,42 @@
+[
+  {
+    "id": "ps",
+    "title": "プロセスの一覧を見る",
+    "text": "<p><code>ps</code> で、今動いているプロセスの一覧を表示してください。どのプロセスが CPU をいちばん使っているか、見つけてみましょう。</p>",
+    "answer": "ps",
+    "hints": [
+      "ps と打つだけです。",
+      "%CPU の列を見ると、99.0 のプロセスが1つあります。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "ps", "lastOutputIncludes": "PID", "message": "ps を実行してください。" }
+    ]
+  },
+  {
+    "id": "kill",
+    "title": "暴走したプロセスを止める",
+    "text": "<p>CPU を 99% 使っている <code>runaway-script</code> というプロセスを、<code>kill</code> で終了させてください。PID は <code>ps</code> で調べます。</p>",
+    "answer": "ps\nkill 777",
+    "hints": [
+      "ps で runaway-script の行を探し、左端の PID を読みます。",
+      "kill 777 と打ちます。そのあと ps で消えたことを確かめましょう。"
+    ],
+    "shellChecks": [
+      { "processGone": 777, "message": "runaway-script(PID 777)がまだ動いています。kill 777 で止めてください。" },
+      { "processExists": 318, "message": "別のプロセス(firefox)まで止めてしまいました。「初期状態に戻す」でやり直してください。" }
+    ]
+  },
+  {
+    "id": "free",
+    "title": "メモリの使用状況",
+    "text": "<p><code>free</code> で、メモリ(Mem)をどれだけ使っているかを表示してください。</p>",
+    "answer": "free",
+    "hints": [
+      "free と打つだけです。",
+      "Mem の行の used が使っている量、free が空きです(単位は MB)。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "free", "lastOutputIncludes": "Mem:", "message": "free を実行してください。" }
+    ]
+  }
+]

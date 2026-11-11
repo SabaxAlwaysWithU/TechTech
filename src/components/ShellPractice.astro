@@ -1,0 +1,284 @@
+---
+// OS分野の練習場: 疑似ターミナル。コマンドを打つと仮想のファイルやプロセスが変わる。
+import type { Task } from '../lib/content';
+interface Props {
+  lessonId?: string;
+  lessonTitle?: string;
+  tasks?: Task[];
+  backHref?: string;
+  nextHref?: string;
+  nextLabel?: string;
+}
+const { lessonId, lessonTitle, tasks = [], backHref, nextHref, nextLabel } = Astro.props;
+const hasTasks = tasks.length > 0;
+---
+<main class="practice">
+  <div class="pane left">
+    <section class="task">
+      {hasTasks ? (
+        <>
+          <p class="eyebrow">{lessonTitle} の練習</p>
+          <nav class="task-tabs" id="task-tabs" aria-label="課題">
+            {tasks.map((t, i) => (
+              <button type="button" class="tab" data-index={i} aria-current={i === 0 ? 'true' : undefined}>課題{i + 1}</button>
+            ))}
+          </nav>
+          <h1 id="task-title">{tasks[0].title}</h1>
+          <div id="task-text" class="task-text" set:html={tasks[0].text} />
+          <div class="hints">
+            <button type="button" class="btn secondary" id="hint-btn">ヒントを見る</button>
+            <ol id="hint-list" class="hint-list"></ol>
+            <details id="answer-box" hidden>
+              <summary>模範解答を見る</summary>
+              <pre id="answer-code"></pre>
+            </details>
+          </div>
+          <div id="verdict" class="verdict" hidden></div>
+        </>
+      ) : (
+        <>
+          <h1>フリーモード</h1>
+          <p class="muted">課題はありません。仮想のコンピュータの中を自由に歩き回れます。<code>help</code> で使えるコマンドの一覧が見られます。</p>
+        </>
+      )}
+      <p class="muted small">これは練習用の疑似ターミナルです。あなたのパソコンには何も起きません。</p>
+    </section>
+  </div>
+  <div class="pane right">
+    <section class="terminal-wrap">
+      <div class="terminal-bar">
+        <span class="label">ターミナル</span>
+        <span class="muted small">(↑↓ で履歴。課題は打つたびに自動で判定)</span>
+        <button id="reset" class="btn secondary small-btn" type="button">初期状態に戻す</button>
+      </div>
+      <div id="terminal" class="terminal" tabindex="0">
+        <pre id="screen" class="screen"></pre>
+        <div class="input-line">
+          <span id="prompt" class="prompt"></span>
+          <input id="cmd" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="コマンド入力" />
+        </div>
+      </div>
+    </section>
+    {hasTasks && (
+      <nav class="lesson-nav">
+        {backHref && <a href={backHref}>← 記事に戻る</a>}
+        {nextHref && <a href={nextHref}>{nextLabel ?? '次へ'} →</a>}
+      </nav>
+    )}
+  </div>
+</main>
+
+<script type="application/json" id="practice-data" set:html={JSON.stringify({ lessonId, tasks })} />
+
+<script>
+  import { createShell, exec, prompt, judgeShell, type ShellState } from '../lib/shell';
+  import { getProgress, markTaskCleared } from '../lib/progress';
+  import type { Task } from '../lib/content';
+
+  const data = JSON.parse(document.getElementById('practice-data')!.textContent!) as { lessonId?: string; tasks: Task[] };
+  const tasks = data.tasks;
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const screen = $('screen');
+  const input = $<HTMLInputElement>('cmd');
+  const promptEl = $('prompt');
+  const terminal = $('terminal');
+  let state: ShellState = createShell();
+  let taskIndex = 0;
+  let hintsShown = 0;
+  let histPos = -1;
+
+  const WELCOME = 'Study Linux 1.0 へようこそ。help でコマンドの一覧が見られます。\n';
+
+  function refreshPrompt() { promptEl.textContent = prompt(state); }
+  function append(text: string) {
+    screen.textContent += text;
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function currentTask(): Task | undefined { return tasks[taskIndex]; }
+
+  function judge() {
+    const t = currentTask();
+    if (!t || !t.shellChecks) return;
+    const j = judgeShell(state, t.shellChecks as any);
+    const verdict = $('verdict');
+    if (j.correct) {
+      verdict.hidden = false;
+      verdict.className = 'verdict correct';
+      verdict.textContent = '正解です。';
+      if (data.lessonId) markTaskCleared(data.lessonId, t.id);
+      document.querySelector<HTMLButtonElement>(`#task-tabs .tab[data-index="${taskIndex}"]`)?.classList.add('done');
+    } else if (!verdict.hidden && verdict.classList.contains('correct')) {
+      // すでに正解していたなら、その表示は残す
+    } else {
+      verdict.hidden = false;
+      verdict.className = 'verdict wrong';
+      verdict.textContent = `まだです: ${j.message}`;
+    }
+  }
+
+  function run(line: string) {
+    append(prompt(state) + line + '\n');
+    const out = exec(state, line);
+    if (out === '\u0000clear') screen.textContent = '';
+    else if (out) append(out + '\n');
+    refreshPrompt();
+    histPos = -1;
+    judge();
+  }
+
+  function resetShell() {
+    state = createShell();
+    screen.textContent = WELCOME;
+    refreshPrompt();
+    input.value = '';
+  }
+
+  function renderTask() {
+    const t = currentTask();
+    if (!t) return;
+    hintsShown = 0;
+    $('task-title').textContent = t.title;
+    $('task-text').innerHTML = t.text;
+    $('hint-list').innerHTML = '';
+    const hintBtn = $<HTMLButtonElement>('hint-btn');
+    hintBtn.hidden = t.hints.length === 0;
+    hintBtn.textContent = 'ヒントを見る';
+    const ans = $<HTMLDetailsElement>('answer-box');
+    ans.hidden = true;
+    ans.open = false;
+    $('answer-code').textContent = t.answer ?? '';
+    const verdict = $('verdict');
+    verdict.hidden = true;
+    verdict.className = 'verdict';
+    const prog = data.lessonId ? getProgress(data.lessonId) : {};
+    for (const tab of document.querySelectorAll<HTMLButtonElement>('#task-tabs .tab')) {
+      const i = Number(tab.dataset.index);
+      tab.toggleAttribute('aria-current', i === taskIndex);
+      tab.classList.toggle('done', !!prog.tasks?.[tasks[i].id]);
+    }
+    if (prog.tasks?.[t.id]) { verdict.hidden = false; verdict.classList.add('correct'); verdict.textContent = 'クリア済み。もう一度やってみても構いません。'; }
+    resetShell();
+    input.focus();
+  }
+
+  function showHint() {
+    const t = currentTask();
+    if (!t) return;
+    if (hintsShown < t.hints.length) {
+      const li = document.createElement('li');
+      li.textContent = t.hints[hintsShown];
+      $('hint-list').appendChild(li);
+      hintsShown++;
+    }
+    const btn = $<HTMLButtonElement>('hint-btn');
+    if (hintsShown >= t.hints.length) {
+      btn.hidden = true;
+      $('answer-box').hidden = false;
+    } else {
+      btn.textContent = `次のヒントを見る(${hintsShown}/${t.hints.length})`;
+    }
+  }
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const line = input.value;
+      input.value = '';
+      run(line);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const h = state.history;
+      if (!h.length) return;
+      histPos = histPos < 0 ? h.length - 1 : Math.max(0, histPos - 1);
+      input.value = h[histPos];
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const h = state.history;
+      if (histPos < 0) return;
+      histPos = histPos + 1 >= h.length ? -1 : histPos + 1;
+      input.value = histPos < 0 ? '' : h[histPos];
+    } else if (e.key === 'l' && e.ctrlKey) {
+      e.preventDefault();
+      screen.textContent = '';
+    }
+  });
+  terminal.addEventListener('click', () => input.focus());
+  $('reset').addEventListener('click', () => { resetShell(); input.focus(); });
+  document.getElementById('hint-btn')?.addEventListener('click', showHint);
+  document.getElementById('task-tabs')?.addEventListener('click', (e) => {
+    const tab = (e.target as HTMLElement).closest<HTMLButtonElement>('.tab');
+    if (!tab) return;
+    taskIndex = Number(tab.dataset.index);
+    renderTask();
+  });
+
+  const params = new URLSearchParams(location.search);
+  const preset = params.get('code');
+  const presetTask = Number(params.get('task'));
+  if (tasks.length && presetTask >= 1 && presetTask <= tasks.length) taskIndex = presetTask - 1;
+  if (tasks.length) renderTask(); else resetShell();
+  if (preset) { for (const line of preset.split('\n')) if (line.trim()) run(line); }
+  input.focus();
+</script>
+
+<style>
+  .practice {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+    display: grid;
+    grid-template-columns: minmax(16rem, 1fr) minmax(0, 2fr);
+    gap: 2rem;
+    font-size: 0.95rem;
+  }
+  @media (max-width: 760px) { .practice { grid-template-columns: 1fr; } }
+  .pane { min-width: 0; }
+  h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  .eyebrow { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.6rem; }
+  .task p { margin: 0 0 1rem; }
+  .task-text :global(p) { margin: 0 0 0.8rem; }
+  .task-text :global(ul) { margin: 0 0 0.8rem; padding-left: 1.4rem; }
+  .task-text :global(code), .task code { font-family: var(--mono); background: var(--surface); padding: 0.1em 0.35em; font-size: 0.9em; border-radius: 5px; }
+  .task-tabs { display: flex; gap: 0.3rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .task-tabs .tab { font: inherit; font-size: 0.85rem; padding: 0.3rem 0.9rem; cursor: pointer; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; }
+  .task-tabs .tab:hover { background: var(--surface); }
+  .task-tabs .tab[aria-current] { color: var(--fg); border-color: var(--fg); background: var(--surface); }
+  .task-tabs .tab.done::after { content: ' ✓'; color: var(--accent); }
+  .hints { margin-top: 1rem; }
+  .hint-list { margin: 0.8rem 0 0; padding-left: 1.4rem; }
+  .hint-list :global(li) { margin-bottom: 0.4rem; }
+  details { margin-top: 0.8rem; }
+  summary { cursor: pointer; color: var(--accent); }
+  #answer-code { font-family: var(--mono); font-size: 0.85rem; background: var(--surface); padding: 0.8rem 1rem; white-space: pre-wrap; margin: 0.5rem 0 0; border-radius: var(--radius-sm); }
+  .verdict { margin-top: 1rem; padding: 0.7rem 1rem; border-left: 4px solid var(--line); background: var(--surface); font-weight: 600; border-radius: var(--radius-sm); }
+  .verdict.correct { border-left-color: var(--accent); color: var(--accent); }
+  .verdict.wrong { border-left-color: var(--muted); font-weight: 500; }
+  .small { font-size: 0.8rem; }
+  .label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+  .terminal-bar { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+  .terminal-bar .small-btn { margin-left: auto; font-size: 0.85rem; padding: 0.3rem 0.9rem; }
+
+  /* ターミナルだけは暗い配色で固定する(道具らしく見せるため) */
+  .terminal {
+    background: #15181c;
+    color: #e6e6e6;
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    border-radius: var(--radius);
+    border: 1px solid #2b3036;
+    padding: 0.9rem 1rem;
+    height: 26rem;
+    overflow-y: auto;
+    cursor: text;
+  }
+  .terminal:focus-within { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .screen { margin: 0; white-space: pre-wrap; word-break: break-all; font: inherit; }
+  .input-line { display: flex; gap: 0; align-items: baseline; }
+  .prompt { color: #7ddba3; white-space: pre; flex: none; }
+  #cmd {
+    flex: 1; min-width: 0; font: inherit; color: inherit; background: transparent; border: 0; outline: none; padding: 0;
+    caret-color: #e6e6e6;
+  }
+  .lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+</style>

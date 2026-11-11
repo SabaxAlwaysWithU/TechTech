@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Linux でいちばん上のディレクトリ(ルート)を表す記号はどれですか?",
+    "options": ["/", "~", "C:", "."],
+    "explanation": "ルートは / です。~ はホームディレクトリ、. は今いる場所を表します。C: は Windows のドライブです。"
+  },
+  {
+    "question": "今いるディレクトリを表示するコマンドはどれですか?",
+    "options": ["pwd", "ls", "cd", "cat"],
+    "explanation": "pwd(print working directory)で今いる場所が表示されます。ls は中身の一覧、cd は移動、cat はファイルの中身です。"
+  },
+  {
+    "question": "今 /home/saba にいるとき、docs/report.txt と同じファイルを指す絶対パスはどれですか?",
+    "options": [
+      "/home/saba/docs/report.txt",
+      "docs/report.txt",
+      "~/report.txt",
+      "/docs/report.txt"
+    ],
+    "explanation": "絶対パスは / から全部書きます。相対パス docs/report.txt は「今いる /home/saba から見て」なので、つなげると /home/saba/docs/report.txt です。"
+  },
+  {
+    "question": "1つ上のディレクトリに移動するコマンドはどれですか?",
+    "options": ["cd ..", "cd .", "cd /", "cd ~"],
+    "explanation": ".. は1つ上を表します。. は今いる場所、/ はルート、~ はホームです。"
+  }
+]

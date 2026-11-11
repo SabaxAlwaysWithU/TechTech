@@ -1,0 +1,54 @@
+[
+  {
+    "id": "passwd",
+    "title": "ユーザーの一覧",
+    "text": "<p><code>/etc/passwd</code> の中身を表示して、このコンピュータに登録されているユーザーを確かめてください。これは一般ユーザーでも読めます。</p>",
+    "answer": "cat /etc/passwd",
+    "hints": [
+      "cat でファイルの中身を表示します。",
+      "cat /etc/passwd"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "passwd", "lastOutputIncludes": "saba:x:1000", "message": "cat /etc/passwd を実行してください。" }
+    ]
+  },
+  {
+    "id": "sudo",
+    "title": "管理者として読む",
+    "text": "<p><code>/etc/shadow</code> は root 以外読めません。まず普通に <code>cat /etc/shadow</code> を試して断られるのを見てから、<code>sudo</code> を付けて中身を表示してください。</p>",
+    "answer": "cat /etc/shadow\nsudo cat /etc/shadow",
+    "hints": [
+      "sudo コマンド の形で、そのコマンドだけ root として実行できます。",
+      "sudo cat /etc/shadow"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "sudo", "lastOutputIncludes": "root:$6$", "message": "sudo cat /etc/shadow で中身を表示してください。" }
+    ]
+  },
+  {
+    "id": "log",
+    "title": "ログから原因を探す",
+    "text": "<p><code>/var/log/system.log</code> を表示して、<code>warning</code> と書かれた行を見つけてください。何番のプロセスが問題を起こしていたか分かるはずです。</p>",
+    "answer": "cat /var/log/system.log",
+    "hints": [
+      "ログは cat で読めます。",
+      "cat /var/log/system.log で、kernel: warning の行を探します。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "system.log", "lastOutputIncludes": "warning", "message": "cat /var/log/system.log でログを表示してください。" }
+    ]
+  },
+  {
+    "id": "sudo-kill",
+    "title": "他人のプロセスを止める",
+    "text": "<p><code>network-manager</code>(PID 640)は root が動かしているプロセスなので、普通の <code>kill</code> では止められません。<code>sudo</code> を使って止めてください。</p><p>(本物のOSでは、これを止めるとネットワークが切れます。練習用なので安心して試してください)</p>",
+    "answer": "kill 640\nsudo kill 640",
+    "hints": [
+      "まず kill 640 を試すと「許可がありません」と言われます。",
+      "sudo kill 640"
+    ],
+    "shellChecks": [
+      { "processGone": 640, "message": "network-manager(PID 640)がまだ動いています。sudo kill 640 で止めてください。" }
+    ]
+  }
+]

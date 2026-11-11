@@ -1,0 +1,41 @@
+[
+  {
+    "id": "echo-home",
+    "title": "環境変数を見る",
+    "text": "<p><code>echo</code> と <code>$HOME</code> を使って、ホームディレクトリの場所を表示してください。</p>",
+    "answer": "echo $HOME",
+    "hints": [
+      "変数の値は $名前 で取り出します。",
+      "echo $HOME と打つと /home/saba と表示されます。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "$HOME", "lastOutputIncludes": "/home/saba", "message": "echo $HOME を実行してください。" }
+    ]
+  },
+  {
+    "id": "which",
+    "title": "コマンドの場所",
+    "text": "<p><code>which</code> で、<code>python3</code> コマンドの本体がどこにあるかを表示してください。</p>",
+    "answer": "which python3",
+    "hints": [
+      "which コマンド名 の形です。PATH の中から探してくれます。",
+      "which python3 と打つと /usr/bin/python3 と表示されます。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "which", "lastOutputIncludes": "/usr/bin/python3", "message": "which python3 を実行してください。" }
+    ]
+  },
+  {
+    "id": "redirect",
+    "title": "出力をファイルに書く",
+    "text": "<p><code>echo</code> と <code>&gt;</code> を使って、<code>notes/memo.txt</code> に「<code>今日やること</code>」と書き込んでください。書けたら <code>cat</code> で確かめてみましょう。</p>",
+    "answer": "echo 今日やること > notes/memo.txt",
+    "hints": [
+      "コマンド > ファイル で、出力が画面の代わりにファイルに書き込まれます。",
+      "echo 今日やること > notes/memo.txt"
+    ],
+    "shellChecks": [
+      { "content": { "path": "/home/saba/notes/memo.txt", "includes": "今日やること" }, "message": "notes/memo.txt に「今日やること」が書き込まれていません。" }
+    ]
+  }
+]

@@ -66,6 +66,16 @@ for (const field of readdirSync(root)) {
         }
       }
     }
+    if (existsSync(tasksPath) && practice === 'shell') {
+      // シェル(OS): 構造だけ確かめる。模範解答の検証はブラウザのテストで行う
+      const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
+      for (const t of tasks) {
+        if (!Array.isArray(t.shellChecks) || t.shellChecks.length === 0) { console.log(`  !! 課題 ${t.id}: shellChecks がありません`); failures++; }
+        if (!t.answer) { console.log(`  !! 課題 ${t.id}: answer(模範解答)がありません`); failures++; }
+        if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); failures++; }
+        console.log(`  課題 ${t.id}: 判定条件 ${t.shellChecks?.length ?? 0}件`);
+      }
+    }
     if (existsSync(tasksPath) && practice === 'html') {
       // HTML: 構造だけ確かめる。模範解答の検証はブラウザのテストで行う
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));

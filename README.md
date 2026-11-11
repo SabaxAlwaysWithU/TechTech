@@ -52,6 +52,7 @@ public/sql-wasm-browser.wasm sql.js 本体(node_modules/sql.js/dist/ からコ�
 - `"sql"`: [Practice.astro](src/components/Practice.astro)。`schema.sql` が必要
 - `"html"`: [HtmlPractice.astro](src/components/HtmlPractice.astro)。入力欄の横にプレビュー
 - `"js"`: [JsPractice.astro](src/components/JsPractice.astro)。sandbox 付き iframe でコードを実行し、出力を表示
+- `"shell"`: [ShellPractice.astro](src/components/ShellPractice.astro)。疑似ターミナル。仮想のファイル・プロセス・ユーザーは [shell.ts](src/lib/shell.ts)
 
 別の種類(コマンド操作など)を足すときは、コンポーネントを1つ作って `[field]/practice.astro` と `[field]/[lesson]/practice.astro` の分岐に加える。
 
@@ -76,6 +77,12 @@ JavaScript(利用者のコードを隔離された iframe で実行し、[jsrunn
 - `calls`: コード実行後に `call` を評価し、`expect` と一致すれば正解(`[{ "call": "add(2, 3)", "expect": 5 }]`)。両方書いたら両方満たす必要がある
 - 3秒で打ち切る(無限ループ対策)。`check-tasks.mjs` が `answer` を Node の vm で実行して検証する
 
+OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellChecks` で調べる。すべて満たせば正解):
+
+- `cwd`、`exists`、`notExists`、`isDir`、`content: {path, includes|equals}`、`executable`、`notExecutable`、`processGone`、`processExists`、`lastOutputIncludes`、`lastCommandIncludes`
+- 使えるコマンドは `shell.ts` の `commands`(`help` で一覧)。仮想ファイルの初期状態は `initialFs()`、プロセスは `initialProcesses()`
+- `answer` は改行区切りで複数行可。ブラウザのテストで1行ずつ打って検証する
+
 ## 公開(GitHub Pages)
 
 1. GitHub にリポジトリを作り、このフォルダを push する(ブランチ名は `main`)
@@ -92,6 +99,7 @@ JavaScript(利用者のコードを隔離された iframe で実行し、[jsrunn
 4. レッスンを増やして公開する — SQL 7レッスン完了、GitHub に push 済み
 5. HTMLとCSS分野 — 練習場(プレビュー、要素の判定)と6レッスン完了
 6. JavaScript分野 — 練習場(隔離実行、出力・戻り値の判定)と6レッスン完了
+7. OSの仕組み分野 — 練習場(疑似ターミナル)と6レッスン完了
 
 ## 未決事項
 

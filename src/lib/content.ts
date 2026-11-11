@@ -6,7 +6,7 @@
 // content/<分野>/schema.sql           分野共通の練習用データ(SQLのみ)
 import { getCollection } from 'astro:content';
 
-export type PracticeKind = 'sql' | 'html' | 'js';
+export type PracticeKind = 'sql' | 'html' | 'js' | 'shell';
 
 export interface Field {
   id: string;
@@ -55,6 +55,23 @@ export interface Task {
   // JS用
   expectOutput?: string[]; // console.log の出力がこの通りなら正解
   calls?: JsCall[]; // 関数を呼んだ結果がこの通りなら正解
+  // シェル(OS)用。ShellCheck は lib/shell.ts
+  shellChecks?: ShellCheckLike[];
+}
+
+export interface ShellCheckLike {
+  cwd?: string;
+  exists?: string;
+  notExists?: string;
+  isDir?: string;
+  content?: { path: string; includes?: string; equals?: string };
+  executable?: string;
+  notExecutable?: string;
+  processGone?: number;
+  processExists?: number;
+  lastOutputIncludes?: string;
+  lastCommandIncludes?: string;
+  message: string;
 }
 
 export interface Lesson {
