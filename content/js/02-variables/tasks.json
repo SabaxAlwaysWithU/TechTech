@@ -1,0 +1,38 @@
+[
+  {
+    "id": "declare",
+    "title": "変数に入れて使う",
+    "text": "<p>変数 <code>name</code> に文字列 <code>\"さば\"</code> を入れ、変数を使って「<code>こんにちは、さばさん</code>」と出力してください。</p>",
+    "starter": "",
+    "answer": "const name = \"さば\";\nconsole.log(\"こんにちは、\" + name + \"さん\");",
+    "hints": [
+      "const name = \"さば\"; で変数を作ります。そのあと console.log で name をつなぎます。",
+      "console.log(\"こんにちは、\" + name + \"さん\"); または console.log(`こんにちは、${name}さん`);"
+    ],
+    "expectOutput": ["こんにちは、さばさん"]
+  },
+  {
+    "id": "reassign",
+    "title": "値を入れ直す",
+    "text": "<p>変数 <code>count</code> を <code>0</code> で作り、<code>1</code> を足す代入を3回行ってから <code>count</code> を出力してください。出力は <code>3</code> になります。<code>count = 3</code> と直接書くのではなく、足す操作を3回書きます。</p>",
+    "starter": "let count = 0;\n",
+    "answer": "let count = 0;\ncount = count + 1;\ncount = count + 1;\ncount = count + 1;\nconsole.log(count);",
+    "hints": [
+      "count = count + 1; で count が1増えます。これを3回書きます。",
+      "count = count + 1; を3行並べて、最後に console.log(count);"
+    ],
+    "expectOutput": ["3"]
+  },
+  {
+    "id": "template",
+    "title": "テンプレートリテラル",
+    "text": "<p>変数 <code>item</code> に <code>\"りんご\"</code>、<code>price</code> に <code>120</code>、<code>qty</code> に <code>3</code> を入れ、テンプレートリテラル(バッククォート)を使って次の1行を出力してください。金額は <code>price * qty</code> で計算させます。</p><pre>りんご 3個で 360円</pre>",
+    "starter": "const item = \"りんご\";\nconst price = 120;\nconst qty = 3;\n",
+    "answer": "const item = \"りんご\";\nconst price = 120;\nconst qty = 3;\nconsole.log(`${item} ${qty}個で ${price * qty}円`);",
+    "hints": [
+      "` で囲み、${item} のように変数を埋め込みます。${price * qty} のように計算式も書けます。",
+      "console.log(`${item} ${qty}個で ${price * qty}円`);"
+    ],
+    "expectOutput": ["りんご 3個で 360円"]
+  }
+]

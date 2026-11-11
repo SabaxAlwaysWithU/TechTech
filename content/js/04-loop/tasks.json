@@ -1,0 +1,38 @@
+[
+  {
+    "id": "count",
+    "title": "1から5まで",
+    "text": "<p><code>for</code> を使って、1 から 5 までの数を1行ずつ出力してください。</p>",
+    "starter": "",
+    "answer": "for (let i = 1; i <= 5; i++) {\n  console.log(i);\n}",
+    "hints": [
+      "for (let i = 1; i <= 5; i++) { ... } の中で console.log(i); を書きます。",
+      "for (let i = 1; i <= 5; i++) { console.log(i); }"
+    ],
+    "expectOutput": ["1", "2", "3", "4", "5"]
+  },
+  {
+    "id": "sum",
+    "title": "合計を求める",
+    "text": "<p>1 から 100 までの整数の合計を <code>for</code> で計算し、最後に1回だけ出力してください。答えは 5050 ですが、自分で書くのではなく計算させます。</p>",
+    "starter": "let sum = 0;\n",
+    "answer": "let sum = 0;\nfor (let i = 1; i <= 100; i++) {\n  sum += i;\n}\nconsole.log(sum);",
+    "hints": [
+      "繰り返しの中で sum = sum + i; を行い、繰り返しが終わったあとに console.log(sum); を書きます。",
+      "for (let i = 1; i <= 100; i++) { sum += i; } console.log(sum);"
+    ],
+    "expectOutput": ["5050"]
+  },
+  {
+    "id": "for-of",
+    "title": "配列を全部表示",
+    "text": "<p>配列 <code>fruits</code> の中身を <code>for...of</code> で順番に取り出し、「<code>りんごが好き</code>」のように「<code>が好き</code>」を付けて1行ずつ出力してください。</p>",
+    "starter": "const fruits = [\"りんご\", \"バナナ\", \"みかん\"];\n",
+    "answer": "const fruits = [\"りんご\", \"バナナ\", \"みかん\"];\nfor (const fruit of fruits) {\n  console.log(fruit + \"が好き\");\n}",
+    "hints": [
+      "for (const fruit of fruits) { ... } で、fruit に1つずつ入ります。",
+      "for (const fruit of fruits) { console.log(fruit + \"が好き\"); }"
+    ],
+    "expectOutput": ["りんごが好き", "バナナが好き", "みかんが好き"]
+  }
+]

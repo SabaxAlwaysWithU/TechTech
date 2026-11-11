@@ -1,0 +1,7 @@
+{
+  "title": "JavaScript",
+  "description": "全6レッスン。プログラムを書いて動かす。変数、条件、繰り返し、関数。",
+  "order": 3,
+  "practice": "js",
+  "languages": ["js", "javascript"]
+}

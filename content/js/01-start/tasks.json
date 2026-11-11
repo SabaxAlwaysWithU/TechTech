@@ -1,0 +1,38 @@
+[
+  {
+    "id": "hello",
+    "title": "はじめての出力",
+    "text": "<p><code>console.log</code> を使って、次の2行をこの順番で出力してください。</p><pre>こんにちは\nはじめまして</pre>",
+    "starter": "",
+    "answer": "console.log(\"こんにちは\");\nconsole.log(\"はじめまして\");",
+    "hints": [
+      "console.log(\"文字\"); を2回書きます。1回で1行出力されます。",
+      "console.log(\"こんにちは\"); console.log(\"はじめまして\");"
+    ],
+    "expectOutput": ["こんにちは", "はじめまして"]
+  },
+  {
+    "id": "calc",
+    "title": "計算させる",
+    "text": "<p>12 と 34 を足した結果を、計算式を書いて出力してください(自分で 46 と書くのではなく、コンピュータに計算させます)。</p>",
+    "starter": "",
+    "answer": "console.log(12 + 34);",
+    "hints": [
+      "数値は \" で囲みません。囲むと計算されずにそのまま表示されます。",
+      "console.log(12 + 34); と書くと、計算結果の 46 が表示されます。"
+    ],
+    "expectOutput": ["46"]
+  },
+  {
+    "id": "concat",
+    "title": "文字をつなぐ",
+    "text": "<p>文字列 <code>\"合計は\"</code> と、計算式 <code>100 * 3</code> と、文字列 <code>\"円です\"</code> を <code>+</code> でつないで、1行で出力してください。</p><pre>合計は300円です</pre>",
+    "starter": "",
+    "answer": "console.log(\"合計は\" + 100 * 3 + \"円です\");",
+    "hints": [
+      "文字列と数を + でつなぐと、数も文字として扱われます。かけ算は * です。",
+      "console.log(\"合計は\" + 100 * 3 + \"円です\");"
+    ],
+    "expectOutput": ["合計は300円です"]
+  }
+]

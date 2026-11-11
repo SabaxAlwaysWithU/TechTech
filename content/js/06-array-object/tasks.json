@@ -1,0 +1,42 @@
+[
+  {
+    "id": "index",
+    "title": "配列から取り出す",
+    "text": "<p>配列 <code>days</code> の最初の要素と最後の要素を、この順に1行ずつ出力してください。番号を直接書いてもよいですが、最後の要素は <code>days.length - 1</code> を使うと配列が変わっても動きます。</p>",
+    "starter": "const days = [\"月\", \"火\", \"水\", \"木\", \"金\"];\n",
+    "answer": "const days = [\"月\", \"火\", \"水\", \"木\", \"金\"];\nconsole.log(days[0]);\nconsole.log(days[days.length - 1]);",
+    "hints": [
+      "最初は days[0] です。番号は 0 から始まります。",
+      "最後は days[4] または days[days.length - 1] です。"
+    ],
+    "expectOutput": ["月", "金"]
+  },
+  {
+    "id": "sum-array",
+    "title": "配列の合計を返す",
+    "text": "<p>数の配列を受け取り、その合計を返す関数 <code>sum(numbers)</code> を作ってください。空の配列なら <code>0</code> を返します。</p>",
+    "starter": "function sum(numbers) {\n\n}\n\nconsole.log(sum([1, 2, 3]));\n",
+    "answer": "function sum(numbers) {\n  let total = 0;\n  for (const n of numbers) {\n    total += n;\n  }\n  return total;\n}\n\nconsole.log(sum([1, 2, 3]));",
+    "hints": [
+      "let total = 0; を作り、for (const n of numbers) { total += n; } で足していき、最後に return total;",
+      "繰り返しが終わったあと(} の外)で return するのがポイントです。中で return すると1回で終わってしまいます。"
+    ],
+    "calls": [
+      { "call": "sum([1, 2, 3])", "expect": 6 },
+      { "call": "sum([120, 300, 80])", "expect": 500 },
+      { "call": "sum([])", "expect": 0 }
+    ]
+  },
+  {
+    "id": "objects",
+    "title": "商品一覧を表示",
+    "text": "<p>オブジェクトの配列 <code>products</code> を <code>for...of</code> で回し、「<code>マウス: 2500円</code>」の形で1行ずつ出力してください。</p>",
+    "starter": "const products = [\n  { name: \"マウス\", price: 2500 },\n  { name: \"キーボード\", price: 6800 },\n  { name: \"モニター\", price: 32000 },\n];\n",
+    "answer": "const products = [\n  { name: \"マウス\", price: 2500 },\n  { name: \"キーボード\", price: 6800 },\n  { name: \"モニター\", price: 32000 },\n];\nfor (const p of products) {\n  console.log(`${p.name}: ${p.price}円`);\n}",
+    "hints": [
+      "for (const p of products) { ... } で、p に1つずつオブジェクトが入ります。名前は p.name、価格は p.price です。",
+      "console.log(`${p.name}: ${p.price}円`); または console.log(p.name + \": \" + p.price + \"円\");"
+    ],
+    "expectOutput": ["マウス: 2500円", "キーボード: 6800円", "モニター: 32000円"]
+  }
+]

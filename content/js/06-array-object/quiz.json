@@ -1,0 +1,22 @@
+[
+  {
+    "question": "const a = [\"x\", \"y\", \"z\"]; のとき、\"y\" を取り出す書き方はどれですか?",
+    "options": ["a[1]", "a[2]", "a(1)", "a.1"],
+    "explanation": "配列の番号は 0 から始まるので、2番目の \"y\" は a[1] です。"
+  },
+  {
+    "question": "配列の末尾に値を足す書き方はどれですか?",
+    "options": ["list.push(値)", "list.add(値)", "list + 値", "list.append(値)"],
+    "explanation": "JavaScript では push で末尾に追加します。append は Python の書き方です。"
+  },
+  {
+    "question": "const p = { name: \"マウス\", price: 2500 }; のとき、価格を取り出す書き方はどれですか?",
+    "options": ["p.price", "p[1]", "p->price", "price(p)"],
+    "explanation": "オブジェクトのプロパティは . で取り出します。p.price で 2500 です。"
+  },
+  {
+    "question": "[10, 20, 30].length の値はどれですか?",
+    "options": ["3", "2", "30", "60"],
+    "explanation": "length は要素の数です。3つ入っているので 3 です。最後の番号(2)と混同しないようにしましょう。"
+  }
+]

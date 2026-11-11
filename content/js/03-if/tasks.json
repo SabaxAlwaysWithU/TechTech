@@ -1,0 +1,50 @@
+[
+  {
+    "id": "if-else",
+    "title": "偶数か奇数か",
+    "text": "<p>変数 <code>n</code> が偶数なら「<code>偶数</code>」、そうでなければ「<code>奇数</code>」と出力してください。<code>n % 2</code> は <code>n</code> を 2 で割った余りです(偶数なら 0)。</p><p>書けたら、<code>n</code> を 8 などに変えて「偶数」と出ることも確かめてみましょう。</p>",
+    "starter": "const n = 7;\n",
+    "answer": "const n = 7;\nif (n % 2 === 0) {\n  console.log(\"偶数\");\n} else {\n  console.log(\"奇数\");\n}",
+    "hints": [
+      "if (n % 2 === 0) { ... } else { ... } の形です。余りが 0 なら偶数です。",
+      "if (n % 2 === 0) { console.log(\"偶数\"); } else { console.log(\"奇数\"); }"
+    ],
+    "expectOutput": ["奇数"]
+  },
+  {
+    "id": "else-if",
+    "title": "成績を付ける",
+    "text": "<p>関数 <code>grade(score)</code> を完成させてください。<code>score</code> が 80 以上なら <code>\"A\"</code>、60 以上なら <code>\"B\"</code>、それ以外は <code>\"C\"</code> を返します。</p><p>関数の作り方はレッスン5で学びますが、ここでは <code>return 値;</code> と書くとその値が結果になる、とだけ覚えてください。</p>",
+    "starter": "function grade(score) {\n  // ここに if を書く\n\n}\n\nconsole.log(grade(75));\n",
+    "answer": "function grade(score) {\n  if (score >= 80) {\n    return \"A\";\n  } else if (score >= 60) {\n    return \"B\";\n  } else {\n    return \"C\";\n  }\n}\n\nconsole.log(grade(75));",
+    "hints": [
+      "if (score >= 80) { return \"A\"; } else if (score >= 60) { return \"B\"; } else { return \"C\"; } の形です。上から順に調べられます。",
+      "80以上の判定を先に書くのがポイントです。60以上を先に書くと、90点でも B になってしまいます。"
+    ],
+    "calls": [
+      { "call": "grade(95)", "expect": "A" },
+      { "call": "grade(80)", "expect": "A" },
+      { "call": "grade(75)", "expect": "B" },
+      { "call": "grade(60)", "expect": "B" },
+      { "call": "grade(59)", "expect": "C" },
+      { "call": "grade(0)", "expect": "C" }
+    ]
+  },
+  {
+    "id": "and-or",
+    "title": "入場できるか",
+    "text": "<p>関数 <code>canEnter(age, hasTicket)</code> を完成させてください。<code>age</code> が 18 以上で、かつ <code>hasTicket</code> が <code>true</code> のときだけ <code>true</code> を返し、それ以外は <code>false</code> を返します。</p>",
+    "starter": "function canEnter(age, hasTicket) {\n\n}\n\nconsole.log(canEnter(20, true));\n",
+    "answer": "function canEnter(age, hasTicket) {\n  if (age >= 18 && hasTicket) {\n    return true;\n  } else {\n    return false;\n  }\n}\n\nconsole.log(canEnter(20, true));",
+    "hints": [
+      "「かつ」は && です。if (age >= 18 && hasTicket) { return true; } else { return false; }",
+      "条件そのものが true / false なので、return age >= 18 && hasTicket; と1行でも書けます。"
+    ],
+    "calls": [
+      { "call": "canEnter(20, true)", "expect": true },
+      { "call": "canEnter(18, true)", "expect": true },
+      { "call": "canEnter(17, true)", "expect": false },
+      { "call": "canEnter(30, false)", "expect": false }
+    ]
+  }
+]

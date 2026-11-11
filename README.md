@@ -51,6 +51,7 @@ public/sql-wasm-browser.wasm sql.js 本体(node_modules/sql.js/dist/ からコ�
 
 - `"sql"`: [Practice.astro](src/components/Practice.astro)。`schema.sql` が必要
 - `"html"`: [HtmlPractice.astro](src/components/HtmlPractice.astro)。入力欄の横にプレビュー
+- `"js"`: [JsPractice.astro](src/components/JsPractice.astro)。sandbox 付き iframe でコードを実行し、出力を表示
 
 別の種類(コマンド操作など)を足すときは、コンポーネントを1つ作って `[field]/practice.astro` と `[field]/[lesson]/practice.astro` の分岐に加える。
 
@@ -69,6 +70,12 @@ HTML(プレビューにできたページを `checks` で調べる。すべて�
 - `message`: 満たさないときに出す1行
 - `answer` は「模範解答を見る」用。模範解答が実際に正解になるかはブラウザのテストで確かめる
 
+JavaScript(利用者のコードを隔離された iframe で実行し、[jsrunner.ts](src/lib/jsrunner.ts) で判定):
+
+- `expectOutput`: `console.log` の出力がこの通り(1行ずつ、前後の空白は無視)なら正解
+- `calls`: コード実行後に `call` を評価し、`expect` と一致すれば正解(`[{ "call": "add(2, 3)", "expect": 5 }]`)。両方書いたら両方満たす必要がある
+- 3秒で打ち切る(無限ループ対策)。`check-tasks.mjs` が `answer` を Node の vm で実行して検証する
+
 ## 公開(GitHub Pages)
 
 1. GitHub にリポジトリを作り、このフォルダを push する(ブランチ名は `main`)
@@ -84,6 +91,7 @@ HTML(プレビューにできたページを `checks` で調べる。すべて�
 3. 記事とクイズを付ける — 完了
 4. レッスンを増やして公開する — SQL 7レッスン完了、GitHub に push 済み
 5. HTMLとCSS分野 — 練習場(プレビュー、要素の判定)と6レッスン完了
+6. JavaScript分野 — 練習場(隔離実行、出力・戻り値の判定)と6レッスン完了
 
 ## 未決事項
 

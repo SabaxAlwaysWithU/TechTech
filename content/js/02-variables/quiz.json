@@ -1,0 +1,32 @@
+[
+  {
+    "question": "let x = 3; x = 7; console.log(x); の出力はどれですか?",
+    "options": ["7", "3", "10", "エラー"],
+    "explanation": "x = 7 で x の中身が 7 に入れ替わります。最後に入れた値が表示されます。"
+  },
+  {
+    "question": "const price = 100; price = 200; を実行するとどうなりますか?",
+    "options": [
+      "エラーになる(const は変えられない)",
+      "price が 200 になる",
+      "price が 300 になる",
+      "何も起きない"
+    ],
+    "explanation": "const で宣言した変数には、あとから別の値を入れられません。変える必要があるなら let を使います。"
+  },
+  {
+    "question": "let n = 5; n = n + 1; のあと、n はいくつですか?",
+    "options": ["6", "5", "11", "n + 1"],
+    "explanation": "= は「右の値を左に入れる」です。右の n + 1 は 6 なので、n に 6 が入ります。"
+  },
+  {
+    "question": "const name = \"さば\"; のとき、「さばさん」と表示する書き方はどれですか?",
+    "options": [
+      "console.log(`${name}さん`);",
+      "console.log(\"${name}さん\");",
+      "console.log(name さん);",
+      "console.log(\"name\" + \"さん\");"
+    ],
+    "explanation": "バッククォート ` で囲んだ文字列の中の ${name} は、変数の値に置き換わります。\" で囲むと ${name} がそのまま表示されます。"
+  }
+]

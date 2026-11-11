@@ -1,0 +1,27 @@
+[
+  {
+    "question": "x が 10 と等しいかどうかを調べる条件はどれですか?",
+    "options": ["x === 10", "x = 10", "x == = 10", "x equals 10"],
+    "explanation": "等しいかどうかは === です。= が1つだと「x に 10 を入れる」という代入になってしまいます。"
+  },
+  {
+    "question": "const n = 7; if (n > 5) { console.log(\"大\"); } else { console.log(\"小\"); } の出力はどれですか?",
+    "options": ["大", "小", "大 と 小", "何も出ない"],
+    "explanation": "7 > 5 は成り立つ(true)ので、if の中の「大」だけが実行されます。else は実行されません。"
+  },
+  {
+    "question": "「age が 13 以上、かつ 19 以下」を表す条件はどれですか?",
+    "options": [
+      "age >= 13 && age <= 19",
+      "age >= 13 || age <= 19",
+      "13 <= age <= 19",
+      "age >= 13 and age <= 19"
+    ],
+    "explanation": "「かつ」は && です。|| は「または」で、これだとすべての数が当てはまってしまいます。13 <= age <= 19 のような書き方は JavaScript では意図通りに動きません。"
+  },
+  {
+    "question": "console.log(3 < 2); の出力はどれですか?",
+    "options": ["false", "true", "3 < 2", "エラー"],
+    "explanation": "比較の結果は true か false の真偽値です。3 < 2 は成り立たないので false になります。"
+  }
+]

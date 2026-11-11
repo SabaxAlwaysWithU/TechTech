@@ -6,7 +6,7 @@
 // content/<分野>/schema.sql           分野共通の練習用データ(SQLのみ)
 import { getCollection } from 'astro:content';
 
-export type PracticeKind = 'sql' | 'html';
+export type PracticeKind = 'sql' | 'html' | 'js';
 
 export interface Field {
   id: string;
@@ -34,18 +34,27 @@ export interface HtmlCheck {
   message: string; // 満たさないときに出す1行
 }
 
+/** JavaScript練習場の判定: 利用者のコードを実行したあとに call を評価し、expect と比べる */
+export interface JsCall {
+  call: string; // 例: "add(2, 3)"
+  expect: unknown; // 例: 5
+}
+
 export interface Task {
   id: string;
   title: string;
   text: string;
   hints: string[];
+  answer?: string; // 模範解答
+  starter?: string; // 入力欄の初期内容(HTML / JS)
   // SQL用
-  answer?: string;
   ordered?: boolean; // 行の順番も比べる
   mutation?: boolean; // 実行後の表の中身で比べる
   // HTML用
-  starter?: string; // 入力欄の初期内容
   checks?: HtmlCheck[];
+  // JS用
+  expectOutput?: string[]; // console.log の出力がこの通りなら正解
+  calls?: JsCall[]; // 関数を呼んだ結果がこの通りなら正解
 }
 
 export interface Lesson {

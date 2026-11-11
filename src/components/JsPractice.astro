@@ -1,0 +1,261 @@
+---
+// JavaScript の練習場。コードを書いて実行し、出力を見る。課題は出力や関数の結果で判定する。
+import type { Task } from '../lib/content';
+interface Props {
+  lessonId?: string;
+  lessonTitle?: string;
+  tasks?: Task[];
+  backHref?: string;
+  nextHref?: string;
+  nextLabel?: string;
+}
+const { lessonId, lessonTitle, tasks = [], backHref, nextHref, nextLabel } = Astro.props;
+const hasTasks = tasks.length > 0;
+const freeStarter = `// 自由に書いて「実行」を押してみましょう
+const name = "さば";
+console.log("こんにちは、" + name + "さん");
+
+for (let i = 1; i <= 3; i++) {
+  console.log(i + "回目");
+}
+`;
+---
+<main class="practice">
+  <div class="pane left">
+    <section class="task">
+      {hasTasks ? (
+        <>
+          <p class="eyebrow">{lessonTitle} の練習</p>
+          <nav class="task-tabs" id="task-tabs" aria-label="課題">
+            {tasks.map((t, i) => (
+              <button type="button" class="tab" data-index={i} aria-current={i === 0 ? 'true' : undefined}>課題{i + 1}</button>
+            ))}
+          </nav>
+          <h1 id="task-title">{tasks[0].title}</h1>
+          <div id="task-text" class="task-text" set:html={tasks[0].text} />
+          <div class="hints">
+            <button type="button" class="btn secondary" id="hint-btn">ヒントを見る</button>
+            <ol id="hint-list" class="hint-list"></ol>
+            <details id="answer-box" hidden>
+              <summary>模範解答を見る</summary>
+              <pre id="answer-code"></pre>
+            </details>
+          </div>
+          <div id="verdict" class="verdict" hidden></div>
+        </>
+      ) : (
+        <>
+          <h1>フリーモード</h1>
+          <p class="muted">課題はありません。JavaScriptを自由に書いて実行できます。<code>console.log</code> の出力が右に表示されます。</p>
+        </>
+      )}
+    </section>
+  </div>
+  <div class="pane right">
+    <section class="editor">
+      <label for="code-input" class="label">コード入力欄 <span class="muted">(Ctrl+Enter で実行)</span></label>
+      <textarea id="code-input" spellcheck="false">{hasTasks ? (tasks[0].starter ?? '') : freeStarter}</textarea>
+      <div class="actions">
+        <button id="run" class="btn">実行</button>
+        <button id="reset" class="btn secondary">最初に戻す</button>
+        <span id="status" class="muted"></span>
+      </div>
+    </section>
+    <section class="output">
+      <h2>出力</h2>
+      <pre id="output" class="console"><span class="muted">まだ実行していません。</span></pre>
+    </section>
+    {hasTasks && (
+      <nav class="lesson-nav">
+        {backHref && <a href={backHref}>← 記事に戻る</a>}
+        {nextHref && <a href={nextHref}>{nextLabel ?? '次へ'} →</a>}
+      </nav>
+    )}
+  </div>
+</main>
+
+<script type="application/json" id="practice-data" set:html={JSON.stringify({ lessonId, tasks, freeStarter })} />
+
+<script>
+  import { runJs, judgeJs } from '../lib/jsrunner';
+  import { getProgress, markTaskCleared } from '../lib/progress';
+  import type { Task } from '../lib/content';
+
+  const data = JSON.parse(document.getElementById('practice-data')!.textContent!) as { lessonId?: string; tasks: Task[]; freeStarter: string };
+  const tasks = data.tasks;
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const input = $<HTMLTextAreaElement>('code-input');
+  const output = $('output');
+  const runBtn = $<HTMLButtonElement>('run');
+  const status = $('status');
+  let taskIndex = 0;
+  let hintsShown = 0;
+
+  function currentTask(): Task | undefined { return tasks[taskIndex]; }
+
+  function renderTask() {
+    const t = currentTask();
+    if (!t) return;
+    hintsShown = 0;
+    $('task-title').textContent = t.title;
+    $('task-text').innerHTML = t.text;
+    $('hint-list').innerHTML = '';
+    const hintBtn = $<HTMLButtonElement>('hint-btn');
+    hintBtn.hidden = t.hints.length === 0;
+    hintBtn.textContent = 'ヒントを見る';
+    const ans = $<HTMLDetailsElement>('answer-box');
+    ans.hidden = true;
+    ans.open = false;
+    $('answer-code').textContent = t.answer ?? '';
+    const verdict = $('verdict');
+    verdict.hidden = true;
+    verdict.className = 'verdict';
+    const prog = data.lessonId ? getProgress(data.lessonId) : {};
+    for (const tab of document.querySelectorAll<HTMLButtonElement>('#task-tabs .tab')) {
+      const i = Number(tab.dataset.index);
+      tab.toggleAttribute('aria-current', i === taskIndex);
+      tab.classList.toggle('done', !!prog.tasks?.[tasks[i].id]);
+    }
+    if (prog.tasks?.[t.id]) { verdict.hidden = false; verdict.classList.add('correct'); verdict.textContent = 'クリア済み。別の書き方も試してみましょう。'; }
+    input.value = t.starter ?? '';
+    output.innerHTML = '<span class="muted">まだ実行していません。</span>';
+  }
+
+  function showHint() {
+    const t = currentTask();
+    if (!t) return;
+    if (hintsShown < t.hints.length) {
+      const li = document.createElement('li');
+      li.textContent = t.hints[hintsShown];
+      $('hint-list').appendChild(li);
+      hintsShown++;
+    }
+    const btn = $<HTMLButtonElement>('hint-btn');
+    if (hintsShown >= t.hints.length) {
+      btn.hidden = true;
+      $('answer-box').hidden = false;
+    } else {
+      btn.textContent = `次のヒントを見る(${hintsShown}/${t.hints.length})`;
+    }
+  }
+
+  async function run() {
+    runBtn.disabled = true;
+    status.textContent = '実行中…';
+    const t = currentTask();
+    const out = await runJs(input.value, t?.calls?.map((c) => c.call) ?? []);
+    output.innerHTML = '';
+    if (out.logs.length === 0 && out.ok) {
+      output.innerHTML = '<span class="muted">(出力はありません。console.log で表示できます)</span>';
+    }
+    for (const line of out.logs) {
+      const div = document.createElement('div');
+      div.textContent = line;
+      output.appendChild(div);
+    }
+    if (!out.ok) {
+      const err = document.createElement('div');
+      err.className = 'err';
+      err.innerHTML = '<strong></strong><br><span class="raw"></span>';
+      err.querySelector('strong')!.textContent = out.hint ?? '';
+      err.querySelector('.raw')!.textContent = out.error ?? '';
+      output.appendChild(err);
+    }
+    status.textContent = `実行: ${new Date().toLocaleTimeString('ja-JP')}`;
+    if (t) {
+      const j = judgeJs(out, t.expectOutput, t.calls);
+      const verdict = $('verdict');
+      verdict.hidden = false;
+      verdict.className = 'verdict ' + (j.correct ? 'correct' : 'wrong');
+      if (j.correct) {
+        verdict.textContent = '正解です。';
+        if (data.lessonId) markTaskCleared(data.lessonId, t.id);
+        document.querySelector<HTMLButtonElement>(`#task-tabs .tab[data-index="${taskIndex}"]`)?.classList.add('done');
+      } else {
+        verdict.textContent = `不正解: ${j.message}`;
+      }
+    }
+    runBtn.disabled = false;
+  }
+
+  runBtn.addEventListener('click', run);
+  input.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(); }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const s = input.selectionStart, en = input.selectionEnd;
+      input.value = input.value.slice(0, s) + '  ' + input.value.slice(en);
+      input.selectionStart = input.selectionEnd = s + 2;
+    }
+  });
+  document.getElementById('reset')!.addEventListener('click', () => {
+    input.value = currentTask()?.starter ?? data.freeStarter;
+  });
+  document.getElementById('hint-btn')?.addEventListener('click', showHint);
+  document.getElementById('task-tabs')?.addEventListener('click', (e) => {
+    const tab = (e.target as HTMLElement).closest<HTMLButtonElement>('.tab');
+    if (!tab) return;
+    taskIndex = Number(tab.dataset.index);
+    renderTask();
+  });
+
+  const params = new URLSearchParams(location.search);
+  const preset = params.get('code');
+  const presetTask = Number(params.get('task'));
+  if (tasks.length && presetTask >= 1 && presetTask <= tasks.length) taskIndex = presetTask - 1;
+  if (tasks.length) renderTask();
+  if (preset) { input.value = preset; if (!tasks.length) run(); }
+</script>
+
+<style>
+  .practice {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+    display: grid;
+    grid-template-columns: minmax(16rem, 1fr) minmax(0, 2fr);
+    gap: 2rem;
+    font-size: 0.95rem;
+  }
+  @media (max-width: 760px) { .practice { grid-template-columns: 1fr; } }
+  .pane { min-width: 0; }
+  h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  h2 { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 2rem 0 0.4rem; font-weight: 600; }
+  .eyebrow { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.6rem; }
+  .task p { margin: 0 0 1rem; }
+  .task-text :global(p) { margin: 0 0 0.8rem; }
+  .task-text :global(ul) { margin: 0 0 0.8rem; padding-left: 1.4rem; }
+  .task-text :global(code), .task code { font-family: var(--mono); background: var(--surface); padding: 0.1em 0.35em; font-size: 0.9em; border-radius: 5px; }
+  .task-text :global(pre) { font-family: var(--mono); background: var(--surface); padding: 0.6rem 0.8rem; font-size: 0.85rem; border-radius: var(--radius-sm); white-space: pre-wrap; }
+  .task-tabs { display: flex; gap: 0.3rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .task-tabs .tab { font: inherit; font-size: 0.85rem; padding: 0.3rem 0.9rem; cursor: pointer; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; }
+  .task-tabs .tab:hover { background: var(--surface); }
+  .task-tabs .tab[aria-current] { color: var(--fg); border-color: var(--fg); background: var(--surface); }
+  .task-tabs .tab.done::after { content: ' ✓'; color: var(--accent); }
+  .hints { margin-top: 1rem; }
+  .hint-list { margin: 0.8rem 0 0; padding-left: 1.4rem; }
+  .hint-list :global(li) { margin-bottom: 0.4rem; }
+  details { margin-top: 0.8rem; }
+  summary { cursor: pointer; color: var(--accent); }
+  #answer-code { font-family: var(--mono); font-size: 0.85rem; background: var(--surface); padding: 0.8rem 1rem; white-space: pre-wrap; margin: 0.5rem 0 0; border-radius: var(--radius-sm); }
+  .verdict { margin-top: 1rem; padding: 0.7rem 1rem; border-left: 4px solid var(--line); background: var(--surface); font-weight: 600; border-radius: var(--radius-sm); }
+  .verdict.correct { border-left-color: var(--accent); color: var(--accent); }
+  .verdict.wrong { border-left-color: var(--error); }
+  .label { display: block; font-size: 0.85rem; color: var(--muted); margin: 0 0 0.4rem; font-weight: 600; }
+  textarea {
+    width: 100%; min-height: 16rem; font-family: var(--mono); font-size: 0.95rem; line-height: 1.6;
+    padding: 0.8rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--fg);
+    resize: vertical; tab-size: 2; white-space: pre;
+  }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+  .actions { display: flex; gap: 0.6rem; align-items: center; margin-top: 0.6rem; }
+  .actions .muted { font-size: 0.85rem; }
+  .console {
+    font-family: var(--mono); font-size: 0.9rem; line-height: 1.6; margin: 0;
+    padding: 0.8rem 1rem; min-height: 6rem; border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--surface); white-space: pre-wrap; overflow-x: auto;
+  }
+  .console :global(.err) { color: var(--error); margin-top: 0.4rem; }
+  .console :global(.err .raw) { color: var(--muted); font-size: 0.85rem; }
+  .lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+</style>

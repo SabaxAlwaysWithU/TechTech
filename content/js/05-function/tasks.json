@@ -1,0 +1,47 @@
+[
+  {
+    "id": "define-call",
+    "title": "関数を作って呼ぶ",
+    "text": "<p>引数 <code>name</code> を受け取り、「<code>こんにちは、○○さん</code>」と出力する関数 <code>greet</code> を作り、<code>\"さば\"</code> と <code>\"たら\"</code> で1回ずつ呼び出してください。</p>",
+    "starter": "",
+    "answer": "function greet(name) {\n  console.log(\"こんにちは、\" + name + \"さん\");\n}\n\ngreet(\"さば\");\ngreet(\"たら\");",
+    "hints": [
+      "function greet(name) { console.log(...); } で作り、greet(\"さば\"); で呼びます。",
+      "function greet(name) { console.log(\"こんにちは、\" + name + \"さん\"); } greet(\"さば\"); greet(\"たら\");"
+    ],
+    "expectOutput": ["こんにちは、さばさん", "こんにちは、たらさん"],
+    "calls": [{ "call": "typeof greet", "expect": "function" }]
+  },
+  {
+    "id": "return",
+    "title": "値を返す",
+    "text": "<p>2つの数を受け取って、その積(かけ算の結果)を返す関数 <code>multiply(a, b)</code> を作ってください。<code>console.log</code> で表示するのではなく、<code>return</code> で返します。</p>",
+    "starter": "function multiply(a, b) {\n\n}\n\nconsole.log(multiply(3, 4));\n",
+    "answer": "function multiply(a, b) {\n  return a * b;\n}\n\nconsole.log(multiply(3, 4));",
+    "hints": [
+      "かけ算は * です。return a * b; と書きます。",
+      "function multiply(a, b) { return a * b; }"
+    ],
+    "calls": [
+      { "call": "multiply(3, 4)", "expect": 12 },
+      { "call": "multiply(0, 100)", "expect": 0 },
+      { "call": "multiply(-2, 5)", "expect": -10 }
+    ]
+  },
+  {
+    "id": "tax",
+    "title": "税込価格",
+    "text": "<p>税抜き価格 <code>price</code> を受け取り、10% の消費税を加えた税込価格を返す関数 <code>withTax(price)</code> を作ってください。小数は <code>Math.floor(数)</code> で切り捨てます(例: <code>Math.floor(108.9)</code> は <code>108</code>)。</p>",
+    "starter": "function withTax(price) {\n\n}\n\nconsole.log(withTax(100));\n",
+    "answer": "function withTax(price) {\n  return Math.floor(price * 1.1);\n}\n\nconsole.log(withTax(100));",
+    "hints": [
+      "税込価格は price * 1.1 です。それを Math.floor( ) で囲んで切り捨てます。",
+      "return Math.floor(price * 1.1);"
+    ],
+    "calls": [
+      { "call": "withTax(100)", "expect": 110 },
+      { "call": "withTax(99)", "expect": 108 },
+      { "call": "withTax(1980)", "expect": 2178 }
+    ]
+  }
+]
