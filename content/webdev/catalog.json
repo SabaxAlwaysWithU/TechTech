@@ -1,0 +1,62 @@
+{
+  "layers": [
+    {
+      "id": "frontend",
+      "label": "フロントエンド",
+      "question": "ブラウザ側の画面をどう作るか",
+      "options": [
+        { "id": "plain", "name": "素のHTML / CSS / JavaScript", "desc": "フレームワークなし。仕組みが全部見えるので学習向き。ページ数が少なく、動きも少ないサイトならこれで十分。" },
+        { "id": "astro", "name": "Astro", "desc": "記事やドキュメントのような「読むサイト」向け。ビルドすると静的HTMLになり速い。必要な部分だけ React などを混ぜられる。このサイトも Astro 製。" },
+        { "id": "react", "name": "React", "desc": "最も使われているUIライブラリ。画面を部品(コンポーネント)に分けて組む。求人も情報も多い。" },
+        { "id": "vue", "name": "Vue", "desc": "React より学びやすいと言われるUIフレームワーク。日本でも人気。HTMLに近い書き方。" },
+        { "id": "svelte", "name": "Svelte", "desc": "書く量が少なく、ビルド後のコードが軽い。小〜中規模で人気。" },
+        { "id": "nextjs", "name": "Next.js", "desc": "React に、ページ分け・サーバー側の処理・公開の仕組みまで足したフルスタック寄りの枠組み。ログインやデータ更新のあるアプリに向く。" },
+        { "id": "nuxt", "name": "Nuxt", "desc": "Vue 版の Next.js。Vue で本格的なアプリを作るときの定番。" }
+      ]
+    },
+    {
+      "id": "backend",
+      "label": "バックエンド",
+      "question": "サーバー側の処理(ログイン、保存、計算)をどう作るか",
+      "options": [
+        { "id": "none", "name": "なし(静的サイト)", "desc": "サーバー側の処理が不要なサイト。HTMLファイルを置くだけで公開できる。利用者ごとの保存やログインはできない。" },
+        { "id": "express", "name": "Express(Node.js)", "desc": "JavaScript でサーバーを書く定番。薄くて自由度が高い。フロントと同じ言語で書ける。" },
+        { "id": "hono", "name": "Hono(Node.js など)", "desc": "軽くて速い新しめの枠組み。Cloudflare などのエッジ環境で動かしやすい。" },
+        { "id": "nestjs", "name": "NestJS(Node.js)", "desc": "大規模向けに構造が決められた枠組み。TypeScript 前提。チーム開発で選ばれる。" },
+        { "id": "django", "name": "Django(Python)", "desc": "ログイン・管理画面・DB操作が最初からそろった「全部入り」。Python でまとめて作りたいときの定番。" },
+        { "id": "fastapi", "name": "FastAPI(Python)", "desc": "API を速く書ける Python の枠組み。機械学習の結果を返すサーバーなどによく使われる。" },
+        { "id": "rails", "name": "Ruby on Rails", "desc": "「決まりに従えば速く作れる」思想の全部入り。スタートアップで長く使われてきた。" },
+        { "id": "laravel", "name": "Laravel(PHP)", "desc": "PHP の全部入り。レンタルサーバーで動かしやすく、受託開発で多い。" },
+        { "id": "spring", "name": "Spring Boot(Java)", "desc": "企業システムの定番。堅く大きなシステムに向く。" },
+        { "id": "baas", "name": "BaaS(Firebase / Supabase)", "desc": "サーバーを自分で書かず、ログイン・DB・ファイル保存をサービスとして借りる。少人数で速く作るときに強い。" }
+      ]
+    },
+    {
+      "id": "database",
+      "label": "データベース",
+      "question": "データをどこに、どんな形で保存するか",
+      "options": [
+        { "id": "none", "name": "なし", "desc": "保存するデータがない、または内容がファイルに書いてあるだけのサイト。" },
+        { "id": "sqlite", "name": "SQLite", "desc": "ファイル1つで動く軽いRDB。設定不要で、個人開発・学習・小さなアプリに向く。同時アクセスが多い用途には向かない。" },
+        { "id": "postgres", "name": "PostgreSQL", "desc": "本格的なRDBの第一候補。機能が多く、無料で、どのクラウドでも使える。迷ったらこれ。" },
+        { "id": "mysql", "name": "MySQL / MariaDB", "desc": "長く使われてきたRDB。WordPress など多くのサービスの裏にある。PostgreSQL と役割はほぼ同じ。" },
+        { "id": "mongodb", "name": "MongoDB", "desc": "表ではなく JSON のような「文書」で保存する NoSQL。項目が決まっていないデータや、形がよく変わるデータに向く。" },
+        { "id": "redis", "name": "Redis", "desc": "メモリ上で動く超高速なキー・値の保存。一時データ(ログイン状態、ランキング、キャッシュ)に使う。メインの保存先にはしない。" },
+        { "id": "firestore", "name": "Firestore / Supabase DB", "desc": "BaaS に付いてくるDB。サーバーを書かずにブラウザから直接読み書きできる。" }
+      ]
+    },
+    {
+      "id": "hosting",
+      "label": "公開先",
+      "question": "できたものをどこで動かすか",
+      "options": [
+        { "id": "github-pages", "name": "GitHub Pages", "desc": "静的サイトを無料で公開。サーバー側の処理は動かない。学習・ポートフォリオに最適。" },
+        { "id": "static-host", "name": "Netlify / Vercel / Cloudflare Pages", "desc": "静的サイトとフロント寄りのアプリを無料枠で公開。push すると自動でビルド。Next.js は Vercel と相性がよい。" },
+        { "id": "paas", "name": "PaaS(Render / Railway / Fly.io)", "desc": "サーバー側のプログラムとDBを、設定少なめで動かせる。小〜中規模のアプリに向く。無料枠はあるが制限あり。" },
+        { "id": "cloud", "name": "クラウド(AWS / GCP / Azure)", "desc": "何でもできるが設定が多く、料金も複雑。本番の大きなサービスや、会社のシステムで使う。" },
+        { "id": "vps", "name": "VPS(さくら / ConoHa など)", "desc": "仮想サーバーを1台借りて、OSから自分で設定する。OS分野の知識がそのまま活きる。自由だが運用は自己責任。" },
+        { "id": "rental", "name": "レンタルサーバー", "desc": "PHP と MySQL が最初から動く共用サーバー。WordPress や Laravel に向く。Node.js は動かないことが多い。" }
+      ]
+    }
+  ]
+}

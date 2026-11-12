@@ -1,0 +1,95 @@
+[
+  {
+    "id": "portfolio",
+    "title": "就活用のポートフォリオサイト",
+    "text": "<p>就職活動で見せる、自分の作品紹介サイトを作ります。</p><ul><li>自己紹介と、作った作品の一覧・説明</li><li>お金はかけない。でも URL は人に見せる</li><li>GitHub の使い方も一緒にアピールしたい</li></ul><p>構成を選んでください。</p>",
+    "hints": [
+      "静的サイトです。GitHub を使っていることを見せたいなら、公開先は決まりです。",
+      "素のHTML か Astro、バックエンドとDBはなし、GitHub Pages。"
+    ],
+    "picks": {
+      "frontend": ["plain", "astro"],
+      "backend": ["none"],
+      "database": ["none"],
+      "hosting": ["github-pages"]
+    },
+    "why": {
+      "frontend": "数ページの紹介サイトなので、素のHTMLか Astro で十分です。素のHTMLで書けば、HTML/CSS の力もそのまま見せられます。",
+      "backend": "見る人が入力・保存することはないので不要です。",
+      "database": "作品の情報はHTMLに書けば済みます。",
+      "hosting": "GitHub Pages なら無料で、リポジトリと一緒に GitHub の使い方もアピールできます。"
+    },
+    "rejects": {
+      "frontend": {
+        "react": "動かない紹介サイトに React は大げさで、ビルドの仕組みも増えます。",
+        "vue": "動かない紹介サイトには大げさです。",
+        "svelte": "動かない紹介サイトには大げさです。",
+        "nextjs": "動かない紹介サイトには過剰です。",
+        "nuxt": "動かない紹介サイトには過剰です。"
+      },
+      "backend": { "baas": "ログインも保存もないので不要です。" },
+      "hosting": {
+        "static-host": "公開はできますが、「GitHub の使い方もアピールしたい」なら、リポジトリから直接公開される GitHub Pages が一番分かりやすいです。",
+        "paas": "静的サイトにサーバーは不要です。",
+        "cloud": "無料で済む静的サイトにクラウドは大げさで、料金も発生します。",
+        "vps": "静的サイトに OS の管理は不要です。",
+        "rental": "多くは有料で、静的サイトなら無料の GitHub Pages で十分です。"
+      }
+    }
+  },
+  {
+    "id": "wordpress",
+    "title": "お店のブログ付きホームページ",
+    "text": "<p>親戚のパン屋さんのホームページを頼まれました。</p><ul><li>店の紹介と、店主が自分で書くブログ(管理画面から投稿したい)</li><li>店主はプログラミングはできない</li><li>WordPress(PHP製の有名なブログの仕組み)を使うことにした</li></ul><p>WordPress を動かす構成を選んでください。フロントエンドは WordPress のテーマなので「素のHTML / CSS / JavaScript」とします。</p>",
+    "hints": [
+      "WordPress は PHP で動き、MySQL を使います。PHP と MySQL が最初から動く公開先があります。",
+      "バックエンドは Laravel(PHP)の枠を選び、DBは MySQL、公開先はレンタルサーバーです。"
+    ],
+    "picks": {
+      "frontend": ["plain"],
+      "backend": ["laravel"],
+      "database": ["mysql"],
+      "hosting": ["rental", "vps", "cloud"]
+    },
+    "why": {
+      "frontend": "WordPress のテーマは HTML / CSS / PHP で書くので、素の HTML / CSS / JavaScript に相当します。",
+      "backend": "WordPress は PHP 製です。この練習場では PHP の枠として Laravel を選びます。",
+      "database": "WordPress は MySQL(MariaDB)を使います。",
+      "hosting": "PHP と MySQL が最初から動くレンタルサーバーが、いちばん安く簡単です。VPS やクラウドでも動かせますが、管理の手間が増えます。"
+    },
+    "rejects": {
+      "frontend": {
+        "astro": "WordPress のテーマは PHP ベースで、Astro は使いません。",
+        "react": "WordPress のテーマには使いません。",
+        "vue": "WordPress のテーマには使いません。",
+        "svelte": "WordPress のテーマには使いません。",
+        "nextjs": "WordPress のテーマには使いません。",
+        "nuxt": "WordPress のテーマには使いません。"
+      },
+      "backend": {
+        "none": "管理画面から投稿するので、サーバー側の処理(WordPress 本体)が必要です。",
+        "express": "WordPress は PHP 製で、Node.js では動きません。",
+        "hono": "WordPress は PHP 製です。",
+        "nestjs": "WordPress は PHP 製です。",
+        "django": "WordPress は PHP 製で、Python ではありません。",
+        "fastapi": "WordPress は PHP 製です。",
+        "rails": "WordPress は PHP 製で、Ruby ではありません。",
+        "spring": "WordPress は PHP 製で、Java ではありません。",
+        "baas": "WordPress は自前のサーバー側処理を持つので、BaaS は使いません。"
+      },
+      "database": {
+        "none": "記事を保存する場所が必要です。",
+        "sqlite": "WordPress は MySQL を使います。",
+        "postgres": "WordPress は標準では MySQL を使います。",
+        "mongodb": "WordPress は MySQL を使います。",
+        "redis": "記事のメインの保存先にはなりません。",
+        "firestore": "WordPress は MySQL を使います。"
+      },
+      "hosting": {
+        "github-pages": "PHP が動きません。",
+        "static-host": "PHP が動きません。",
+        "paas": "動かせなくはありませんが、WordPress にはレンタルサーバーのほうが安く簡単です。"
+      }
+    }
+  }
+]

@@ -1,0 +1,266 @@
+---
+// Webアプリの道具の練習場: 要件に合わせて、フロント・バック・DB・公開先を選んで構成を組む。
+import type { Task, Catalog } from '../lib/content';
+interface Props {
+  catalog: Catalog;
+  lessonId?: string;
+  lessonTitle?: string;
+  tasks?: Task[];
+  backHref?: string;
+  nextHref?: string;
+  nextLabel?: string;
+}
+const { catalog, lessonId, lessonTitle, tasks = [], backHref, nextHref, nextLabel } = Astro.props;
+const hasTasks = tasks.length > 0;
+---
+<main class="practice">
+  <div class="pane left">
+    <section class="task">
+      {hasTasks ? (
+        <>
+          <p class="eyebrow">{lessonTitle} の練習</p>
+          <nav class="task-tabs" id="task-tabs" aria-label="課題">
+            {tasks.map((t, i) => (
+              <button type="button" class="tab" data-index={i} aria-current={i === 0 ? 'true' : undefined}>課題{i + 1}</button>
+            ))}
+          </nav>
+          <h1 id="task-title">{tasks[0].title}</h1>
+          <div id="task-text" class="task-text" set:html={tasks[0].text} />
+          <div class="hints">
+            <button type="button" class="btn secondary" id="hint-btn">ヒントを見る</button>
+            <ol id="hint-list" class="hint-list"></ol>
+            <details id="answer-box" hidden>
+              <summary>模範解答を見る</summary>
+              <pre id="answer-code"></pre>
+            </details>
+          </div>
+          <div id="verdict" class="verdict" hidden></div>
+        </>
+      ) : (
+        <>
+          <h1>フリーモード</h1>
+          <p class="muted">課題はありません。右で道具を選ぶと、それぞれの説明が出ます。組み合わせを眺めて、どんなサイトが作れそうか想像してみてください。</p>
+        </>
+      )}
+    </section>
+  </div>
+  <div class="pane right">
+    <section class="builder">
+      <p class="label">構成を組む</p>
+      <div class="layers" id="layers">
+        {catalog.layers.map((layer) => (
+          <div class="layer" data-layer={layer.id}>
+            <label class="layer-head" for={`sel-${layer.id}`}>
+              <span class="layer-name">{layer.label}</span>
+              <span class="muted small">{layer.question}</span>
+            </label>
+            <select id={`sel-${layer.id}`} class="select" data-layer={layer.id}>
+              <option value="">— 選んでください —</option>
+              {layer.options.map((o) => <option value={o.id}>{o.name}</option>)}
+            </select>
+            <p class="desc muted small" data-desc={layer.id}></p>
+            <p class="feedback" data-feedback={layer.id} hidden></p>
+          </div>
+        ))}
+      </div>
+      <div class="actions">
+        {hasTasks && <button id="check" class="btn" type="button">判定</button>}
+        <button id="reset" class="btn secondary" type="button">選び直す</button>
+      </div>
+    </section>
+    {hasTasks && (
+      <nav class="lesson-nav">
+        {backHref && <a href={backHref}>← 記事に戻る</a>}
+        {nextHref && <a href={nextHref}>{nextLabel ?? '次へ'} →</a>}
+      </nav>
+    )}
+  </div>
+</main>
+
+<script type="application/json" id="practice-data" set:html={JSON.stringify({ lessonId, tasks, catalog })} />
+
+<script>
+  import { getProgress, markTaskCleared } from '../lib/progress';
+  import type { Task, Catalog } from '../lib/content';
+
+  const data = JSON.parse(document.getElementById('practice-data')!.textContent!) as { lessonId?: string; tasks: Task[]; catalog: Catalog };
+  const tasks = data.tasks;
+  const catalog = data.catalog;
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const selects = Array.from(document.querySelectorAll<HTMLSelectElement>('select[data-layer]'));
+  let taskIndex = 0;
+  let hintsShown = 0;
+
+  function optionOf(layerId: string, optId: string) {
+    return catalog.layers.find((l) => l.id === layerId)?.options.find((o) => o.id === optId);
+  }
+
+  function currentTask(): Task | undefined { return tasks[taskIndex]; }
+
+  function updateDesc(sel: HTMLSelectElement) {
+    const layer = sel.dataset.layer!;
+    const desc = document.querySelector<HTMLElement>(`[data-desc="${layer}"]`)!;
+    desc.textContent = optionOf(layer, sel.value)?.desc ?? '';
+    const fb = document.querySelector<HTMLElement>(`[data-feedback="${layer}"]`)!;
+    fb.hidden = true;
+  }
+
+  function resetPicks() {
+    for (const s of selects) { s.value = ''; updateDesc(s); }
+  }
+
+  function answerText(t: Task): string {
+    return catalog.layers
+      .map((l) => `${l.label}: ${(t.picks?.[l.id] ?? []).map((id) => optionOf(l.id, id)?.name ?? id).join(' または ')}`)
+      .join('\n');
+  }
+
+  function renderTask() {
+    const t = currentTask();
+    if (!t) return;
+    hintsShown = 0;
+    $('task-title').textContent = t.title;
+    $('task-text').innerHTML = t.text;
+    $('hint-list').innerHTML = '';
+    const hintBtn = $<HTMLButtonElement>('hint-btn');
+    hintBtn.hidden = t.hints.length === 0;
+    hintBtn.textContent = 'ヒントを見る';
+    const ans = $<HTMLDetailsElement>('answer-box');
+    ans.hidden = true;
+    ans.open = false;
+    $('answer-code').textContent = answerText(t);
+    const verdict = $('verdict');
+    verdict.hidden = true;
+    verdict.className = 'verdict';
+    const prog = data.lessonId ? getProgress(data.lessonId) : {};
+    for (const tab of document.querySelectorAll<HTMLButtonElement>('#task-tabs .tab')) {
+      const i = Number(tab.dataset.index);
+      tab.toggleAttribute('aria-current', i === taskIndex);
+      tab.classList.toggle('done', !!prog.tasks?.[tasks[i].id]);
+    }
+    if (prog.tasks?.[t.id]) { verdict.hidden = false; verdict.classList.add('correct'); verdict.textContent = 'クリア済み。別の組み合わせも考えてみましょう。'; }
+    resetPicks();
+  }
+
+  function showHint() {
+    const t = currentTask();
+    if (!t) return;
+    if (hintsShown < t.hints.length) {
+      const li = document.createElement('li');
+      li.textContent = t.hints[hintsShown];
+      $('hint-list').appendChild(li);
+      hintsShown++;
+    }
+    const btn = $<HTMLButtonElement>('hint-btn');
+    if (hintsShown >= t.hints.length) {
+      btn.hidden = true;
+      $('answer-box').hidden = false;
+    } else {
+      btn.textContent = `次のヒントを見る(${hintsShown}/${t.hints.length})`;
+    }
+  }
+
+  function check() {
+    const t = currentTask();
+    if (!t || !t.picks) return;
+    let allOk = true;
+    let missing = 0;
+    for (const sel of selects) {
+      const layer = sel.dataset.layer!;
+      const fb = document.querySelector<HTMLElement>(`[data-feedback="${layer}"]`)!;
+      const accepted = t.picks[layer] ?? [];
+      if (!sel.value) { missing++; allOk = false; fb.hidden = false; fb.className = 'feedback wrong'; fb.textContent = '選んでください。'; continue; }
+      const ok = accepted.includes(sel.value);
+      fb.hidden = false;
+      if (ok) {
+        fb.className = 'feedback ok';
+        fb.textContent = '✓ ' + (t.why?.[layer] ?? '合っています。');
+      } else {
+        allOk = false;
+        fb.className = 'feedback wrong';
+        const reason = t.rejects?.[layer]?.[sel.value];
+        fb.textContent = '✗ ' + (reason ?? 'この要件には合いません。') + (t.why?.[layer] ? ` 考え方: ${t.why[layer]}` : '');
+      }
+    }
+    const verdict = $('verdict');
+    verdict.hidden = false;
+    if (allOk) {
+      verdict.className = 'verdict correct';
+      verdict.textContent = '正解です。この構成なら要件を満たせます。';
+      if (data.lessonId) markTaskCleared(data.lessonId, t.id);
+      document.querySelector<HTMLButtonElement>(`#task-tabs .tab[data-index="${taskIndex}"]`)?.classList.add('done');
+    } else {
+      verdict.className = 'verdict wrong';
+      verdict.textContent = missing ? `不正解: まだ選んでいない層が${missing}つあります。` : '不正解: ✗ の付いた層を見直してください。';
+    }
+  }
+
+  for (const s of selects) s.addEventListener('change', () => updateDesc(s));
+  document.getElementById('check')?.addEventListener('click', check);
+  document.getElementById('reset')!.addEventListener('click', resetPicks);
+  document.getElementById('hint-btn')?.addEventListener('click', showHint);
+  document.getElementById('task-tabs')?.addEventListener('click', (e) => {
+    const tab = (e.target as HTMLElement).closest<HTMLButtonElement>('.tab');
+    if (!tab) return;
+    taskIndex = Number(tab.dataset.index);
+    renderTask();
+  });
+
+  const presetTask = Number(new URLSearchParams(location.search).get('task'));
+  if (tasks.length && presetTask >= 1 && presetTask <= tasks.length) taskIndex = presetTask - 1;
+  if (tasks.length) renderTask(); else resetPicks();
+</script>
+
+<style>
+  .practice {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+    display: grid;
+    grid-template-columns: minmax(16rem, 1fr) minmax(0, 1.4fr);
+    gap: 2rem;
+    font-size: 0.95rem;
+  }
+  @media (max-width: 760px) { .practice { grid-template-columns: 1fr; } }
+  .pane { min-width: 0; }
+  h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  .eyebrow { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.6rem; }
+  .task p { margin: 0 0 1rem; }
+  .task-text :global(p) { margin: 0 0 0.8rem; }
+  .task-text :global(ul) { margin: 0 0 0.8rem; padding-left: 1.4rem; }
+  .task-text :global(li) { margin-bottom: 0.3rem; }
+  .task-text :global(code), .task code { font-family: var(--mono); background: var(--surface); padding: 0.1em 0.35em; font-size: 0.9em; border-radius: 5px; }
+  .task-tabs { display: flex; gap: 0.3rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .task-tabs .tab { font: inherit; font-size: 0.85rem; padding: 0.3rem 0.9rem; cursor: pointer; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; }
+  .task-tabs .tab:hover { background: var(--surface); }
+  .task-tabs .tab[aria-current] { color: var(--fg); border-color: var(--fg); background: var(--surface); }
+  .task-tabs .tab.done::after { content: ' ✓'; color: var(--accent); }
+  .hints { margin-top: 1rem; }
+  .hint-list { margin: 0.8rem 0 0; padding-left: 1.4rem; }
+  .hint-list :global(li) { margin-bottom: 0.4rem; }
+  details { margin-top: 0.8rem; }
+  summary { cursor: pointer; color: var(--accent); }
+  #answer-code { font-family: inherit; font-size: 0.9rem; background: var(--surface); padding: 0.8rem 1rem; white-space: pre-wrap; margin: 0.5rem 0 0; border-radius: var(--radius-sm); }
+  .verdict { margin-top: 1rem; padding: 0.7rem 1rem; border-left: 4px solid var(--line); background: var(--surface); font-weight: 600; border-radius: var(--radius-sm); }
+  .verdict.correct { border-left-color: var(--accent); color: var(--accent); }
+  .verdict.wrong { border-left-color: var(--error); }
+  .small { font-size: 0.8rem; }
+  .label { font-size: 0.85rem; color: var(--muted); font-weight: 600; margin: 0 0 0.6rem; }
+
+  .layers { display: flex; flex-direction: column; gap: 0.8rem; }
+  .layer { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+  .layer-head { display: flex; flex-direction: column; gap: 0.1rem; margin-bottom: 0.5rem; cursor: pointer; }
+  .layer-name { font-weight: 600; }
+  .select {
+    width: 100%; font: inherit; padding: 0.5rem 0.7rem; border: 1px solid var(--line); border-radius: var(--radius-sm);
+    background: var(--surface); color: var(--fg);
+  }
+  .select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .desc { margin: 0.5rem 0 0; min-height: 0; }
+  .desc:empty { display: none; }
+  .feedback { margin: 0.5rem 0 0; padding: 0.5rem 0.8rem; border-radius: var(--radius-sm); background: var(--surface); font-size: 0.9rem; }
+  .feedback.ok { color: var(--accent); }
+  .feedback.wrong { color: var(--error); }
+  .actions { display: flex; gap: 0.6rem; align-items: center; margin-top: 1rem; }
+  .lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+</style>

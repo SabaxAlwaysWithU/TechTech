@@ -1,0 +1,32 @@
+[
+  {
+    "question": "本番のWebアプリで使うRDBとして、迷ったときの第一候補はどれですか?",
+    "options": ["PostgreSQL", "Redis", "SQLite", "MongoDB"],
+    "explanation": "PostgreSQL は機能が豊富で無料、どのクラウドでも使えます。SQLite は個人開発向け、Redis と MongoDB は NoSQL です。"
+  },
+  {
+    "question": "SQLite の特徴として正しいものはどれですか?",
+    "options": [
+      "ファイル1つで動き、設定不要。同時に大量の書き込みが来る用途には向かない",
+      "メモリ上で動き、一時データに向く",
+      "JSON のような文書を保存する",
+      "必ず別のサーバーとして動かす必要がある"
+    ],
+    "explanation": "SQLite はアプリの中でファイルを直接読み書きします。手軽ですが、利用者が増えて書き込みが集中する用途には PostgreSQL などが向きます。"
+  },
+  {
+    "question": "ログイン状態やランキングのような、速さが必要で消えても作り直せるデータに向いているのはどれですか?",
+    "options": ["Redis", "PostgreSQL", "MongoDB", "SQLite"],
+    "explanation": "Redis はメモリ上で動くキー・値型で、桁違いに速いです。一時データ専用で、メインの保存先にはしません。"
+  },
+  {
+    "question": "ORM の説明として正しいものはどれですか?",
+    "options": [
+      "SQLを文字列で書く代わりに、プログラムの書き方でDBを操作する道具",
+      "データベースの一種",
+      "公開先のサービス",
+      "画面を部品で組む道具"
+    ],
+    "explanation": "Prisma や Django の ORM などです。裏ではSQLが動いているので、SQLの知識があると遅い処理に気づけます。"
+  }
+]

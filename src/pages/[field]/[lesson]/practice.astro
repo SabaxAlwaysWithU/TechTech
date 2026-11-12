@@ -4,7 +4,8 @@ import Practice from '../../../components/Practice.astro';
 import HtmlPractice from '../../../components/HtmlPractice.astro';
 import JsPractice from '../../../components/JsPractice.astro';
 import ShellPractice from '../../../components/ShellPractice.astro';
-import { getLessons, getField } from '../../../lib/content';
+import StackPractice from '../../../components/StackPractice.astro';
+import { getLessons, getField, getCatalog } from '../../../lib/content';
 
 export async function getStaticPaths() {
   const lessons = await getLessons();
@@ -22,9 +23,11 @@ const props = {
   nextHref: next ? `${base}/${next.field}/${next.slug}/` : `${base}/${lesson.field}/`,
   nextLabel: next ? `次のレッスン: ${next.title}` : 'レッスン一覧へ',
 };
-const kinds = { html: HtmlPractice, js: JsPractice, shell: ShellPractice, sql: Practice } as const;
-const Component = kinds[field.practice] ?? Practice;
 ---
 <Base title={`練習 — ${lesson.title}`} wide>
-  <Component {...props} />
+  {field.practice === 'html' && <HtmlPractice {...props} />}
+  {field.practice === 'js' && <JsPractice {...props} />}
+  {field.practice === 'shell' && <ShellPractice {...props} />}
+  {field.practice === 'stack' && <StackPractice catalog={getCatalog(field.id)!} {...props} />}
+  {field.practice === 'sql' && <Practice {...props} />}
 </Base>

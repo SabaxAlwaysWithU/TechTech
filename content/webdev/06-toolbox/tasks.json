@@ -1,0 +1,107 @@
+[
+  {
+    "id": "jamstack",
+    "title": "個人開発の家計簿アプリ",
+    "text": "<p>自分と家族で使う家計簿アプリを作ります。</p><ul><li>ログインして、支出を入力・一覧・集計する。画面はよく動く</li><li>自分1人で作る。サーバーの運用はしたくない</li><li>お金はできるだけかけない</li></ul><p>記事の「定番の組み合わせ」を参考に、構成を選んでください。</p>",
+    "hints": [
+      "サーバーの運用をしたくない個人開発は、JAMstack(フロント + BaaS + 静的ホスティング)の出番です。",
+      "React / Next.js など + BaaS + BaaS 付属のDB + Netlify / Vercel。"
+    ],
+    "picks": {
+      "frontend": ["react", "vue", "svelte", "nextjs", "nuxt"],
+      "backend": ["baas"],
+      "database": ["firestore"],
+      "hosting": ["static-host"]
+    },
+    "why": {
+      "frontend": "入力・一覧・集計で画面がよく動くので、UIライブラリかメタフレームワークです。",
+      "backend": "サーバーの運用をしたくないなら、ログインと保存は BaaS に任せます。",
+      "database": "BaaS 付属のDBなら、サーバーを書かずにブラウザから保存できます。",
+      "hosting": "フロントは静的ファイルになるので、Netlify / Vercel に無料で置けます。"
+    },
+    "rejects": {
+      "frontend": {
+        "plain": "入力・一覧・集計でよく動く画面を素のHTMLで書くと、コードが増えて大変です。",
+        "astro": "Astro は読むサイト向けで、よく動くアプリの中心には向きません。"
+      },
+      "backend": {
+        "none": "ログインと保存があるので、何らかのバックエンドが必要です。",
+        "express": "自分で書くとサーバーの運用が必要になります。運用したくないなら BaaS です。",
+        "hono": "自分で書くとサーバーの運用が必要になります。",
+        "nestjs": "自分で書くとサーバーの運用が必要になります。",
+        "django": "自分で書くとサーバーの運用が必要になります。",
+        "fastapi": "自分で書くとサーバーの運用が必要になります。",
+        "rails": "自分で書くとサーバーの運用が必要になります。",
+        "laravel": "自分で書くとサーバーの運用が必要になります。",
+        "spring": "自分で書くとサーバーの運用が必要になります。"
+      },
+      "database": {
+        "none": "支出を保存する場所が必要です。",
+        "sqlite": "BaaS を使うなら付属のDBを使います。SQLite はサーバー側のコードが必要です。",
+        "postgres": "BaaS を使うなら付属のDBを使うほうが、サーバーのコードなしで済みます。",
+        "mysql": "BaaS を使うなら付属のDBを使うほうが簡単です。",
+        "mongodb": "BaaS を使うなら付属のDBを使うほうが簡単です。",
+        "redis": "消えては困る家計簿のメインの保存先には向きません。"
+      },
+      "hosting": {
+        "github-pages": "動きますが、BaaS と組み合わせるなら環境変数と自動ビルドが楽な Netlify / Vercel が定番です。",
+        "paas": "サーバーのコードがないので、サーバーを動かす場所は不要です。",
+        "cloud": "個人の家計簿にクラウドは大げさで、料金もかかります。",
+        "vps": "サーバーの運用をしたくない条件に反します。",
+        "rental": "この構成には合いません。"
+      }
+    }
+  },
+  {
+    "id": "startup",
+    "title": "会員制の学習サービス(本番)",
+    "text": "<p>3人のチームで、有料の会員制学習サービスを立ち上げます。</p><ul><li>会員登録、ログイン、講座の購入、進捗の保存、管理画面</li><li>最初から本番運用で、利用者を増やしていく</li><li>チームは全員 JavaScript / TypeScript が書ける</li></ul><p>構成を選んでください。</p>",
+    "hints": [
+      "「よくある会員制サービス一式」を JavaScript で本番運用する構成です。全部入りのフレームワークか、フルスタック JS の構成が合います。",
+      "Next.js(または React)+ NestJS / Express(Node.js)+ PostgreSQL + PaaS かクラウド。"
+    ],
+    "picks": {
+      "frontend": ["nextjs", "react"],
+      "backend": ["nestjs", "express", "hono"],
+      "database": ["postgres", "mysql"],
+      "hosting": ["paas", "cloud"]
+    },
+    "why": {
+      "frontend": "ログインとページ複数のある本格的なアプリなので、Next.js(React)が定番です。",
+      "backend": "チームが JavaScript / TypeScript なので Node.js です。本番運用で機能が多いなら、構造の決まった NestJS が向きます。",
+      "database": "会員・講座・購入・進捗はつながった表のデータで、本番で増えるので、サーバー型のRDBです。",
+      "hosting": "バックエンドとDBを常時動かします。最初は PaaS、育ったらクラウドへ。"
+    },
+    "rejects": {
+      "frontend": {
+        "plain": "ログインやページ複数のある本格的なアプリを素のHTMLで作るのは現実的ではありません。",
+        "astro": "Astro は読むサイト向けで、ログインや購入のあるアプリの中心には向きません。",
+        "vue": "作れますが、チームの言語条件に加えて React 系の情報量を考えると Next.js / React が定番です(Vue でも誤りではありません)。",
+        "svelte": "作れますが、本番運用の会員制サービスでは情報量と人材の多い React 系が無難です。",
+        "nuxt": "作れますが、React 系のほうが情報量と人材が多く、本番運用では無難です。"
+      },
+      "backend": {
+        "none": "会員登録や購入があるので、バックエンドが必要です。",
+        "django": "チームは JavaScript / TypeScript が書けるので、Python に切り替える理由がありません。",
+        "fastapi": "チームの言語は JavaScript / TypeScript です。",
+        "rails": "チームの言語は JavaScript / TypeScript です。",
+        "laravel": "チームの言語は JavaScript / TypeScript です。",
+        "spring": "チームの言語は JavaScript / TypeScript です。",
+        "baas": "購入処理や管理画面など独自の処理が多い本番サービスでは、BaaS の範囲を超えやすく、費用も読みにくくなります。"
+      },
+      "database": {
+        "none": "会員や購入を保存する場所が必要です。",
+        "sqlite": "本番で利用者が増える前提なので、同時書き込みに弱い SQLite は避けます。",
+        "mongodb": "会員・講座・購入・進捗のようにつながった表のデータは RDB が自然です。",
+        "redis": "消えては困るデータのメインの保存先には向きません。",
+        "firestore": "BaaS を使わない構成です。"
+      },
+      "hosting": {
+        "github-pages": "サーバー側の処理が動きません。",
+        "static-host": "バックエンドとDBを常時動かす場所ではありません。",
+        "vps": "3人で本番運用するサービスで、OSの管理まで自分たちで抱えるのは負担が大きいです。",
+        "rental": "Node.js は動かないことが多く、本番運用にも向きません。"
+      }
+    }
+  }
+]

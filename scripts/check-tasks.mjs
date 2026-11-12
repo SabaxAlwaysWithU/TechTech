@@ -66,6 +66,23 @@ for (const field of readdirSync(root)) {
         }
       }
     }
+    if (existsSync(tasksPath) && practice === 'stack') {
+      // 構成(Webアプリの道具): picks の id がカタログに存在するか、全層に正解があるかを確かめる
+      const catalog = JSON.parse(readFileSync(join(root, field, 'catalog.json'), 'utf8'));
+      const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
+      for (const t of tasks) {
+        let ok = true;
+        if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); ok = false; }
+        for (const layer of catalog.layers) {
+          const accepted = t.picks?.[layer.id];
+          if (!accepted || !accepted.length) { console.log(`  !! 課題 ${t.id}: 層 ${layer.id} の正解(picks)がありません`); ok = false; continue; }
+          for (const id of accepted) if (!layer.options.some((o) => o.id === id)) { console.log(`  !! 課題 ${t.id}: 層 ${layer.id} に選択肢 ${id} はありません`); ok = false; }
+          for (const id of Object.keys(t.rejects?.[layer.id] ?? {})) if (!layer.options.some((o) => o.id === id)) { console.log(`  !! 課題 ${t.id}: rejects の ${layer.id}/${id} はカタログにありません`); ok = false; }
+        }
+        for (const layerId of Object.keys(t.picks ?? {})) if (!catalog.layers.some((l) => l.id === layerId)) { console.log(`  !! 課題 ${t.id}: 層 ${layerId} はカタログにありません`); ok = false; }
+        if (ok) console.log(`  課題 ${t.id}: OK(${catalog.layers.map((l) => `${l.id}=${t.picks[l.id].join('|')}`).join(', ')})`); else failures++;
+      }
+    }
     if (existsSync(tasksPath) && practice === 'shell') {
       // シェル(OS): 構造だけ確かめる。模範解答の検証はブラウザのテストで行う
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));

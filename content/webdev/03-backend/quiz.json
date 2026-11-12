@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Python で書くバックエンドのフレームワークはどれですか?",
+    "options": ["Django", "Express", "Rails", "Laravel"],
+    "explanation": "Django と FastAPI、Flask が Python です。Express は JavaScript、Rails は Ruby、Laravel は PHP です。"
+  },
+  {
+    "question": "ログイン・管理画面・DB操作が最初からそろった「全部入り」フレームワークはどれですか?",
+    "options": ["Rails", "Express", "FastAPI", "Hono"],
+    "explanation": "Rails、Django、Laravel などが全部入りです。Express、FastAPI、Hono は薄いフレームワークで、必要な部品を自分で足します。"
+  },
+  {
+    "question": "API の説明として正しいものはどれですか?",
+    "options": [
+      "HTMLではなく、データだけを JSON などで返すサーバーの窓口",
+      "ブラウザの画面を描く道具",
+      "データベースの種類",
+      "公開先のサービス"
+    ],
+    "explanation": "API はデータの出し入れの窓口です。画面はフロントエンドが組み立て、バックエンドはデータに専念します。"
+  },
+  {
+    "question": "Firebase や Supabase のような BaaS を選ぶ理由として適切なものはどれですか?",
+    "options": [
+      "サーバーのコードを書かずに、ログインや保存を早く形にできる",
+      "どんな独自処理でも自由に書ける",
+      "必ず無料で使い続けられる",
+      "フロントエンドが不要になる"
+    ],
+    "explanation": "BaaS はサーバー側を借りることで、個人開発や試作を速くします。自由度はサービスの範囲内で、利用が増えると課金されます。"
+  }
+]

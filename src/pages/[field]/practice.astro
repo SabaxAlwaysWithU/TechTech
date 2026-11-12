@@ -4,15 +4,18 @@ import Practice from '../../components/Practice.astro';
 import HtmlPractice from '../../components/HtmlPractice.astro';
 import JsPractice from '../../components/JsPractice.astro';
 import ShellPractice from '../../components/ShellPractice.astro';
-import { getFields } from '../../lib/content';
+import StackPractice from '../../components/StackPractice.astro';
+import { getFields, getCatalog } from '../../lib/content';
 
 export function getStaticPaths() {
   return getFields().map((f) => ({ params: { field: f.id }, props: { field: f } }));
 }
 const { field } = Astro.props;
-const kinds = { html: HtmlPractice, js: JsPractice, shell: ShellPractice, sql: Practice } as const;
-const Component = kinds[field.practice] ?? Practice;
 ---
 <Base title={`練習場 — ${field.title}`} wide>
-  <Component />
+  {field.practice === 'html' && <HtmlPractice />}
+  {field.practice === 'js' && <JsPractice />}
+  {field.practice === 'shell' && <ShellPractice />}
+  {field.practice === 'stack' && <StackPractice catalog={getCatalog(field.id)!} />}
+  {field.practice === 'sql' && <Practice />}
 </Base>

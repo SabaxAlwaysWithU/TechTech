@@ -53,6 +53,7 @@ public/sql-wasm-browser.wasm sql.js 本体(node_modules/sql.js/dist/ からコ�
 - `"html"`: [HtmlPractice.astro](src/components/HtmlPractice.astro)。入力欄の横にプレビュー
 - `"js"`: [JsPractice.astro](src/components/JsPractice.astro)。sandbox 付き iframe でコードを実行し、出力を表示
 - `"shell"`: [ShellPractice.astro](src/components/ShellPractice.astro)。疑似ターミナル。仮想のファイル・プロセス・ユーザーは [shell.ts](src/lib/shell.ts)
+- `"stack"`: [StackPractice.astro](src/components/StackPractice.astro)。要件に合わせて層ごとに道具を選ぶ。選択肢は `content/<分野>/catalog.json`
 
 別の種類(コマンド操作など)を足すときは、コンポーネントを1つ作って `[field]/practice.astro` と `[field]/[lesson]/practice.astro` の分岐に加える。
 
@@ -83,6 +84,13 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 - 使えるコマンドは `shell.ts` の `commands`(`help` で一覧)。仮想ファイルの初期状態は `initialFs()`、プロセスは `initialProcesses()`
 - `answer` は改行区切りで複数行可。ブラウザのテストで1行ずつ打って検証する
 
+構成(Webアプリの道具。`catalog.json` の層ごとに選択肢を選び、`picks` に含まれていれば正解):
+
+- `picks`: 層id → 正解とする選択肢idの配列(どれか1つ選べばよい)
+- `why`: 層id → 考え方(正解でも不正解でも表示)
+- `rejects`: 層id → 選択肢id → その選択肢が合わない理由(省略時は汎用メッセージ)
+- `check-tasks.mjs` が id の存在と全層の正解の有無を検証する
+
 ## 公開(GitHub Pages)
 
 1. GitHub にリポジトリを作り、このフォルダを push する(ブランチ名は `main`)
@@ -100,6 +108,7 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 5. HTMLとCSS分野 — 練習場(プレビュー、要素の判定)と6レッスン完了
 6. JavaScript分野 — 練習場(隔離実行、出力・戻り値の判定)と6レッスン完了
 7. OSの仕組み分野 — 練習場(疑似ターミナル)と6レッスン完了
+8. Webアプリの道具分野 — 練習場(構成を組む)と6レッスン完了
 
 ## 未決事項
 

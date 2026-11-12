@@ -1,0 +1,90 @@
+[
+  {
+    "id": "shop",
+    "title": "小さなネットショップ",
+    "text": "<p>手作り雑貨を売るネットショップを作ります。</p><ul><li>商品、顧客、注文、注文明細を保存する(SQL分野で見た形)</li><li>注文と顧客、注文と商品はつながっている</li><li>最初は小さいが、売れたら利用者が増える前提で本番運用する</li></ul><p>構成を選んでください。バックエンドは「全部入り」のものにします。</p>",
+    "hints": [
+      "項目が決まっていて表同士がつながるデータは RDB の得意分野です。本番で利用者が増える前提なら、SQLite ではなくサーバー型のRDBです。",
+      "PostgreSQL(または MySQL)+ 全部入りのバックエンド(Django / Rails / Laravel / NestJS / Spring)+ PaaS かクラウドです。"
+    ],
+    "picks": {
+      "frontend": ["plain", "react", "vue", "svelte", "nextjs", "nuxt"],
+      "backend": ["django", "rails", "laravel", "nestjs", "spring"],
+      "database": ["postgres", "mysql"],
+      "hosting": ["paas", "cloud", "vps"]
+    },
+    "why": {
+      "frontend": "画面の作り方は要件を縛りません。Astro 以外なら何でも。",
+      "backend": "ログイン、カート、注文、管理画面と「よくあるWebサービス」の一式なので、全部入りのフレームワークが速いです。",
+      "database": "商品・顧客・注文がつながった表のデータで、本番で利用者が増えるので、サーバー型のRDBです。",
+      "hosting": "バックエンドとDBを動かし続ける場所が必要です。"
+    },
+    "rejects": {
+      "frontend": { "astro": "Astro は読むサイト向けで、カートや注文のように動く画面の中心には向きません。" },
+      "backend": {
+        "none": "注文の保存やログインがあるので、バックエンドが必要です。",
+        "express": "作れますが、この課題では「全部入り」を選ぶ条件です。Express は薄いフレームワークです。",
+        "hono": "この課題では「全部入り」を選ぶ条件です。Hono は薄いフレームワークです。",
+        "fastapi": "この課題では「全部入り」を選ぶ条件です。FastAPI は API 向けの薄いフレームワークです。",
+        "baas": "注文処理や在庫のような独自の処理が増えるショップでは、BaaS の範囲を超えやすいです。"
+      },
+      "database": {
+        "none": "商品や注文を保存する場所が必要です。",
+        "sqlite": "本番で利用者が増える前提なので、同時書き込みに弱い SQLite は避けます。",
+        "mongodb": "商品・顧客・注文のようにつながった表のデータは、JOIN が得意な RDB のほうが自然です。",
+        "redis": "消えては困る注文のメインの保存先には向きません。",
+        "firestore": "BaaS を使わない構成なので、付属DBは選びません。"
+      },
+      "hosting": {
+        "github-pages": "サーバー側の処理が動きません。",
+        "static-host": "バックエンドとDBを常時動かす場所ではありません。",
+        "rental": "Laravel なら動きますが、他のフレームワークは動かないことが多く、本番で利用者が増える前提にも向きません。"
+      }
+    }
+  },
+  {
+    "id": "iot-log",
+    "title": "センサーのログを集める",
+    "text": "<p>研究で使うセンサーのデータを集めるアプリを作ります。</p><ul><li>センサーの種類ごとに送ってくる項目がばらばらで、今後も種類が増える</li><li>1日に数十万件のデータが JSON で届く</li><li>受け取る API を Node.js で書く</li></ul><p>構成を選んでください。フロントエンドはグラフを表示する簡単な画面です。</p>",
+    "hints": [
+      "項目がばらばらで形が変わり続けるデータは、列を事前に決める RDB より、文書型の NoSQL に向きます。",
+      "MongoDB + Node.js(Express / Hono / NestJS)+ PaaS かクラウドです。"
+    ],
+    "picks": {
+      "frontend": ["plain", "react", "vue", "svelte", "nextjs", "nuxt", "astro"],
+      "backend": ["express", "hono", "nestjs"],
+      "database": ["mongodb"],
+      "hosting": ["paas", "cloud", "vps"]
+    },
+    "why": {
+      "frontend": "グラフを表示する簡単な画面なので、何でも構いません。",
+      "backend": "API を Node.js で書くと決まっているので、Node.js のフレームワークです。",
+      "database": "センサーごとに項目が違い、今後も変わるデータは、列を決めなくてよい文書型の MongoDB が向きます。",
+      "hosting": "API とDBを動かし続ける場所が必要です。"
+    },
+    "rejects": {
+      "backend": {
+        "none": "データを受け取る API が必要です。",
+        "django": "API を Node.js で書くと決まっています。",
+        "fastapi": "API を Node.js で書くと決まっています。",
+        "rails": "API を Node.js で書くと決まっています。",
+        "laravel": "API を Node.js で書くと決まっています。",
+        "spring": "API を Node.js で書くと決まっています。",
+        "baas": "1日数十万件の書き込みは BaaS の無料枠を超え、費用がかさみます。"
+      },
+      "database": {
+        "none": "データを保存する場所が必要です。",
+        "sqlite": "1日数十万件の書き込みには向きません。項目が変わり続ける点でも RDB は不利です。",
+        "postgres": "使えなくはありませんが、センサーごとに項目が違い増え続けるデータは、列を事前に決める RDB では扱いにくいです。",
+        "mysql": "センサーごとに項目が違い増え続けるデータは、列を事前に決める RDB では扱いにくいです。",
+        "redis": "メモリ上の一時データ向けで、数十万件のログを保存し続ける用途には向きません。",
+        "firestore": "BaaS を使わない構成です。また大量書き込みは費用がかさみます。"
+      },
+      "hosting": {
+        "github-pages": "サーバー側の処理が動きません。",
+        "static-host": "API とDBを常時動かす場所ではありません。",
+        "rental": "Node.js は動かないことが多いです。"
+      }
+    }
+  }
+]
