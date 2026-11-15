@@ -1,0 +1,183 @@
+---
+// トップページの起動画面。ターミナル風に起動ログを打ち出し、Enter(またはタップ)で本体を表示する。
+// 同じタブでは最初の1回だけ。設定でオフにもできる(localStorage の intro=off)。
+interface Props {
+  fieldCount: number;
+  lessonCount: number;
+  lessons: { id: string; quiz: number; tasks: number }[];
+}
+const { fieldCount, lessonCount, lessons } = Astro.props;
+---
+<div id="intro" class="intro" role="dialog" aria-label="起動画面" aria-modal="true">
+  <script is:inline>
+    // 表示しない条件なら、描画される前に消す(ちらつき防止)
+    try {
+      if (localStorage.getItem('intro') === 'off' || sessionStorage.getItem('intro:seen')) {
+        document.getElementById('intro').remove();
+      }
+    } catch {}
+  </script>
+  <div class="intro-screen">
+    <pre id="intro-log" class="intro-log" aria-live="polite"></pre>
+    <p id="intro-prompt" class="intro-prompt" hidden>
+      <span class="prompt-sym">&gt;</span> <span id="intro-prompt-text"></span><span class="cursor" aria-hidden="true"></span>
+    </p>
+    <button id="intro-skip" class="intro-skip" type="button">スキップ</button>
+  </div>
+</div>
+
+<script type="application/json" id="intro-data" set:html={JSON.stringify({ fieldCount, lessonCount, lessons })} />
+
+<script>
+  import { getProgress, lessonScore } from '../lib/progress';
+
+  const intro = document.getElementById('intro');
+  if (intro) {
+    const data = JSON.parse(document.getElementById('intro-data')!.textContent!) as {
+      fieldCount: number; lessonCount: number; lessons: { id: string; quiz: number; tasks: number }[];
+    };
+    const log = document.getElementById('intro-log')!;
+    const promptEl = document.getElementById('intro-prompt')!;
+    const promptText = document.getElementById('intro-prompt-text')!;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const touch = matchMedia('(hover: none)').matches;
+    document.documentElement.classList.add('intro-open');
+
+    let done = 0;
+    for (const l of data.lessons) done += lessonScore(getProgress(l.id), l.quiz, l.tasks);
+    const pct = data.lessons.length ? Math.round((done / (data.lessons.length * 3)) * 100) : 0;
+    const started = data.lessons.some((l) => { const p = getProgress(l.id); return p.read || p.quizBest != null || p.tasks; });
+
+    const lines = [
+      'PC基礎学習 boot v1.0',
+      '',
+      '[ OK ] カーネルを読み込みました',
+      '[ OK ] 練習場を起動しました: sql, html, js, shell, stack',
+      `[ OK ] コンテンツ: ${data.fieldCount}分野 ${data.lessonCount}レッスン`,
+      started ? `[ OK ] 進捗を読み込みました: 達成率 ${pct}%` : '[ OK ] 進捗: まだ記録はありません。ここから始めましょう',
+      '',
+      'ようこそ。記事を読む → クイズに答える → 練習場で打つ。',
+    ];
+    const prompt = touch ? 'タップしてはじめる' : 'press Enter to start';
+
+    let closed = false;
+    const timers: number[] = [];
+    function close() {
+      if (closed) return;
+      closed = true;
+      for (const t of timers) clearTimeout(t);
+      try { sessionStorage.setItem('intro:seen', '1'); } catch {}
+      intro!.classList.add('closing');
+      const finish = () => { intro!.remove(); document.documentElement.classList.remove('intro-open'); };
+      if (reduce) finish(); else intro!.addEventListener('transitionend', finish, { once: true }), setTimeout(finish, 700);
+      window.removeEventListener('keydown', onKey);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Tab') return; // キーボード操作でスキップボタンへ移動できるように
+      e.preventDefault();
+      close();
+    }
+
+    function showPrompt() {
+      promptEl.hidden = false;
+      if (reduce) { promptText.textContent = prompt; return; }
+      let i = 0;
+      const tick = () => {
+        promptText.textContent = prompt.slice(0, ++i);
+        if (i < prompt.length) timers.push(window.setTimeout(tick, 28));
+      };
+      tick();
+    }
+
+    if (reduce) {
+      log.textContent = lines.join('\n');
+      showPrompt();
+    } else {
+      let i = 0;
+      const next = () => {
+        if (i < lines.length) {
+          log.textContent += (i ? '\n' : '') + lines[i];
+          const delay = lines[i] === '' ? 120 : lines[i].startsWith('[') ? 260 : 420;
+          i++;
+          timers.push(window.setTimeout(next, delay));
+        } else {
+          timers.push(window.setTimeout(showPrompt, 300));
+        }
+      };
+      timers.push(window.setTimeout(next, 350));
+    }
+
+    window.addEventListener('keydown', onKey);
+    intro.addEventListener('click', close);
+    document.getElementById('intro-skip')!.addEventListener('click', (e) => { e.stopPropagation(); close(); });
+  }
+</script>
+
+<style is:global>
+  html.intro-open { overflow: hidden; }
+</style>
+
+<style>
+  .intro {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: #0f1115;
+    color: #d9dde3;
+    font-family: var(--mono);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .intro.closing { opacity: 0; transform: scale(1.015); pointer-events: none; }
+  .intro-screen {
+    width: min(42rem, 100%);
+    position: relative;
+  }
+  .intro-log {
+    margin: 0;
+    font: inherit;
+    font-size: clamp(0.8rem, 2.6vw, 0.98rem);
+    line-height: 1.75;
+    white-space: pre-wrap;
+    word-break: break-all;
+    min-height: 14.5em;
+  }
+  .intro-prompt {
+    margin: 1.2rem 0 0;
+    font-size: clamp(0.95rem, 3.2vw, 1.2rem);
+    color: #7ddba3;
+  }
+  .prompt-sym { opacity: 0.7; }
+  .cursor {
+    display: inline-block;
+    width: 0.6em;
+    height: 1.1em;
+    margin-left: 0.15em;
+    background: #7ddba3;
+    vertical-align: -0.15em;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .intro-skip {
+    position: absolute;
+    right: 0;
+    top: -2.6rem;
+    font: inherit;
+    font-size: 0.8rem;
+    color: #8b929c;
+    background: transparent;
+    border: 1px solid #2b3036;
+    border-radius: 999px;
+    padding: 0.25rem 0.8rem;
+    cursor: pointer;
+  }
+  .intro-skip:hover, .intro-skip:focus-visible { color: #d9dde3; border-color: #8b929c; outline: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .intro { transition: none; }
+    .cursor { animation: none; }
+  }
+</style>

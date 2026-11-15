@@ -12,6 +12,14 @@ import Base from '../layouts/Base.astro';
       <button class="btn secondary" data-theme="">端末の設定に合わせる</button>
     </p>
 
+    <h2>起動画面</h2>
+    <p class="muted">トップページを開いたときの、ターミナル風の起動画面です。</p>
+    <p>
+      <button class="btn secondary" data-intro="on">表示する</button>
+      <button class="btn secondary" data-intro="off">表示しない</button>
+      <span id="intro-msg" class="muted"></span>
+    </p>
+
     <h2>記録</h2>
     <p class="muted">記事の既読、クイズの正答数、練習場のクリア状況はこのブラウザの中にだけ保存されています。</p>
     <p><button id="reset-progress" class="btn secondary">進捗をすべて消す</button> <span id="reset-msg" class="muted"></span></p>
@@ -24,6 +32,16 @@ import Base from '../layouts/Base.astro';
         const t = b.dataset.theme!;
         try { t ? localStorage.setItem('theme', t) : localStorage.removeItem('theme'); } catch {}
         if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
+      });
+    }
+    for (const b of document.querySelectorAll<HTMLButtonElement>('[data-intro]')) {
+      b.addEventListener('click', () => {
+        const v = b.dataset.intro!;
+        try {
+          if (v === 'off') localStorage.setItem('intro', 'off');
+          else { localStorage.removeItem('intro'); sessionStorage.removeItem('intro:seen'); }
+        } catch {}
+        document.getElementById('intro-msg')!.textContent = v === 'off' ? '次から表示しません。' : '次にトップページを開いたときに表示します。';
       });
     }
     document.getElementById('reset-progress')!.addEventListener('click', () => {

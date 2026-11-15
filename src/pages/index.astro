@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import Intro from '../components/Intro.astro';
 import { getFields, getLessons } from '../lib/content';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const fields = await Promise.all(
@@ -8,8 +9,10 @@ const fields = await Promise.all(
     lessons: (await getLessons(f.id)).map((l) => ({ id: l.id, quiz: l.quiz.length, tasks: l.tasks.length })),
   })),
 );
+const allLessons = fields.flatMap((f) => f.lessons);
 ---
 <Base title="PC基礎学習">
+  <Intro fieldCount={fields.length} lessonCount={allLessons.length} lessons={allLessons} />
   <main class="prose">
     <h1>レッスン</h1>
     <p class="muted">分野を選んでください。どの分野も「記事を読む → クイズに答える → 練習場で打つ」の3ステップで進みます。</p>
