@@ -1,10 +1,14 @@
 ---
 import '../styles/global.css';
-import { getFields } from '../lib/content';
 interface Props { title: string; wide?: boolean }
 const { title, wide = false } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const fields = getFields();
+// 上のバーは大きな入口だけ。分野やレッスンの一覧はページの中で見せる
+const path = Astro.url.pathname.replace(base, '');
+const nav = [
+  { href: `${base}/`, label: 'レッスン', current: !path.startsWith('/settings') },
+  { href: `${base}/settings/`, label: '設定', current: path.startsWith('/settings') },
+];
 ---
 <!doctype html>
 <html lang="ja">
@@ -25,11 +29,20 @@ const fields = getFields();
       <div class="inner" style={wide ? 'max-width: 80rem' : ''}>
         <a class="brand" href={`${base}/`}>PC基礎学習</a>
         <nav>
-          {fields.map((f) => <a href={`${base}/${f.id}/`}>{f.title.replace(/\(.*\)$/, '')}</a>)}
-          <a href={`${base}/settings/`}>設定</a>
+          {nav.map((n) => <a href={n.href} aria-current={n.current ? 'page' : undefined}>{n.label}</a>)}
         </nav>
       </div>
     </header>
     <slot />
+    <script>
+      // ?from=<id> 付きで開かれたページでは、「戻る」リンク(data-back)の先に #<id> を付けて、
+      // 押した場所へ戻れるようにする
+      const from = new URLSearchParams(location.search).get('from');
+      if (from && /^[\w-]+$/.test(from)) {
+        for (const a of document.querySelectorAll<HTMLAnchorElement>('a[data-back]')) {
+          a.href = a.href.split('#')[0] + '#' + from;
+        }
+      }
+    </script>
   </body>
 </html>

@@ -68,7 +68,7 @@ const hasTasks = tasks.length > 0;
     </section>
     {hasTasks && (
       <nav class="lesson-nav">
-        {backHref && <a href={backHref}>← 記事に戻る</a>}
+        {backHref && <a href={backHref} data-back>← 記事に戻る</a>}
         {nextHref && <a href={nextHref}>{nextLabel ?? '次へ'} →</a>}
       </nav>
     )}

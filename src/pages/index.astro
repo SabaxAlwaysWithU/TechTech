@@ -11,7 +11,8 @@ const fields = await Promise.all(
 ---
 <Base title="PC基礎学習">
   <main class="prose">
-    <h1>分野を選ぶ</h1>
+    <h1>レッスン</h1>
+    <p class="muted">分野を選んでください。どの分野も「記事を読む → クイズに答える → 練習場で打つ」の3ステップで進みます。</p>
     <ul class="lesson-list">
       {fields.map((f, i) => (
         <li data-field={JSON.stringify(f.lessons)}>

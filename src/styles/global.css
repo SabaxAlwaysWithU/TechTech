@@ -65,7 +65,16 @@ a { color: var(--accent); }
 }
 .site-header a { color: var(--fg); text-decoration: none; }
 .site-header .brand { font-weight: 600; }
-.site-header nav a { color: var(--muted); margin-left: 1rem; font-size: 0.9rem; }
+.site-header nav { display: flex; gap: 0.3rem; }
+.site-header nav a {
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  transition: background-color 0.15s, color 0.15s;
+}
+.site-header nav a:hover { background: var(--surface); color: var(--fg); }
+.site-header nav a[aria-current="page"] { background: var(--surface); color: var(--fg); font-weight: 600; }
 
 main.prose {
   max-width: 40rem;

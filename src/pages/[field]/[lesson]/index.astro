@@ -27,9 +27,9 @@ const param = field.practice === 'sql' ? 'sql' : 'code';
     <Content />
     <hr />
     <p class="muted">記事を読み終えたら、クイズで確かめましょう。</p>
-    <p>
+    <p id="next-steps">
       <a class="btn" href={quizHref}>クイズへ進む</a>
-      <a class="btn secondary" href={practiceHref}>練習場へ</a>
+      <a class="btn secondary" href={`${practiceHref}?from=next-steps`}>練習場へ</a>
     </p>
   </main>
 
@@ -42,14 +42,18 @@ const param = field.practice === 'sql' ? 'sql' : 'code';
     const practice = main.dataset.practice!;
     const param = main.dataset.param!;
     const languages = main.dataset.languages!.split(',');
+    // 各コード例に id を付け、練習場から戻るときにその場所へ戻れるようにする(?from=id)
+    let n = 0;
     for (const pre of main.querySelectorAll<HTMLElement>('pre[data-language]')) {
       if (!languages.includes(pre.dataset.language!)) continue;
       const code = pre.textContent?.trim() ?? '';
       if (!code) continue;
+      const id = `try-${++n}`;
+      pre.id = id;
       const wrap = document.createElement('div');
       wrap.className = 'try';
       const a = document.createElement('a');
-      a.href = `${practice}?${param}=${encodeURIComponent(code)}`;
+      a.href = `${practice}?${param}=${encodeURIComponent(code)}&from=${id}`;
       a.textContent = '練習場で試す →';
       wrap.appendChild(a);
       pre.insertAdjacentElement('afterend', wrap);
@@ -60,7 +64,8 @@ const param = field.practice === 'sql' ? 'sql' : 'code';
     .eyebrow { font-size: 0.85rem; margin: 0 0 0.5rem; }
     .eyebrow a { color: var(--muted); text-decoration: none; }
     :global(.try) { text-align: right; font-size: 0.85rem; margin: -0.8rem 0 1.5rem; }
-    .article :global(pre) { margin-bottom: 1.2rem; }
+    .article :global(pre) { margin-bottom: 1.2rem; scroll-margin-top: 5rem; }
+    #next-steps { scroll-margin-top: 5rem; }
     .article :global(h2) { border-bottom: 1px solid var(--line); padding-bottom: 0.3rem; }
     .article :global(h3) { font-size: 1.05rem; margin: 2rem 0 0.6rem; }
     .article :global(ul), .article :global(ol) { padding-left: 1.5rem; margin: 0 0 1.2rem; }
