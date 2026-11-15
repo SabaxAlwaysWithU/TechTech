@@ -18,6 +18,12 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     } catch {}
   </script>
   <div class="intro-screen">
+    <pre id="intro-logo" class="intro-logo" aria-label="techtech">{`████████╗███████╗ ██████╗██╗  ██╗████████╗███████╗ ██████╗██╗  ██╗
+╚══██╔══╝██╔════╝██╔════╝██║  ██║╚══██╔══╝██╔════╝██╔════╝██║  ██║
+   ██║   █████╗  ██║     ███████║   ██║   █████╗  ██║     ███████║
+   ██║   ██╔══╝  ██║     ██╔══██║   ██║   ██╔══╝  ██║     ██╔══██║
+   ██║   ███████╗╚██████╗██║  ██║   ██║   ███████╗╚██████╗██║  ██║
+   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝`}</pre>
     <pre id="intro-log" class="intro-log" aria-live="polite"></pre>
     <p id="intro-prompt" class="intro-prompt" hidden>
       <span class="prompt-sym">&gt;</span> <span id="intro-prompt-text"></span><span class="cursor" aria-hidden="true"></span>
@@ -48,8 +54,14 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     const pct = data.lessons.length ? Math.round((done / (data.lessons.length * 3)) * 100) : 0;
     const started = data.lessons.some((l) => { const p = getProgress(l.id); return p.read || p.quizBest != null || p.tasks; });
 
+    // ロゴを1行ずつ点灯させてから、起動ログを流す
+    const logo = document.getElementById('intro-logo')!;
+    const logoLines = logo.textContent!.split('\n');
+    logo.textContent = '';
+    logo.classList.add('on');
+
     const lines = [
-      'PC基礎学習 boot v1.0',
+      'boot v1.0',
       '',
       '[ OK ] カーネルを読み込みました',
       '[ OK ] 練習場を起動しました: sql, html, js, shell, stack',
@@ -90,6 +102,7 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     }
 
     if (reduce) {
+      logo.textContent = logoLines.join('\n');
       log.textContent = lines.join('\n');
       showPrompt();
     } else {
@@ -104,7 +117,14 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
           timers.push(window.setTimeout(showPrompt, 300));
         }
       };
-      timers.push(window.setTimeout(next, 350));
+      let j = 0;
+      const drawLogo = () => {
+        logo.textContent += (j ? '\n' : '') + logoLines[j];
+        j++;
+        if (j < logoLines.length) timers.push(window.setTimeout(drawLogo, 90));
+        else timers.push(window.setTimeout(next, 400));
+      };
+      timers.push(window.setTimeout(drawLogo, 250));
     }
 
     window.addEventListener('keydown', onKey);
@@ -137,6 +157,18 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     width: min(42rem, 100%);
     position: relative;
   }
+  .intro-logo {
+    margin: 0 0 1.2rem;
+    font: inherit;
+    /* 66桁がスマホ幅(約390px)にも収まるように、幅から文字サイズを決める */
+    font-size: clamp(0.42rem, 1.35vw, 0.8rem);
+    line-height: 1.05;
+    color: #7ddba3;
+    white-space: pre;
+    overflow: hidden;
+    min-height: 6.3em;
+    text-shadow: 0 0 10px rgba(125, 219, 163, 0.25);
+  }
   .intro-log {
     margin: 0;
     font: inherit;
@@ -145,6 +177,9 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     white-space: pre-wrap;
     word-break: break-all;
     min-height: 14.5em;
+  }
+  @media (max-height: 640px) {
+    .intro-log { min-height: 0; }
   }
   .intro-prompt {
     margin: 1.2rem 0 0;

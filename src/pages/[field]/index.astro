@@ -11,7 +11,7 @@ export async function getStaticPaths() {
 const { field, lessons } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<Base title={`${field.title} — PC基礎学習`}>
+<Base title={`${field.title} — techtech`}>
   <main class="prose">
     <p class="eyebrow muted"><a href={`${base}/`}>レッスン</a> · {field.title}</p>
     <h1>{field.title}</h1>
