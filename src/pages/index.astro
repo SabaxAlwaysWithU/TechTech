@@ -11,7 +11,7 @@ const fields = await Promise.all(
 );
 const allLessons = fields.flatMap((f) => f.lessons);
 ---
-<Base title="techtech">
+<Base title="TechTech">
   <Intro fieldCount={fields.length} lessonCount={allLessons.length} lessons={allLessons} />
   <main class="prose">
     <h1>レッスン</h1>

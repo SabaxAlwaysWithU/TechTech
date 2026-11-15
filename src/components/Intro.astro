@@ -8,6 +8,9 @@ interface Props {
 }
 const { fieldCount, lessonCount, lessons } = Astro.props;
 ---
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" />
 <div id="intro" class="intro" role="dialog" aria-label="起動画面" aria-modal="true">
   <script is:inline>
     // 表示しない条件なら、描画される前に消す(ちらつき防止)
@@ -18,7 +21,7 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     } catch {}
   </script>
   <div class="intro-screen">
-    <pre id="intro-logo" class="intro-logo" aria-label="techtech">{`████████╗███████╗ ██████╗██╗  ██╗████████╗███████╗ ██████╗██╗  ██╗
+    <pre id="intro-logo" class="intro-logo" aria-label="TechTech">{`████████╗███████╗ ██████╗██╗  ██╗████████╗███████╗ ██████╗██╗  ██╗
 ╚══██╔══╝██╔════╝██╔════╝██║  ██║╚══██╔══╝██╔════╝██╔════╝██║  ██║
    ██║   █████╗  ██║     ███████║   ██║   █████╗  ██║     ███████║
    ██║   ██╔══╝  ██║     ██╔══██║   ██║   ██╔══╝  ██║     ██╔══██║
@@ -144,7 +147,10 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     z-index: 100;
     background: #0f1115;
     color: #d9dde3;
-    font-family: var(--mono);
+    /* 角ばったドット書体。読み込めないときは等幅フォントで代用 */
+    font-family: 'DotGothic16', var(--mono);
+    -webkit-font-smoothing: none;
+    font-smooth: never;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -160,6 +166,7 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
   .intro-logo {
     margin: 0 0 1.2rem;
     font: inherit;
+    font-family: var(--mono); /* ブロック文字は等幅フォントで組む */
     /* 66桁がスマホ幅(約390px)にも収まるように、幅から文字サイズを決める */
     font-size: clamp(0.42rem, 1.35vw, 0.8rem);
     line-height: 1.05;
@@ -172,8 +179,8 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
   .intro-log {
     margin: 0;
     font: inherit;
-    font-size: clamp(0.8rem, 2.6vw, 0.98rem);
-    line-height: 1.75;
+    font-size: clamp(0.95rem, 3vw, 1.15rem);
+    line-height: 1.7;
     white-space: pre-wrap;
     word-break: break-all;
     min-height: 14.5em;
@@ -183,7 +190,7 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
   }
   .intro-prompt {
     margin: 1.2rem 0 0;
-    font-size: clamp(0.95rem, 3.2vw, 1.2rem);
+    font-size: clamp(1.1rem, 3.6vw, 1.4rem);
     color: #7ddba3;
   }
   .prompt-sym { opacity: 0.7; }
