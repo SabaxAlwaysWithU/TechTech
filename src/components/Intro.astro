@@ -1,5 +1,6 @@
 ---
-// トップページの起動画面。ターミナル風に起動ログを打ち出し、Enter(またはタップ)で本体を表示する。
+// トップページの起動画面。ブラウン管(CRT)を覗き込んでいるような丸みのある画面に、
+// ターミナル風の起動ログを打ち出し、Enter(またはタップ)で本体を表示する。
 // 同じタブでは最初の1回だけ。設定でオフにもできる(localStorage の intro=off)。
 interface Props {
   fieldCount: number;
@@ -20,18 +21,23 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
       }
     } catch {}
   </script>
-  <div class="intro-screen">
-    <pre id="intro-logo" class="intro-logo" aria-label="TechTech">{`████████╗███████╗ ██████╗██╗  ██╗████████╗███████╗ ██████╗██╗  ██╗
+  <div class="crt">
+    <div class="crt-screen">
+      <div class="intro-screen">
+        <pre id="intro-logo" class="intro-logo" aria-label="TechTech">{`████████╗███████╗ ██████╗██╗  ██╗████████╗███████╗ ██████╗██╗  ██╗
 ╚══██╔══╝██╔════╝██╔════╝██║  ██║╚══██╔══╝██╔════╝██╔════╝██║  ██║
    ██║   █████╗  ██║     ███████║   ██║   █████╗  ██║     ███████║
    ██║   ██╔══╝  ██║     ██╔══██║   ██║   ██╔══╝  ██║     ██╔══██║
    ██║   ███████╗╚██████╗██║  ██║   ██║   ███████╗╚██████╗██║  ██║
    ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝`}</pre>
-    <pre id="intro-log" class="intro-log" aria-live="polite"></pre>
-    <p id="intro-prompt" class="intro-prompt" hidden>
-      <span class="prompt-sym">&gt;</span> <span id="intro-prompt-text"></span><span class="cursor" aria-hidden="true"></span>
-    </p>
-    <button id="intro-skip" class="intro-skip" type="button">スキップ</button>
+        <pre id="intro-log" class="intro-log" aria-live="polite"></pre>
+        <p id="intro-prompt" class="intro-prompt" hidden>
+          <span class="prompt-sym">&gt;</span> <span id="intro-prompt-text"></span><span class="cursor" aria-hidden="true"></span>
+        </p>
+      </div>
+    </div>
+    <div class="crt-scan" aria-hidden="true"></div>
+    <div class="crt-glass" aria-hidden="true"></div>
   </div>
 </div>
 
@@ -61,7 +67,6 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     const logo = document.getElementById('intro-logo')!;
     const logoLines = logo.textContent!.split('\n');
     logo.textContent = '';
-    logo.classList.add('on');
 
     const lines = [
       'boot v1.0',
@@ -84,11 +89,10 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
       try { sessionStorage.setItem('intro:seen', '1'); } catch {}
       intro!.classList.add('closing');
       const finish = () => { intro!.remove(); document.documentElement.classList.remove('intro-open'); };
-      if (reduce) finish(); else intro!.addEventListener('transitionend', finish, { once: true }), setTimeout(finish, 700);
+      if (reduce) finish(); else intro!.addEventListener('transitionend', finish, { once: true }), setTimeout(finish, 900);
       window.removeEventListener('keydown', onKey);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Tab') return; // キーボード操作でスキップボタンへ移動できるように
       e.preventDefault();
       close();
     }
@@ -127,12 +131,12 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
         if (j < logoLines.length) timers.push(window.setTimeout(drawLogo, 90));
         else timers.push(window.setTimeout(next, 400));
       };
-      timers.push(window.setTimeout(drawLogo, 250));
+      // 電源が入る演出のあとにロゴ
+      timers.push(window.setTimeout(drawLogo, 650));
     }
 
     window.addEventListener('keydown', onKey);
     intro.addEventListener('click', close);
-    document.getElementById('intro-skip')!.addEventListener('click', (e) => { e.stopPropagation(); close(); });
   }
 </script>
 
@@ -145,7 +149,7 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     position: fixed;
     inset: 0;
     z-index: 100;
-    background: #0f1115;
+    background: #040506;
     color: #d9dde3;
     /* 角ばったドット書体。読み込めないときは等幅フォントで代用 */
     font-family: 'DotGothic16', var(--mono);
@@ -154,32 +158,110 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem;
+    padding: clamp(0.5rem, 3vw, 2rem);
     cursor: pointer;
-    transition: opacity 0.55s ease, transform 0.55s ease;
+    transition: opacity 0.6s ease;
   }
-  .intro.closing { opacity: 0; transform: scale(1.015); pointer-events: none; }
+  .intro.closing { opacity: 0; pointer-events: none; }
+  /* 電源を切るように、縦に一本の線へつぶれて消える(起動アニメーションを止めてから) */
+  .intro.closing .crt { animation: power-off 0.45s cubic-bezier(0.6, 0, 0.9, 0.2) both; }
+  @keyframes power-off {
+    0% { transform: perspective(1200px) rotateX(1.2deg) scale(1); filter: brightness(1); }
+    60% { transform: perspective(1200px) scale(1.04, 0.01); filter: brightness(3); opacity: 1; }
+    100% { transform: perspective(1200px) scale(0.2, 0.004); filter: brightness(4); opacity: 0; }
+  }
+
+  /* ブラウン管。四隅が丸く、中央がふくらんで見えるように、枠・影・ハイライトで作る */
+  .crt {
+    position: relative;
+    width: min(66rem, 100%);
+    height: min(80vh, 46rem);
+    border-radius: 8% / 11%;
+    background: #0b0e12;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 clamp(6px, 1vw, 14px) #15181d,
+      0 0 0 calc(clamp(6px, 1vw, 14px) + 2px) #23272e,
+      0 0 90px rgba(125, 219, 163, 0.12),
+      0 40px 100px rgba(0, 0, 0, 0.8),
+      inset 0 0 120px rgba(0, 0, 0, 0.85);
+    transform: perspective(1200px) rotateX(1.2deg);
+    animation: power-on 0.7s ease-out both;
+  }
+  @keyframes power-on {
+    0% { transform: perspective(1200px) scale(1, 0.004); filter: brightness(4); }
+    55% { transform: perspective(1200px) scale(1, 0.004); filter: brightness(4); }
+    75% { transform: perspective(1200px) scale(1.02, 0.6); filter: brightness(2); }
+    100% { transform: perspective(1200px) rotateX(1.2deg) scale(1); filter: brightness(1); }
+  }
+  .crt-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1.2rem, 5vw, 3.5rem) clamp(1rem, 6vw, 4.5rem);
+    overflow: hidden;
+    /* 画面の端ほど暗く、魚眼で覗いたように中央が明るい */
+    background:
+      radial-gradient(ellipse 62% 58% at 50% 48%, rgba(125, 219, 163, 0.07), transparent 70%),
+      radial-gradient(ellipse at center, #0f1318 0%, #0a0d11 60%, #05070a 100%);
+  }
   .intro-screen {
     width: min(42rem, 100%);
     position: relative;
+    /* 中央がわずかに手前にふくらむ */
+    transform: perspective(900px) translateZ(14px);
+    text-shadow: -1px 0 rgba(255, 60, 110, 0.18), 1px 0 rgba(60, 170, 255, 0.18);
+    animation: jitter 6s steps(1) infinite;
   }
+  @keyframes jitter { 0%, 96%, 100% { transform: perspective(900px) translateZ(14px); } 97% { transform: perspective(900px) translateZ(14px) translateX(1px); } 98% { transform: perspective(900px) translateZ(14px) translateX(-1px); } }
+
+  /* 走査線と、ゆっくり流れる明るい帯 */
+  .crt-scan {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px),
+      linear-gradient(180deg, transparent 0%, rgba(125, 219, 163, 0.06) 50%, transparent 100%);
+    background-size: 100% 3px, 100% 22%;
+    background-repeat: repeat, no-repeat;
+    animation: roll 7s linear infinite, flicker 0.18s steps(2) infinite;
+    mix-blend-mode: screen;
+  }
+  @keyframes roll { 0% { background-position: 0 0, 0 -25%; } 100% { background-position: 0 0, 0 125%; } }
+  @keyframes flicker { 0% { opacity: 0.92; } 100% { opacity: 1; } }
+
+  /* ガラスの反射と、四隅の暗さ(ビネット) */
+  .crt-glass {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+      radial-gradient(ellipse at 28% 18%, rgba(255, 255, 255, 0.07), transparent 42%),
+      radial-gradient(ellipse at 50% 50%, transparent 52%, rgba(0, 0, 0, 0.45) 80%, rgba(0, 0, 0, 0.92) 100%);
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.7);
+  }
+
   .intro-logo {
     margin: 0 0 1.2rem;
     font: inherit;
     font-family: var(--mono); /* ブロック文字は等幅フォントで組む */
     /* 66桁がスマホ幅(約390px)にも収まるように、幅から文字サイズを決める */
-    font-size: clamp(0.42rem, 1.35vw, 0.8rem);
+    font-size: clamp(0.4rem, 1.25vw, 0.78rem);
     line-height: 1.05;
     color: #7ddba3;
     white-space: pre;
     overflow: hidden;
     min-height: 6.3em;
-    text-shadow: 0 0 10px rgba(125, 219, 163, 0.25);
+    text-shadow: 0 0 10px rgba(125, 219, 163, 0.35);
   }
   .intro-log {
     margin: 0;
     font: inherit;
-    font-size: clamp(0.95rem, 3vw, 1.15rem);
+    font-size: clamp(0.9rem, 2.8vw, 1.12rem);
     line-height: 1.7;
     white-space: pre-wrap;
     word-break: break-all;
@@ -190,8 +272,9 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
   }
   .intro-prompt {
     margin: 1.2rem 0 0;
-    font-size: clamp(1.1rem, 3.6vw, 1.4rem);
+    font-size: clamp(1.05rem, 3.4vw, 1.35rem);
     color: #7ddba3;
+    text-shadow: 0 0 8px rgba(125, 219, 163, 0.5);
   }
   .prompt-sym { opacity: 0.7; }
   .cursor {
@@ -204,22 +287,15 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     animation: blink 1s steps(1) infinite;
   }
   @keyframes blink { 50% { opacity: 0; } }
-  .intro-skip {
-    position: absolute;
-    right: 0;
-    top: -2.6rem;
-    font: inherit;
-    font-size: 0.8rem;
-    color: #8b929c;
-    background: transparent;
-    border: 1px solid #2b3036;
-    border-radius: 999px;
-    padding: 0.25rem 0.8rem;
-    cursor: pointer;
+
+  @media (max-width: 600px) {
+    .crt { height: min(88vh, 46rem); border-radius: 7% / 5%; }
   }
-  .intro-skip:hover, .intro-skip:focus-visible { color: #d9dde3; border-color: #8b929c; outline: none; }
   @media (prefers-reduced-motion: reduce) {
     .intro { transition: none; }
+    .crt { animation: none; transform: none; }
+    .crt-scan { animation: none; }
+    .intro-screen { animation: none; }
     .cursor { animation: none; }
   }
 </style>
