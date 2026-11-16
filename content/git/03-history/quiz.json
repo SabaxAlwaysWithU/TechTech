@@ -1,0 +1,32 @@
+[
+  {
+    "question": "履歴を1行ずつ見るコマンドはどれですか?",
+    "options": ["git log --oneline", "git history", "git status", "git diff"],
+    "explanation": "git log が履歴で、--oneline で1コミット1行になります。status は今の状態、diff は変更の中身です。"
+  },
+  {
+    "question": "git diff の出力で、+ で始まる行は何を表しますか?",
+    "options": ["追加した行", "消した行", "エラーの行", "コミット済みの行"],
+    "explanation": "+ が追加、- が削除です。コミット前に diff で見直すと、消し忘れやうっかりした変更に気づけます。"
+  },
+  {
+    "question": "編集中のファイルを、最後にコミットした状態に戻すコマンドはどれですか?",
+    "options": [
+      "git restore ファイル",
+      "git undo ファイル",
+      "git commit ファイル",
+      "git log ファイル"
+    ],
+    "explanation": "git restore で編集を捨てて戻せます。ただし捨てた編集は戻らないので、打つ前に確かめます。"
+  },
+  {
+    "question": "git add したファイルをステージから外す(中身はそのまま)コマンドはどれですか?",
+    "options": [
+      "git restore --staged ファイル",
+      "git restore ファイル",
+      "git rm ファイル",
+      "git reset --hard"
+    ],
+    "explanation": "--staged を付けると add だけが取り消され、編集した中身は残ります。--staged なしだと中身まで戻ってしまいます。"
+  }
+]

@@ -1,0 +1,48 @@
+[
+  {
+    "id": "switch-c",
+    "title": "ブランチを作って移動する",
+    "text": "<p><code>add-photo</code> という名前のブランチを作って、そこに移動してください。<code>git branch</code> で <code>*</code> が <code>add-photo</code> に付いていれば成功です。</p>",
+    "starter": "cd project\ngit init\ngit add .\ngit commit -m \"最初のページを作る\"",
+    "answer": "git switch -c add-photo\ngit branch",
+    "hints": [
+      "作って移動するのは git switch -c 名前 です。",
+      "git switch -c add-photo。そのあと git branch で確かめます。"
+    ],
+    "shellChecks": [
+      { "git": { "branchExists": "add-photo" }, "message": "add-photo ブランチがまだありません。git switch -c add-photo で作ってください。" },
+      { "git": { "branch": "add-photo" }, "message": "ブランチはできましたが、まだ移動していません。git switch add-photo で移動してください。" }
+    ]
+  },
+  {
+    "id": "commit-on-branch",
+    "title": "ブランチの上でコミットする",
+    "text": "<p>今 <code>add-photo</code> ブランチにいます。<code>index.html</code> に1行足してコミットしてください。追加は <code>echo \"&lt;img src=me.jpg&gt;\" &gt;&gt; index.html</code> で構いません。</p><p>コミットしたら <code>git switch main</code> と <code>cat index.html</code> で、main では行が増えていないことを見てみましょう(見終わったら <code>git switch add-photo</code> で戻ってください)。</p>",
+    "starter": "cd project\ngit init\ngit add .\ngit commit -m \"最初のページを作る\"\ngit switch -c add-photo",
+    "answer": "echo \"<img src=me.jpg>\" >> index.html\ngit add index.html\ngit commit -m \"トップに写真を追加\"",
+    "hints": [
+      "編集 → git add → git commit は、ブランチの上でも同じです。",
+      "echo \"<img src=me.jpg>\" >> index.html、git add index.html、git commit -m \"トップに写真を追加\""
+    ],
+    "shellChecks": [
+      { "git": { "branch": "add-photo" }, "message": "add-photo ブランチに戻ってください(git switch add-photo)。" },
+      { "git": { "commits": 2 }, "message": "add-photo ブランチにまだ新しいコミットがありません。index.html を編集して add、commit してください。" },
+      { "git": { "clean": true }, "message": "コミットしていない変更が残っています。git add index.html を忘れていませんか。" }
+    ]
+  },
+  {
+    "id": "merge",
+    "title": "main に取り込む",
+    "text": "<p><code>add-photo</code> ブランチには、写真を足したコミットが1つあります。<code>main</code> に移動して、<code>add-photo</code> を取り込んでください。</p><p>取り込めたら <code>git log --oneline</code> で、main の履歴に「トップに写真を追加」が入ったことを確かめましょう。</p>",
+    "starter": "cd project\ngit init\ngit add .\ngit commit -m \"最初のページを作る\"\ngit switch -c add-photo\necho \"<img src=me.jpg>\" >> index.html\ngit add index.html\ngit commit -m \"トップに写真を追加\"",
+    "answer": "git switch main\ngit merge add-photo\ngit log --oneline",
+    "hints": [
+      "merge は「取り込む側」に移動してから行います。まず git switch main です。",
+      "git switch main のあと git merge add-photo"
+    ],
+    "shellChecks": [
+      { "git": { "branch": "main" }, "message": "まず git switch main で main に移動してください。" },
+      { "git": { "merged": "add-photo" }, "message": "main にまだ add-photo が取り込まれていません。git merge add-photo を実行してください。" }
+    ]
+  }
+]

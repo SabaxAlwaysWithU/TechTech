@@ -159,7 +159,19 @@ const hasTasks = tasks.length > 0;
     }
     if (prog.tasks?.[t.id]) { verdict.hidden = false; verdict.classList.add('correct'); verdict.textContent = 'クリア済み。もう一度やってみても構いません。'; }
     resetShell();
+    applyStarter(t);
     input.focus();
+  }
+
+  // 課題の starter(改行区切りのコマンド)を黙って実行し、開始状態を作る(例: cd project、git init 済み)
+  function applyStarter(t: Task | undefined) {
+    if (!t?.starter) return;
+    for (const line of t.starter.split('\n')) if (line.trim()) exec(state, line);
+    state.history = [];
+    state.lastCommand = '';
+    state.lastOutput = '';
+    append(`# ${state.cwd} から始めます\n`);
+    refreshPrompt();
   }
 
   function showHint() {
@@ -203,7 +215,7 @@ const hasTasks = tasks.length > 0;
     }
   });
   terminal.addEventListener('click', () => input.focus());
-  $('reset').addEventListener('click', () => { resetShell(); input.focus(); });
+  $('reset').addEventListener('click', () => { resetShell(); applyStarter(currentTask()); input.focus(); });
   document.getElementById('hint-btn')?.addEventListener('click', showHint);
   document.getElementById('task-tabs')?.addEventListener('click', (e) => {
     const tab = (e.target as HTMLElement).closest<HTMLButtonElement>('.tab');

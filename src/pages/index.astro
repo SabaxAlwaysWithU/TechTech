@@ -24,6 +24,7 @@ const allLessons = fields.flatMap((f) => f.lessons);
             <a href={`${base}/${f.id}/`}>{f.title}</a>
             <span class="desc">{f.description}</span>
             <span class="rate muted" data-rate></span>
+            <span class="bar" aria-hidden="true"><span class="bar-fill" data-bar></span></span>
           </div>
         </li>
       ))}
@@ -38,10 +39,16 @@ const allLessons = fields.flatMap((f) => f.lessons);
       for (const l of lessons) done += lessonScore(getProgress(l.id), l.quiz, l.tasks);
       const total = lessons.length * 3;
       const pct = total ? Math.round((done / total) * 100) : 0;
-      li.querySelector<HTMLElement>('[data-rate]')!.textContent = `達成率 ${pct}%`;
+      const lessonsDone = lessons.filter((l) => lessonScore(getProgress(l.id), l.quiz, l.tasks) === 3).length;
+      li.querySelector<HTMLElement>('[data-rate]')!.textContent = `達成率 ${pct}% · ${lessonsDone}/${lessons.length} レッスン完了`;
+      li.querySelector<HTMLElement>('[data-bar]')!.style.width = `${pct}%`;
+      if (pct === 100) li.classList.add('complete');
     }
   </script>
   <style>
-    .rate { display: block; font-size: 0.8rem; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
+    .rate { display: block; font-size: 0.8rem; margin-top: 0.3rem; font-variant-numeric: tabular-nums; }
+    .bar { display: block; height: 4px; background: var(--surface); border-radius: 999px; margin-top: 0.45rem; overflow: hidden; }
+    .bar-fill { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width 0.4s ease; }
+    .lesson-list li.complete .num { color: var(--accent); }
   </style>
 </Base>

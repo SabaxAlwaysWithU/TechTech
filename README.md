@@ -52,7 +52,7 @@ public/sql-wasm-browser.wasm sql.js 本体(node_modules/sql.js/dist/ からコ�
 - `"sql"`: [Practice.astro](src/components/Practice.astro)。`schema.sql` が必要
 - `"html"`: [HtmlPractice.astro](src/components/HtmlPractice.astro)。入力欄の横にプレビュー
 - `"js"`: [JsPractice.astro](src/components/JsPractice.astro)。sandbox 付き iframe でコードを実行し、出力を表示
-- `"shell"`: [ShellPractice.astro](src/components/ShellPractice.astro)。疑似ターミナル。仮想のファイル・プロセス・ユーザーは [shell.ts](src/lib/shell.ts)
+- `"shell"`: [ShellPractice.astro](src/components/ShellPractice.astro)。疑似ターミナル。仮想のファイル・プロセス・ユーザー・Gitリポジトリは [shell.ts](src/lib/shell.ts)。OS分野と Git分野で共用
 - `"stack"`: [StackPractice.astro](src/components/StackPractice.astro)。要件に合わせて層ごとに道具を選ぶ。選択肢は `content/<分野>/catalog.json`
 
 別の種類(コマンド操作など)を足すときは、コンポーネントを1つ作って `[field]/practice.astro` と `[field]/[lesson]/practice.astro` の分岐に加える。
@@ -81,6 +81,8 @@ JavaScript(利用者のコードを隔離された iframe で実行し、[jsrunn
 OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellChecks` で調べる。すべて満たせば正解):
 
 - `cwd`、`exists`、`notExists`、`isDir`、`content: {path, includes|equals}`、`executable`、`notExecutable`、`processGone`、`processExists`、`lastOutputIncludes`、`lastCommandIncludes`
+- `git: {...}`: `initialized`、`commits`(以上)、`lastMessageIncludes`、`branch`、`branchExists`、`staged`、`notStaged`、`tracked`、`notTracked`、`clean`、`remote`、`pushed`、`upstream`、`merged`
+- `starter`: 課題を開いたときに黙って実行するコマンド(改行区切り)。`cd project` や `git init` 済みの状態を作る
 - 使えるコマンドは `shell.ts` の `commands`(`help` で一覧)。仮想ファイルの初期状態は `initialFs()`、プロセスは `initialProcesses()`
 - `answer` は改行区切りで複数行可。ブラウザのテストで1行ずつ打って検証する
 
@@ -109,6 +111,8 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 6. JavaScript分野 — 練習場(隔離実行、出力・戻り値の判定)と6レッスン完了
 7. OSの仕組み分野 — 練習場(疑似ターミナル)と6レッスン完了
 8. Webアプリの道具分野 — 練習場(構成を組む)と6レッスン完了
+9. レッスン内のステップバー(記事→クイズ→練習の進み具合、次にやること、レッスン完了)とトップの達成率バー
+10. GitとGitHub分野 — 疑似ターミナルに git(init/status/add/commit/log/diff/restore/branch/switch/merge/remote/push)を追加、6レッスン完了
 
 ## 未決事項
 

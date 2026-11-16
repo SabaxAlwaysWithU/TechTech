@@ -96,6 +96,7 @@ export interface ShellCheckLike {
   processExists?: number;
   lastOutputIncludes?: string;
   lastCommandIncludes?: string;
+  git?: Record<string, unknown>; // GitCheck(lib/shell.ts)
   message: string;
 }
 

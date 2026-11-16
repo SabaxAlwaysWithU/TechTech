@@ -1,0 +1,50 @@
+[
+  {
+    "id": "first-commit",
+    "title": "最初のコミット",
+    "text": "<p><code>README.md</code> をステージに入れてから、メッセージ「<code>README を追加</code>」でコミットしてください。</p>",
+    "starter": "cd project\ngit init",
+    "answer": "git add README.md\ngit commit -m \"README を追加\"",
+    "hints": [
+      "git add README.md でステージに入れ、git commit -m \"メッセージ\" で記録します。",
+      "git add README.md のあと、git commit -m \"README を追加\""
+    ],
+    "shellChecks": [
+      { "git": { "commits": 1 }, "message": "まだコミットがありません。git add README.md のあと git commit -m \"...\" です。" },
+      { "git": { "tracked": "README.md" }, "message": "README.md がコミットに入っていません。git add README.md をしてからコミットしてください。" },
+      { "git": { "lastMessageIncludes": "README" }, "message": "コミットメッセージに「README」を含めてください(例: README を追加)。" }
+    ]
+  },
+  {
+    "id": "add-all",
+    "title": "全部まとめてコミット",
+    "text": "<p>残りのファイルも全部ステージに入れて(<code>git add .</code>)、メッセージ「<code>最初のページを作る</code>」でコミットしてください。終わったら <code>git status</code> で「working tree clean」になることを確かめましょう。</p>",
+    "starter": "cd project\ngit init\ngit add README.md\ngit commit -m \"README を追加\"",
+    "answer": "git add .\ngit commit -m \"最初のページを作る\"\ngit status",
+    "hints": [
+      "フォルダの中を全部ステージに入れるには git add . です(. は今いる場所)。",
+      "git add . のあと git commit -m \"最初のページを作る\"。git status で確かめます。"
+    ],
+    "shellChecks": [
+      { "git": { "tracked": "index.html" }, "message": "index.html がまだコミットに入っていません。git add . でまとめて入れてからコミットしてください。" },
+      { "git": { "commits": 2 }, "message": "コミットが増えていません。git commit -m \"...\" を実行してください。" },
+      { "git": { "clean": true }, "message": "まだコミットしていない変更が残っています。git status で確かめてください。" }
+    ]
+  },
+  {
+    "id": "edit-commit",
+    "title": "変更を重ねる",
+    "text": "<p><code>memo.txt</code> に1行追加してから、その変更をコミットしてください。追加は <code>echo \"写真を追加する\" &gt;&gt; memo.txt</code> でできます。メッセージは自由です。</p><p>途中で <code>git status</code> を打つと、ファイルが「Changes not staged for commit」になるのが見られます。</p>",
+    "starter": "cd project\ngit init\ngit add .\ngit commit -m \"最初のページを作る\"",
+    "answer": "echo \"写真を追加する\" >> memo.txt\ngit status\ngit add memo.txt\ngit commit -m \"メモに次の予定を書く\"",
+    "hints": [
+      "編集 → git add → git commit の順です。echo \"...\" >> memo.txt が編集にあたります。",
+      "echo \"写真を追加する\" >> memo.txt、git add memo.txt、git commit -m \"メモに次の予定を書く\""
+    ],
+    "shellChecks": [
+      { "content": { "path": "/home/saba/project/memo.txt", "includes": "写真を追加する" }, "message": "memo.txt にまだ行が追加されていません。echo \"写真を追加する\" >> memo.txt を実行してください。" },
+      { "git": { "commits": 2 }, "message": "変更をまだコミットしていません。git add memo.txt のあと git commit -m \"...\" です。" },
+      { "git": { "clean": true }, "message": "memo.txt の変更がコミットに入っていません。git add memo.txt を忘れていませんか。" }
+    ]
+  }
+]

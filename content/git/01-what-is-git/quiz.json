@@ -1,0 +1,37 @@
+[
+  {
+    "question": "Git の「コミット」の説明として正しいものはどれですか?",
+    "options": [
+      "その時点のファイルの状態をメモ付きで記録した、1回のセーブ",
+      "GitHub にファイルを送ること",
+      "ファイルを削除すること",
+      "フォルダの名前を変えること"
+    ],
+    "explanation": "コミットは1回のセーブです。積み重ねると履歴になり、いつでも戻れます。GitHub に送るのは push です。"
+  },
+  {
+    "question": "Git と GitHub の関係として正しいものはどれですか?",
+    "options": [
+      "Git は履歴を記録する道具、GitHub はリモートリポジトリを置けるサービス",
+      "同じものの別の呼び方",
+      "GitHub は Git の新しいバージョン",
+      "Git は GitHub がないと動かない"
+    ],
+    "explanation": "Git はパソコンの中で動くコマンド、GitHub は Web サービスです。GitHub がなくても Git は使えます。"
+  },
+  {
+    "question": "フォルダを Git のリポジトリにするコマンドはどれですか?",
+    "options": ["git init", "git start", "git new", "git create"],
+    "explanation": "git init で、そのフォルダに .git という隠しフォルダが作られ、履歴を記録できるようになります。"
+  },
+  {
+    "question": "git init の直後に git status を打つと、ファイルはどう表示されますか?",
+    "options": [
+      "Untracked files(まだ追跡していないファイル)として並ぶ",
+      "すべてコミット済みと表示される",
+      "エラーになる",
+      "何も表示されない"
+    ],
+    "explanation": "init しただけでは Git はどのファイルも記録していません。追跡を始めるには次のレッスンの git add を使います。"
+  }
+]

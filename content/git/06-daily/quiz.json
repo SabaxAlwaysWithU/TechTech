@@ -1,0 +1,37 @@
+[
+  {
+    "question": "履歴に入れてはいけないものはどれですか?",
+    "options": [
+      "パスワードや API キーが書かれたファイル",
+      "README.md",
+      ".gitignore",
+      "index.html"
+    ],
+    "explanation": "パスワードを push すると世界中に公開され、あとで消しても履歴に残ります。.gitignore で最初から除外します。"
+  },
+  {
+    "question": "node_modules/ を Git に無視させるには、どこに書きますか?",
+    "options": [".gitignore", "README.md", ".git フォルダの中", "package.json"],
+    "explanation": ".gitignore に1行書くと、git add . をしても入らなくなります。.gitignore 自体はコミットします。"
+  },
+  {
+    "question": "git push が rejected(拒否)されました。原因として最も多いものはどれですか?",
+    "options": [
+      "GitHub 側に手元にないコミットがある。先に git pull が必要",
+      "コミットメッセージが短すぎる",
+      "ファイルが大きすぎる",
+      ".gitignore がない"
+    ],
+    "explanation": "別のパソコンや GitHub の画面で変更が入ると、手元が古くなります。git pull で取り込んでから push します。"
+  },
+  {
+    "question": "プルリクエストの説明として正しいものはどれですか?",
+    "options": [
+      "ブランチを main に取り込んでほしいという申請。他の人がコードを見てコメントできる",
+      "git pull の別名",
+      "コミットを取り消す操作",
+      "リポジトリを削除する手続き"
+    ],
+    "explanation": "プルリクエストは GitHub の機能で、チーム開発の中心です。レビューを経て GitHub 上で merge します。"
+  }
+]

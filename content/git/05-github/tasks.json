@@ -1,0 +1,47 @@
+[
+  {
+    "id": "remote-add",
+    "title": "送り先を登録する",
+    "text": "<p>GitHub に <code>https://github.com/saba/my-app.git</code> という空のリポジトリを作ったことにします。手元のリポジトリに、このURLを <code>origin</code> という名前で登録してください。登録できたら <code>git remote -v</code> で確かめましょう。</p>",
+    "starter": "cd project\ngit init\ngit add .\ngit commit -m \"最初のページを作る\"",
+    "answer": "git remote add origin https://github.com/saba/my-app.git\ngit remote -v",
+    "hints": [
+      "git remote add 呼び名 URL の形です。呼び名は origin にします。",
+      "git remote add origin https://github.com/saba/my-app.git"
+    ],
+    "shellChecks": [
+      { "git": { "remote": true }, "message": "まだ origin が登録されていません。git remote add origin https://github.com/saba/my-app.git を実行してください。" }
+    ]
+  },
+  {
+    "id": "push-u",
+    "title": "初めての push",
+    "text": "<p><code>origin</code> は登録済みです。ローカルの <code>main</code> を、送り先を覚えさせながら(<code>-u</code>)push してください。</p>",
+    "starter": "cd project\ngit init\ngit add .\ngit commit -m \"最初のページを作る\"\ngit remote add origin https://github.com/saba/my-app.git",
+    "answer": "git push -u origin main",
+    "hints": [
+      "初回は git push -u origin ブランチ名 です。今のブランチは main です。",
+      "git push -u origin main"
+    ],
+    "shellChecks": [
+      { "git": { "pushed": true }, "message": "まだ push されていません。git push -u origin main を実行してください。" },
+      { "git": { "upstream": true }, "message": "push はできましたが -u が付いていません。次から git push だけで済むように、git push -u origin main としてください。" }
+    ]
+  },
+  {
+    "id": "daily-push",
+    "title": "編集して、コミットして、push",
+    "text": "<p>一度 push 済みのリポジトリです。<code>README.md</code> に1行足し(<code>echo \"更新しました\" &gt;&gt; README.md</code>)、コミットして、<code>git push</code> だけで送ってください。</p><p>push の前に <code>git status</code> を打って、コミット漏れがないか見る癖をつけましょう。</p>",
+    "starter": "cd project\ngit init\ngit add .\ngit commit -m \"最初のページを作る\"\ngit remote add origin https://github.com/saba/my-app.git\ngit push -u origin main",
+    "answer": "echo \"更新しました\" >> README.md\ngit add README.md\ngit commit -m \"README を更新\"\ngit push",
+    "hints": [
+      "編集 → git add → git commit → git push の順です。-u 付きで一度 push してあるので、今回は git push だけで送れます。",
+      "echo \"更新しました\" >> README.md、git add README.md、git commit -m \"README を更新\"、git push"
+    ],
+    "shellChecks": [
+      { "git": { "commits": 2 }, "message": "まだ新しいコミットがありません。README.md を編集して add、commit してください。" },
+      { "git": { "clean": true }, "message": "コミットしていない変更があります。git add README.md を忘れていませんか。" },
+      { "git": { "pushed": true }, "message": "コミットはできましたが、まだ push していません。git push を実行してください。" }
+    ]
+  }
+]

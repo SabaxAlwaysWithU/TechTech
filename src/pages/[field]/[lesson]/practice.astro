@@ -5,6 +5,7 @@ import HtmlPractice from '../../../components/HtmlPractice.astro';
 import JsPractice from '../../../components/JsPractice.astro';
 import ShellPractice from '../../../components/ShellPractice.astro';
 import StackPractice from '../../../components/StackPractice.astro';
+import LessonSteps from '../../../components/LessonSteps.astro';
 import { getLessons, getField, getCatalog } from '../../../lib/content';
 
 export async function getStaticPaths() {
@@ -25,6 +26,11 @@ const props = {
 };
 ---
 <Base title={`練習 — ${lesson.title}`} wide>
+  <LessonSteps
+    lessonId={lesson.id} field={lesson.field} slug={lesson.slug} number={lesson.number} title={lesson.title}
+    quizCount={lesson.quiz.length} taskCount={lesson.tasks.length}
+    nextHref={props.nextHref} nextLabel={props.nextLabel} current="practice" wide
+  />
   {field.practice === 'html' && <HtmlPractice {...props} />}
   {field.practice === 'js' && <JsPractice {...props} />}
   {field.practice === 'shell' && <ShellPractice {...props} />}

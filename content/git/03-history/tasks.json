@@ -1,0 +1,47 @@
+[
+  {
+    "id": "log",
+    "title": "履歴を読む",
+    "text": "<p>このリポジトリには3つのコミットがあります。<code>git log --oneline</code> で一覧を表示し、いちばん古いコミットのメッセージを確かめてください。</p>",
+    "starter": "cd project\ngit init\ngit add README.md\ngit commit -m \"README を追加\"\ngit add .\ngit commit -m \"最初のページを作る\"\necho \"写真を追加する\" >> memo.txt\ngit add memo.txt\ngit commit -m \"メモに次の予定を書く\"",
+    "answer": "git log --oneline",
+    "hints": [
+      "履歴は git log、1行ずつにするには --oneline です。",
+      "git log --oneline。いちばん下がいちばん古いコミットです。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "git log", "lastOutputIncludes": "README を追加", "message": "git log --oneline で履歴を表示してください。" }
+    ]
+  },
+  {
+    "id": "diff-restore",
+    "title": "変えて、見て、戻す",
+    "text": "<p>次の順にやってみてください。</p><ol><li><code>echo \"趣味は料理です\" &gt;&gt; README.md</code> で README.md に1行足す</li><li><code>git diff</code> で、足した行が <code>+</code> 付きで出るのを見る</li><li><code>git restore README.md</code> で元に戻す</li></ol><p>最後に <code>git status</code> が「working tree clean」になれば完成です。</p>",
+    "starter": "cd project\ngit init\ngit add .\ngit commit -m \"最初のページを作る\"",
+    "answer": "echo \"趣味は料理です\" >> README.md\ngit diff\ngit restore README.md\ngit status",
+    "hints": [
+      "編集 → git diff で確認 → git restore README.md で元に戻す、の順です。",
+      "echo \"趣味は料理です\" >> README.md、git diff、git restore README.md"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "git restore", "message": "README.md に1行足し、git diff で見てから、git restore README.md で元に戻してください。" },
+      { "git": { "clean": true }, "message": "README.md がまだ元に戻っていません。git restore README.md で最後のコミットの状態に戻してください。" }
+    ]
+  },
+  {
+    "id": "unstage",
+    "title": "add を取り消す",
+    "text": "<p><code>memo.txt</code> に1行足して <code>git add memo.txt</code> したあと、「やっぱりこのコミットには入れない」ことにして、<strong>中身は残したまま</strong>ステージから外してください。</p><p>外したあとの <code>git status</code> で、memo.txt が「Changes not staged for commit」にあれば成功です。</p>",
+    "starter": "cd project\ngit init\ngit add .\ngit commit -m \"最初のページを作る\"",
+    "answer": "echo \"買い物\" >> memo.txt\ngit add memo.txt\ngit restore --staged memo.txt\ngit status",
+    "hints": [
+      "ステージから外すのは git restore --staged ファイル です。--staged がないと中身まで戻ってしまいます。",
+      "echo \"買い物\" >> memo.txt、git add memo.txt、git restore --staged memo.txt"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "--staged", "message": "git restore --staged memo.txt で、ステージから外してください。" },
+      { "git": { "notStaged": "memo.txt" }, "message": "memo.txt がまだステージに入っています。" },
+      { "git": { "clean": false }, "message": "memo.txt の編集まで消えています。--staged を付けると中身は残ります。もう一度 echo で行を足してやり直してください。" }
+    ]
+  }
+]

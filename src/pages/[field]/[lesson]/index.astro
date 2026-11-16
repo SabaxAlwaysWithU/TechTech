@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Base from '../../../layouts/Base.astro';
+import LessonSteps from '../../../components/LessonSteps.astro';
 import { getLessons, getField } from '../../../lib/content';
 
 export async function getStaticPaths() {
@@ -8,10 +9,10 @@ export async function getStaticPaths() {
   const articles = await getCollection('articles');
   return lessons.map((l) => ({
     params: { field: l.field, lesson: l.slug },
-    props: { lesson: l, article: articles.find((a) => a.id === l.id)! },
+    props: { lesson: l, article: articles.find((a) => a.id === l.id)!, next: lessons.find((x) => x.field === l.field && x.number === l.number + 1) ?? null },
   }));
 }
-const { lesson, article } = Astro.props;
+const { lesson, article, next } = Astro.props;
 const field = getField(lesson.field)!;
 const { Content } = await render(article);
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -19,8 +20,15 @@ const practiceHref = `${base}/${lesson.field}/${lesson.slug}/practice/`;
 const quizHref = `${base}/${lesson.field}/${lesson.slug}/quiz/`;
 // 練習場に渡すときのパラメータ名(SQLは ?sql=、HTMLは ?code=)
 const param = field.practice === 'sql' ? 'sql' : 'code';
+const stepProps = {
+  lessonId: lesson.id, field: lesson.field, slug: lesson.slug, number: lesson.number, title: lesson.title,
+  quizCount: lesson.quiz.length, taskCount: lesson.tasks.length,
+  nextHref: next ? `${base}/${next.field}/${next.slug}/` : `${base}/${lesson.field}/`,
+  nextLabel: next ? `次のレッスン: ${next.title}` : 'レッスン一覧へ',
+};
 ---
 <Base title={`${lesson.title} — ${field.title}`}>
+  <LessonSteps {...stepProps} current="article" />
   <main class="prose article" data-lesson={lesson.id} data-practice={practiceHref} data-param={param} data-languages={field.languages.join(',')}>
     <p class="eyebrow muted"><a href={`${base}/${lesson.field}/`}>{field.title}</a> · レッスン{lesson.number}</p>
     <h1>{lesson.title}</h1>

@@ -1,0 +1,37 @@
+[
+  {
+    "question": "git remote add origin URL の origin は何ですか?",
+    "options": [
+      "送り先(リモート)に付ける呼び名",
+      "ブランチの名前",
+      "コミットのメッセージ",
+      "ユーザー名"
+    ],
+    "explanation": "origin はリモートの呼び名です。慣習で最初のリモートに付け、以後 URL の代わりに origin と書けます。"
+  },
+  {
+    "question": "初回の push で -u を付ける理由はどれですか?",
+    "options": [
+      "送り先を覚えさせて、次から git push だけで済むようにするため",
+      "付けないとエラーになるから",
+      "ファイルを圧縮するため",
+      "コミットを取り消すため"
+    ],
+    "explanation": "-u(--set-upstream)でブランチの送り先が記憶されます。2回目以降は git push だけで送れます。"
+  },
+  {
+    "question": "ファイルを編集して git add までしてから git push しました。GitHub に変更は反映されますか?",
+    "options": [
+      "反映されない。push されるのはコミット済みのものだけ",
+      "反映される",
+      "add したファイルだけ反映される",
+      "エラーになって何も起きない"
+    ],
+    "explanation": "push はコミットを送ります。add しただけでは送られないので、先に git commit が必要です。"
+  },
+  {
+    "question": "GitHub にあるリポジトリを、まるごと手元にコピーするコマンドはどれですか?",
+    "options": ["git clone URL", "git pull URL", "git push URL", "git init URL"],
+    "explanation": "clone は最初の1回のまるごとコピーです。pull は、すでに手元にあるリポジトリへ差分を取り込みます。"
+  }
+]

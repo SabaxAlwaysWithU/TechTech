@@ -1,0 +1,30 @@
+[
+  {
+    "id": "init",
+    "title": "リポジトリを作る",
+    "text": "<p>ホームにある <code>project</code> フォルダに移動して、そこを Git のリポジトリにしてください。</p>",
+    "answer": "cd project\ngit init",
+    "hints": [
+      "まず cd project で移動します。リポジトリにするコマンドは git init です。",
+      "cd project のあと git init。「Initialized empty Git repository」と出れば成功です。"
+    ],
+    "shellChecks": [
+      { "cwd": "/home/saba/project", "message": "まだ project フォルダにいません。cd project で移動してください。" },
+      { "git": { "initialized": true }, "message": "まだリポジトリになっていません。git init を実行してください。" }
+    ]
+  },
+  {
+    "id": "status",
+    "title": "状態を見る",
+    "text": "<p>リポジトリにした直後の <code>project</code> で <code>git status</code> を実行し、まだ追跡されていないファイル(Untracked files)を確かめてください。</p>",
+    "starter": "cd project\ngit init",
+    "answer": "git status",
+    "hints": [
+      "状態を見るコマンドは git status です。",
+      "git status と打つと、Untracked files の下にファイルが並びます。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "git status", "lastOutputIncludes": "Untracked", "message": "git status を実行してください。" }
+    ]
+  }
+]

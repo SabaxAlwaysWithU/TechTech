@@ -1,0 +1,42 @@
+[
+  {
+    "question": "git add の役割はどれですか?",
+    "options": [
+      "次のコミットに入れるファイルを選ぶ(ステージに置く)",
+      "ファイルを履歴に記録する",
+      "GitHub にファイルを送る",
+      "ファイルを新しく作る"
+    ],
+    "explanation": "add はカバンに詰める段階で、まだ記録はされていません。記録するのは commit です。"
+  },
+  {
+    "question": "ステージに置いたファイルをメッセージ付きで記録するコマンドはどれですか?",
+    "options": [
+      "git commit -m \"メッセージ\"",
+      "git save \"メッセージ\"",
+      "git add -m \"メッセージ\"",
+      "git push \"メッセージ\""
+    ],
+    "explanation": "git commit -m \"...\" です。-m を忘れるとエディタが開くので、最初のうちは必ず付けます。"
+  },
+  {
+    "question": "一度コミットしたファイルを編集すると、git status ではどう表示されますか?",
+    "options": [
+      "Changes not staged for commit",
+      "Untracked files",
+      "Changes to be committed",
+      "nothing to commit"
+    ],
+    "explanation": "記録済みのファイルを変更すると「まだステージしていない変更」になります。もう一度 add してから commit します。Untracked は一度も add していないファイルです。"
+  },
+  {
+    "question": "コミットメッセージとして最も適切なものはどれですか?",
+    "options": [
+      "トップに写真を追加",
+      "修正",
+      "いろいろ変更",
+      "aaa"
+    ],
+    "explanation": "あとで履歴を見たときに、中身を開かずに何をしたか分かる文にします。「修正」「いろいろ」では分かりません。"
+  }
+]

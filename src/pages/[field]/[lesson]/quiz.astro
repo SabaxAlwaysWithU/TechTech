@@ -1,17 +1,25 @@
 ---
 import Base from '../../../layouts/Base.astro';
+import LessonSteps from '../../../components/LessonSteps.astro';
 import { getLessons } from '../../../lib/content';
 
 export async function getStaticPaths() {
   const lessons = await getLessons();
-  return lessons.map((l) => ({ params: { field: l.field, lesson: l.slug }, props: { lesson: l } }));
+  return lessons.map((l) => ({ params: { field: l.field, lesson: l.slug }, props: { lesson: l, next: lessons.find((x) => x.field === l.field && x.number === l.number + 1) ?? null } }));
 }
-const { lesson } = Astro.props;
+const { lesson, next } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const practiceHref = `${base}/${lesson.field}/${lesson.slug}/practice/`;
 const articleHref = `${base}/${lesson.field}/${lesson.slug}/`;
+const stepProps = {
+  lessonId: lesson.id, field: lesson.field, slug: lesson.slug, number: lesson.number, title: lesson.title,
+  quizCount: lesson.quiz.length, taskCount: lesson.tasks.length,
+  nextHref: next ? `${base}/${next.field}/${next.slug}/` : `${base}/${lesson.field}/`,
+  nextLabel: next ? `次のレッスン: ${next.title}` : 'レッスン一覧へ',
+};
 ---
 <Base title={`クイズ — ${lesson.title}`}>
+  <LessonSteps {...stepProps} current="quiz" />
   <main class="prose quiz">
     <p class="eyebrow muted"><a href={articleHref}>{lesson.number}. {lesson.title}</a> · クイズ</p>
     <h1>クイズ</h1>

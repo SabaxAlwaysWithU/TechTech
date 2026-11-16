@@ -1,0 +1,42 @@
+[
+  {
+    "question": "ブランチを使う目的として最も適切なものはどれですか?",
+    "options": [
+      "本線(main)を壊さずに、別の線で作業や実験をするため",
+      "ファイルを削除するため",
+      "GitHub にアップロードするため",
+      "コミットメッセージを書き直すため"
+    ],
+    "explanation": "ブランチは履歴の枝分かれです。作りかけを main から切り離しておき、できたら合流させます。"
+  },
+  {
+    "question": "fix-typo という新しいブランチを作って、そこに移動するコマンドはどれですか?",
+    "options": [
+      "git switch -c fix-typo",
+      "git switch fix-typo",
+      "git merge fix-typo",
+      "git branch -d fix-typo"
+    ],
+    "explanation": "-c(create)を付けると作って移動します。-c なしの switch は既存のブランチへの移動、-d は削除です。"
+  },
+  {
+    "question": "add-photo ブランチの作業を main に取り込む正しい手順はどれですか?",
+    "options": [
+      "git switch main のあと git merge add-photo",
+      "add-photo にいたまま git merge main",
+      "git switch main のあと git merge main",
+      "git branch -d add-photo"
+    ],
+    "explanation": "merge は「取り込む側」に移動してから行います。main に取り込みたいので、main に移動して merge add-photo です。"
+  },
+  {
+    "question": "2つのブランチで同じファイルの同じ行を違うように変えて merge すると何が起きますか?",
+    "options": [
+      "衝突(コンフリクト)が起き、どちらを採るか人が決める",
+      "自動で新しいほうが採用される",
+      "両方のブランチが削除される",
+      "何も起きない"
+    ],
+    "explanation": "衝突です。Git がファイルに両方の内容を書き込むので、残すほうを選んで保存し、add → commit で解決します。"
+  }
+]

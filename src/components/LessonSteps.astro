@@ -1,0 +1,149 @@
+---
+// レッスンの3ステップ(記事 → クイズ → 練習)の進み具合と、今いる場所、次にやることを示すバー。
+// 進捗が変わると(progress-change)その場で描き直し、3つそろったら「レッスン完了」を出す。
+interface Props {
+  lessonId: string;
+  field: string;
+  slug: string;
+  number: number;
+  title: string;
+  current: 'article' | 'quiz' | 'practice';
+  quizCount: number;
+  taskCount: number;
+  nextHref: string;
+  nextLabel: string;
+  wide?: boolean;
+}
+const { lessonId, field, slug, number, title, current, quizCount, taskCount, nextHref, nextLabel, wide = false } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const steps = [
+  { key: 'article', label: '記事', href: `${base}/${field}/${slug}/` },
+  { key: 'quiz', label: 'クイズ', href: `${base}/${field}/${slug}/quiz/` },
+  { key: 'practice', label: '練習', href: `${base}/${field}/${slug}/practice/` },
+];
+---
+<nav
+  class:list={['lesson-steps', { wide }]}
+  id="lesson-steps"
+  aria-label="レッスンの進み具合"
+  data-lesson={lessonId}
+  data-quiz={quizCount}
+  data-tasks={taskCount}
+  data-current={current}
+  data-next-href={nextHref}
+  data-next-label={nextLabel}
+>
+  <div class="inner">
+    <span class="lesson-name"><span class="muted">レッスン{number}</span> {title}</span>
+    <ol class="steps">
+      {steps.map((s, i) => (
+        <li class:list={['step', { current: s.key === current }]} data-step={s.key}>
+          {i > 0 && <span class="arrow" aria-hidden="true">→</span>}
+          <a href={s.href} aria-current={s.key === current ? 'step' : undefined}>
+            <span class="mark" data-mark aria-hidden="true"></span>
+            <span class="label">{s.label}</span>
+            <span class="state muted" data-state></span>
+          </a>
+        </li>
+      ))}
+    </ol>
+    <span class="next" data-next></span>
+  </div>
+</nav>
+
+<script>
+  import { getProgress, lessonScore } from '../lib/progress';
+
+  const nav = document.getElementById('lesson-steps');
+  if (nav) {
+    const lessonId = nav.dataset.lesson!;
+    const quiz = Number(nav.dataset.quiz);
+    const tasks = Number(nav.dataset.tasks);
+    const current = nav.dataset.current!;
+    const nextHref = nav.dataset.nextHref!;
+    const nextLabel = nav.dataset.nextLabel!;
+    const nextEl = nav.querySelector<HTMLElement>('[data-next]')!;
+
+    function render() {
+      const p = getProgress(lessonId);
+      const doneTasks = Object.values(p.tasks ?? {}).filter(Boolean).length;
+      const quizDone = quiz > 0 && (p.quizBest ?? 0) >= quiz;
+      const tasksDone = tasks > 0 && doneTasks >= tasks;
+      const status: Record<string, { done: boolean; text: string }> = {
+        article: { done: !!p.read, text: p.read ? '読了' : '未読' },
+        quiz: { done: quizDone, text: quiz ? (p.quizBest != null ? `${p.quizBest}/${quiz}` : '未挑戦') : 'なし' },
+        practice: { done: tasksDone, text: tasks ? `${doneTasks}/${tasks}` : 'なし' },
+      };
+      for (const li of nav!.querySelectorAll<HTMLElement>('.step')) {
+        const s = status[li.dataset.step!];
+        li.classList.toggle('done', s.done);
+        li.querySelector('[data-mark]')!.textContent = s.done ? '✓' : '';
+        li.querySelector('[data-state]')!.textContent = s.text;
+      }
+      // 次にやること
+      const score = lessonScore(p, quiz, tasks);
+      nav!.classList.toggle('complete', score === 3);
+      nextEl.innerHTML = '';
+      if (score === 3) {
+        nextEl.append('レッスン完了 ');
+        const a = document.createElement('a');
+        a.href = nextHref;
+        a.textContent = nextLabel + ' →';
+        nextEl.appendChild(a);
+      } else {
+        const order = ['article', 'quiz', 'practice'];
+        const firstUndone = order.find((k) => !status[k].done && (k !== 'quiz' || quiz) && (k !== 'practice' || tasks));
+        const label = { article: '記事を読む', quiz: quizDone ? '' : p.quizBest != null ? 'クイズで全問正解をねらう' : 'クイズに答える', practice: tasks ? `練習場の課題${Math.min(doneTasks + 1, tasks)}` : '' }[firstUndone ?? 'article'];
+        if (firstUndone && firstUndone !== current) {
+          nextEl.append('次: ');
+          const a = document.createElement('a');
+          a.href = nav!.querySelector<HTMLAnchorElement>(`.step[data-step="${firstUndone}"] a`)!.href;
+          a.textContent = label;
+          nextEl.appendChild(a);
+        } else if (firstUndone) {
+          nextEl.textContent = `いま: ${label}`;
+        }
+      }
+    }
+    render();
+    window.addEventListener('progress-change', render);
+  }
+</script>
+
+<style>
+  .lesson-steps { border-bottom: 1px solid var(--line); background: var(--bg); font-size: 0.85rem; }
+  .inner {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 0.55rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem 1.2rem;
+    flex-wrap: wrap;
+  }
+  .lesson-steps.wide .inner { max-width: 80rem; }
+  .lesson-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .lesson-name .muted { font-weight: 400; margin-right: 0.3rem; }
+  .steps { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 0.3rem; }
+  .step { display: flex; align-items: center; gap: 0.3rem; }
+  .arrow { color: var(--line); }
+  .step a {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.2rem 0.7rem; border-radius: 999px; border: 1px solid var(--line);
+    color: var(--muted); text-decoration: none; transition: border-color 0.15s, background-color 0.15s;
+  }
+  .step a:hover { background: var(--surface); color: var(--fg); }
+  .step.current a { color: var(--fg); border-color: var(--fg); background: var(--surface); font-weight: 600; }
+  .step.done a { border-color: var(--accent); }
+  .mark { color: var(--accent); font-weight: 700; min-width: 0; }
+  .mark:empty { display: none; }
+  .state { font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+  .next { margin-left: auto; color: var(--muted); white-space: nowrap; }
+  .next a { color: var(--accent); font-weight: 600; text-decoration: none; }
+  .next a:hover { text-decoration: underline; }
+  .lesson-steps.complete .next { color: var(--accent); font-weight: 600; }
+  @media (max-width: 600px) {
+    .next { margin-left: 0; white-space: normal; }
+    .state { display: none; }
+  }
+</style>

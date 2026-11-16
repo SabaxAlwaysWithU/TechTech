@@ -22,6 +22,10 @@ function save(s: Store) {
   try {
     localStorage.setItem(KEY, JSON.stringify(s));
   } catch {}
+  // 同じページ内の表示(ステップバーなど)に知らせる
+  try {
+    window.dispatchEvent(new CustomEvent('progress-change'));
+  } catch {}
 }
 
 export function getProgress(lessonId: string): LessonProgress {
