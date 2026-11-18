@@ -5,6 +5,7 @@ import HtmlPractice from '../../components/HtmlPractice.astro';
 import JsPractice from '../../components/JsPractice.astro';
 import ShellPractice from '../../components/ShellPractice.astro';
 import StackPractice from '../../components/StackPractice.astro';
+import NetPractice from '../../components/NetPractice.astro';
 import { getFields, getCatalog } from '../../lib/content';
 
 export function getStaticPaths() {
@@ -17,5 +18,6 @@ const { field } = Astro.props;
   {field.practice === 'js' && <JsPractice />}
   {field.practice === 'shell' && <ShellPractice />}
   {field.practice === 'stack' && <StackPractice catalog={getCatalog(field.id)!} />}
+  {field.practice === 'net' && <NetPractice />}
   {field.practice === 'sql' && <Practice />}
 </Base>

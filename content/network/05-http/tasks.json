@@ -1,0 +1,42 @@
+[
+  {
+    "id": "head",
+    "title": "状態コードを見る",
+    "text": "<p><code>curl -I http://example.com/</code> でヘッダーだけを表示し、1行目の状態コードが <code>200 OK</code> であること、<code>Server</code> が nginx であることを確かめてください。</p>",
+    "answer": "curl -I http://example.com/",
+    "hints": [
+      "-I を付けるとヘッダーだけが出ます。",
+      "curl -I http://example.com/"
+    ],
+    "netChecks": [
+      { "lastCommandIncludes": "-I", "lastOutputIncludes": "200 OK", "message": "curl -I http://example.com/ でヘッダーを表示してください。" }
+    ]
+  },
+  {
+    "id": "404",
+    "title": "ないページを頼む",
+    "text": "<p>存在しないページ <code>http://example.com/nothing</code> を <code>curl -I</code> で頼んで、<code>404 Not Found</code> が返ることを確かめてください。ネットワークは全部正常なのに「エラー」が返る、という点に注目しましょう。</p>",
+    "answer": "curl -I http://example.com/nothing",
+    "hints": [
+      "パスの部分を存在しないものに変えます。",
+      "curl -I http://example.com/nothing"
+    ],
+    "netChecks": [
+      { "healthy": true, "message": "この課題はネットワークが正常な状態で行います。「全部直す」を押してください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "404 Not Found", "message": "curl -I http://example.com/nothing で 404 を確かめてください。" }
+    ]
+  },
+  {
+    "id": "500",
+    "title": "サーバー側の失敗",
+    "text": "<p>練習場のサーバーは、<code>/boom</code> を頼まれるとプログラムが失敗するようになっています。<code>curl -I http://example.com/boom</code> を打って、<code>500 Internal Server Error</code> を確かめてください。</p>",
+    "answer": "curl -I http://example.com/boom",
+    "hints": [
+      "パスを /boom にします。",
+      "curl -I http://example.com/boom"
+    ],
+    "netChecks": [
+      { "lastCommandIncludes": "boom", "lastOutputIncludes": "500 Internal Server Error", "message": "curl -I http://example.com/boom で 500 を確かめてください。" }
+    ]
+  }
+]

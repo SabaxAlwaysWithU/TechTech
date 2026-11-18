@@ -1,0 +1,32 @@
+[
+  {
+    "question": "DNS の役割はどれですか?",
+    "options": [
+      "example.com のような名前を IPアドレスに変える",
+      "パケットを家の外へ送り出す",
+      "Webページの HTML を返す",
+      "PC に IPアドレスを配る"
+    ],
+    "explanation": "DNS は電話帳です。名前を聞くと住所(IP)を教えてくれます。IP を配るのは DHCP、HTML を返すのは Webサーバーです。"
+  },
+  {
+    "question": "名前から IPアドレスを引いて確かめるコマンドはどれですか?",
+    "options": ["nslookup", "ping", "traceroute", "ip addr"],
+    "explanation": "nslookup 名前 で、どの DNS に聞いて何が返ったかが見られます。"
+  },
+  {
+    "question": "curl http://example.com/ は「Could not resolve host」で失敗するのに、curl http://93.184.216.34/ は成功しました。壊れているのはどれですか?",
+    "options": ["DNSサーバー", "ルーター", "Webサーバー", "ケーブル"],
+    "explanation": "名前では失敗し、IP を直接指定すると通るなら、名前を住所に変える DNS だけが壊れています。回線もサーバーも生きています。"
+  },
+  {
+    "question": "nslookup で NXDOMAIN と返ってきました。何を意味しますか?",
+    "options": [
+      "その名前のドメインは存在しない(打ち間違いなど)",
+      "DNSサーバーに届かない",
+      "Webサーバーが落ちている",
+      "ケーブルが抜けている"
+    ],
+    "explanation": "NXDOMAIN は「そんな名前は登録されていない」という DNS からの返事です。DNS 自体は動いていて、名前のほうが間違っています。"
+  }
+]

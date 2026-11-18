@@ -1,0 +1,48 @@
+[
+  {
+    "id": "break-cable",
+    "title": "ケーブルを抜いてみる",
+    "text": "<p>図の「ケーブル / Wi-Fi」の線をクリックして壊し、<code>ping 192.168.1.1</code> を打ってください。「<code>Network is unreachable</code>」が出るのを確かめましょう。</p>",
+    "answer": "(図でケーブルを壊す)\nping 192.168.1.1",
+    "hints": [
+      "PC とルーターの間の線をクリックすると、ケーブルが抜けた状態になります。そのあと ping です。",
+      "線が赤い点線になったら、ping 192.168.1.1 と打ちます。"
+    ],
+    "netChecks": [
+      { "parts": { "cable": false }, "message": "まず図のケーブル(PC とルーターの間の線)をクリックして壊してください。" },
+      { "lastCommandIncludes": "ping", "lastOutputIncludes": "Network is unreachable", "message": "ケーブルが抜けた状態で ping 192.168.1.1 を打ってください。" }
+    ]
+  },
+  {
+    "id": "break-router",
+    "title": "ルーターの電源を落とす",
+    "text": "<p>ケーブルは直した状態で、今度は「ルーター」をクリックして電源を落とし、<code>ping 192.168.1.1</code> を打ってください。さっきとは違うエラー「<code>Destination Host Unreachable</code>」が出るはずです。</p>",
+    "answer": "(図でルーターを壊す)\nping 192.168.1.1",
+    "hints": [
+      "ルーターの箱をクリックすると電源が落ちます。ケーブルは正常のままにしてください。",
+      "ルーターが故障の表示になったら、ping 192.168.1.1 です。"
+    ],
+    "netChecks": [
+      { "parts": { "cable": true }, "message": "ケーブルは直しておいてください(線をもう一度クリック)。" },
+      { "parts": { "router": false }, "message": "ルーターをクリックして電源を落としてください。" },
+      { "lastCommandIncludes": "ping", "lastOutputIncludes": "Destination Host Unreachable", "message": "ルーターが落ちた状態で ping 192.168.1.1 を打ってください。" }
+    ]
+  },
+  {
+    "id": "find-break",
+    "title": "どこで止まっているか",
+    "text": "<p>この課題では、開始時点でどこかが壊れています(図には「?」と出ます)。<code>traceroute 93.184.216.34</code>(Webサーバーの IPアドレス)を打って、どの段から <code>* * *</code> になるかを見て、壊れている部品を直してください。</p><p>名前(example.com)ではなく IP で打つのは、名前を引く DNS もインターネットの向こうにあるからです。名前で打つと、経路を調べる前に名前が引けずに止まります(試してみてください)。</p><p>直せたら <code>curl http://example.com/</code> が通るはずです。</p>",
+    "faults": ["wan"],
+    "hideStatus": true,
+    "answer": "traceroute 93.184.216.34\n(図でインターネット回線を直す)\ncurl http://example.com/",
+    "hints": [
+      "traceroute の1段目がルーター、2段目がプロバイダです。2段目から * * * なら、ルーターの先の回線が切れています。",
+      "「インターネット回線」(ルーターとインターネットの間の線)をクリックして直し、curl http://example.com/ で確かめます。"
+    ],
+    "netChecks": [
+      { "usedCommand": "traceroute", "message": "まず traceroute example.com で、どこまで届いているかを見てください。" },
+      { "healthy": true, "message": "まだ壊れている部品があります。traceroute で * * * になった段の手前の部品を疑ってください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "直せたら curl http://example.com/ でページが取れることを確かめてください。" }
+    ]
+  }
+]

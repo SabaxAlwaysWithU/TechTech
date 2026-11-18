@@ -1,0 +1,44 @@
+[
+  {
+    "id": "nslookup",
+    "title": "名前を引く",
+    "text": "<p><code>nslookup example.com</code> で、<code>example.com</code> の IPアドレスを DNS に聞いてください。</p>",
+    "answer": "nslookup example.com",
+    "hints": [
+      "nslookup 名前 の形です。",
+      "nslookup example.com と打つと、Address: 93.184.216.34 が返ります。"
+    ],
+    "netChecks": [
+      { "lastCommandIncludes": "nslookup", "lastOutputIncludes": "93.184.216.34", "message": "nslookup example.com を実行してください。" }
+    ]
+  },
+  {
+    "id": "break-dns",
+    "title": "DNS を壊してみる",
+    "text": "<p>図の「DNS」をクリックして壊し、<code>curl http://example.com/</code> を打ってください。「<code>Could not resolve host</code>」が出るのを確かめましょう。</p>",
+    "answer": "(図で DNS を壊す)\ncurl http://example.com/",
+    "hints": [
+      "DNS の箱をクリックして故障にします。そのあと curl です。",
+      "DNS が故障の表示になったら、curl http://example.com/ です。"
+    ],
+    "netChecks": [
+      { "parts": { "dns": false }, "message": "まず図の DNS をクリックして壊してください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Could not resolve host", "message": "DNS が壊れた状態で curl http://example.com/ を打ってください。" }
+    ]
+  },
+  {
+    "id": "ip-direct",
+    "title": "電話帳なしで電話する",
+    "text": "<p>DNS が壊れたままで、今度は名前ではなく IPアドレスを直接指定して <code>curl http://93.184.216.34/</code> を打ってください。DNS が壊れていてもページが取れることを確かめましょう。</p>",
+    "faults": ["dns"],
+    "answer": "curl http://93.184.216.34/",
+    "hints": [
+      "URL の名前の部分を IPアドレスに置き換えます。",
+      "curl http://93.184.216.34/"
+    ],
+    "netChecks": [
+      { "parts": { "dns": false }, "message": "この課題は DNS が壊れたまま行います(直さないでください)。" },
+      { "lastCommandIncludes": "93.184.216.34", "lastOutputIncludes": "Example Domain", "message": "curl http://93.184.216.34/ のように、IPアドレスを直接指定してページを取ってください。" }
+    ]
+  }
+]

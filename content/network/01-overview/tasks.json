@@ -1,0 +1,41 @@
+[
+  {
+    "id": "ip-addr",
+    "title": "自分の住所を見る",
+    "text": "<p>ターミナルで <code>ip addr</code> と打って、自分のPCのIPアドレスと、ゲートウェイ(ルーター)のアドレスを確かめてください。</p>",
+    "answer": "ip addr",
+    "hints": [
+      "コマンドは ip addr です(Windows の ipconfig にあたります)。",
+      "ip addr と打つと、inet 192.168.1.10 が自分、gateway 192.168.1.1 がルーターです。"
+    ],
+    "netChecks": [
+      { "lastCommandIncludes": "ip", "lastOutputIncludes": "192.168.1.10", "message": "ip addr を実行してください。" }
+    ]
+  },
+  {
+    "id": "ping-gateway",
+    "title": "ルーターまで届くか",
+    "text": "<p><code>ping</code> でルーター(<code>192.168.1.1</code>)に返事が来るか確かめてください。<code>64 bytes from ...</code> の行が出れば届いています。</p>",
+    "answer": "ping 192.168.1.1",
+    "hints": [
+      "ping 宛先 の形です。ルーターのアドレスは ip addr の gateway に出ていた 192.168.1.1 です。",
+      "ping 192.168.1.1"
+    ],
+    "netChecks": [
+      { "lastCommandIncludes": "ping", "lastOutputIncludes": "64 bytes from 192.168.1.1", "message": "ping 192.168.1.1 で、ルーターから返事が来ることを確かめてください。" }
+    ]
+  },
+  {
+    "id": "curl-ok",
+    "title": "ページを取りに行く",
+    "text": "<p><code>curl</code> で <code>http://example.com/</code> のページを取りに行き、HTML が返ってくるのを見てください。</p>",
+    "answer": "curl http://example.com/",
+    "hints": [
+      "curl URL の形です。URL は http:// から書きます。",
+      "curl http://example.com/"
+    ],
+    "netChecks": [
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "curl http://example.com/ で HTML を取ってきてください。" }
+    ]
+  }
+]

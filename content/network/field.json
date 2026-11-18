@@ -1,0 +1,7 @@
+{
+  "title": "ネットワーク",
+  "description": "全6レッスン。IP、ルーター、DNS、TCP、HTTP。部品を壊してエラーを出し、直して役割を覚える。",
+  "order": 5,
+  "practice": "net",
+  "languages": ["sh", "bash", "shell"]
+}

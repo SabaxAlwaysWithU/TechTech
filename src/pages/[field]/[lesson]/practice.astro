@@ -5,6 +5,7 @@ import HtmlPractice from '../../../components/HtmlPractice.astro';
 import JsPractice from '../../../components/JsPractice.astro';
 import ShellPractice from '../../../components/ShellPractice.astro';
 import StackPractice from '../../../components/StackPractice.astro';
+import NetPractice from '../../../components/NetPractice.astro';
 import LessonSteps from '../../../components/LessonSteps.astro';
 import { getLessons, getField, getCatalog } from '../../../lib/content';
 
@@ -35,5 +36,6 @@ const props = {
   {field.practice === 'js' && <JsPractice {...props} />}
   {field.practice === 'shell' && <ShellPractice {...props} />}
   {field.practice === 'stack' && <StackPractice catalog={getCatalog(field.id)!} {...props} />}
+  {field.practice === 'net' && <NetPractice {...props} />}
   {field.practice === 'sql' && <Practice {...props} />}
 </Base>

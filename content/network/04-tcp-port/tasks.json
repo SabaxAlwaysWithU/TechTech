@@ -1,0 +1,46 @@
+[
+  {
+    "id": "close-port",
+    "title": "ポートを閉じてみる",
+    "text": "<p>図の「Webサーバー」をクリックして「サーバーのポート」を閉じ、<code>curl http://example.com/</code> を打ってください。「<code>Connection refused</code>」が出るのを確かめましょう。</p>",
+    "answer": "(図でサーバーのポートを壊す)\ncurl http://example.com/",
+    "hints": [
+      "Webサーバーの箱をクリックすると、「Webサーバー」と「サーバーのポート」の2つが選べます。ポートのほうを壊します。",
+      "ポートが故障になったら、curl http://example.com/ です。"
+    ],
+    "netChecks": [
+      { "parts": { "port": false, "server": true }, "message": "Webサーバー本体ではなく「サーバーのポート」を壊してください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Connection refused", "message": "ポートが閉じた状態で curl http://example.com/ を打ってください。" }
+    ]
+  },
+  {
+    "id": "refused-vs-ping",
+    "title": "それでも ping は通る",
+    "text": "<p>ポートが閉じたままの状態で、<code>ping example.com</code> を打ってください。curl は断られたのに、ping には返事が来る(<code>64 bytes from ...</code>)ことを確かめましょう。コンピュータは生きていて、80番だけが閉じているからです。</p>",
+    "faults": ["port"],
+    "answer": "ping example.com",
+    "hints": [
+      "ping は「コンピュータがいるか」を聞くだけで、ポートは関係ありません。",
+      "ping example.com"
+    ],
+    "netChecks": [
+      { "parts": { "port": false }, "message": "この課題はポートが閉じたまま行います(直さないでください)。" },
+      { "lastCommandIncludes": "ping", "lastOutputIncludes": "64 bytes from 93.184.216.34", "message": "ping example.com で、返事が来ることを確かめてください。" }
+    ]
+  },
+  {
+    "id": "timeout",
+    "title": "サーバーごと落とす",
+    "text": "<p>ポートは直して、今度は「Webサーバー」本体の電源を落とし、<code>curl http://example.com/</code> を打ってください。さっきの <code>refused</code> とは違う「<code>Connection timed out</code>」になるのを見てください。</p>",
+    "answer": "(図でWebサーバーを壊す)\ncurl http://example.com/",
+    "hints": [
+      "Webサーバーの箱をクリックして「Webサーバー」のほうを壊します。ポートは正常に戻しておいてください。",
+      "サーバーが故障になったら curl http://example.com/ です。30秒待つ代わりに、すぐ timed out が表示されます。"
+    ],
+    "netChecks": [
+      { "parts": { "port": true }, "message": "ポートは直しておいてください。" },
+      { "parts": { "server": false }, "message": "Webサーバー本体をクリックして電源を落としてください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Connection timed out", "message": "サーバーが落ちた状態で curl http://example.com/ を打ってください。" }
+    ]
+  }
+]

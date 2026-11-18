@@ -83,6 +83,20 @@ for (const field of readdirSync(root)) {
         if (ok) console.log(`  課題 ${t.id}: OK(${catalog.layers.map((l) => `${l.id}=${t.picks[l.id].join('|')}`).join(', ')})`); else failures++;
       }
     }
+    if (existsSync(tasksPath) && practice === 'net') {
+      // ネットワーク: 構造だけ確かめる。模範解答の検証はブラウザのテストで行う
+      const PARTS = ['cable', 'ipconfig', 'router', 'wan', 'dns', 'server', 'port'];
+      const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
+      for (const t of tasks) {
+        let ok = true;
+        if (!Array.isArray(t.netChecks) || t.netChecks.length === 0) { console.log(`  !! 課題 ${t.id}: netChecks がありません`); ok = false; }
+        if (!t.answer) { console.log(`  !! 課題 ${t.id}: answer(模範解答)がありません`); ok = false; }
+        if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); ok = false; }
+        for (const f of t.faults ?? []) if (!PARTS.includes(f)) { console.log(`  !! 課題 ${t.id}: faults の ${f} は部品ではありません`); ok = false; }
+        for (const c of t.netChecks ?? []) for (const k of Object.keys(c.parts ?? {})) if (!PARTS.includes(k)) { console.log(`  !! 課題 ${t.id}: parts の ${k} は部品ではありません`); ok = false; }
+        if (ok) console.log(`  課題 ${t.id}: 判定条件 ${t.netChecks.length}件${t.faults?.length ? '、故障 ' + t.faults.join('/') : ''}`); else failures++;
+      }
+    }
     if (existsSync(tasksPath) && practice === 'shell') {
       // シェル(OS): 構造だけ確かめる。模範解答の検証はブラウザのテストで行う
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));

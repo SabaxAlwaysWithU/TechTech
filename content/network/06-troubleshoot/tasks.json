@@ -1,0 +1,53 @@
+[
+  {
+    "id": "diag-dhcp",
+    "title": "故障診断 1",
+    "text": "<p>どこかが壊れています(図は「?」になっています)。<code>ip addr</code> から順に調べて原因を突き止め、図の部品をクリックして直してください。直したら <code>curl http://example.com/</code> でページが取れることを確かめます。</p>",
+    "faults": ["ipconfig"],
+    "hideStatus": true,
+    "answer": "ip addr\n(169.254.x.x なので「IPアドレスの設定」を直す)\ncurl http://example.com/",
+    "hints": [
+      "まず ip addr。自分の住所が 192.168.1.10 になっているか見てください。",
+      "169.254.x.x なら DHCP の失敗です。「IPアドレスの設定」(図では PC)を直します。"
+    ],
+    "netChecks": [
+      { "usedCommand": "ip", "message": "まず ip addr で自分の住所を確かめてください。" },
+      { "healthy": true, "message": "まだ壊れている部品があります。ip addr の結果をよく見てください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "直せたら curl http://example.com/ で確かめてください。" }
+    ]
+  },
+  {
+    "id": "diag-dns",
+    "title": "故障診断 2",
+    "text": "<p>また、どこかが壊れています。下から順に調べて原因を突き止め、直してください。<code>ping 8.8.8.8</code> と <code>nslookup example.com</code> の違いがヒントになります。</p>",
+    "faults": ["dns"],
+    "hideStatus": true,
+    "answer": "ping 8.8.8.8\nnslookup example.com\n(DNS を直す)\ncurl http://example.com/",
+    "hints": [
+      "ping 8.8.8.8 が通るなら回線は正常です。次に nslookup example.com を試します。",
+      "nslookup が timed out なら DNS です。図の DNS を直して curl で確かめます。"
+    ],
+    "netChecks": [
+      { "usedCommand": "nslookup", "message": "nslookup example.com で、名前が引けるか確かめてください。" },
+      { "healthy": true, "message": "まだ壊れている部品があります。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "直せたら curl http://example.com/ で確かめてください。" }
+    ]
+  },
+  {
+    "id": "diag-double",
+    "title": "故障診断 3(2か所)",
+    "text": "<p>今度は2か所壊れています。1つ直しても、まだページは取れません。エラーの文言が変わるのを手がかりに、両方見つけて直してください。</p>",
+    "faults": ["router", "port"],
+    "hideStatus": true,
+    "answer": "ping 192.168.1.1\n(Destination Host Unreachable なのでルーターを直す)\ncurl http://example.com/\n(Connection refused なのでサーバーのポートを直す)\ncurl http://example.com/",
+    "hints": [
+      "ping 192.168.1.1 から始めます。Destination Host Unreachable ならルーターです。",
+      "ルーターを直したら curl。今度は Connection refused が出ます。ping は通るのに refused なら、サーバーのポートです。"
+    ],
+    "netChecks": [
+      { "usedCommand": "ping", "message": "まず ping 192.168.1.1 でルーターまで届くか確かめてください。" },
+      { "healthy": true, "message": "まだ壊れている部品があります。エラーの文言が変わったら、次の段に進んでいる証拠です。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "両方直せたら curl http://example.com/ で確かめてください。" }
+    ]
+  }
+]

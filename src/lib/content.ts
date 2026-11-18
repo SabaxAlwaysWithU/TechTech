@@ -6,7 +6,7 @@
 // content/<分野>/schema.sql           分野共通の練習用データ(SQLのみ)
 import { getCollection } from 'astro:content';
 
-export type PracticeKind = 'sql' | 'html' | 'js' | 'shell' | 'stack';
+export type PracticeKind = 'sql' | 'html' | 'js' | 'shell' | 'stack' | 'net';
 
 export interface Field {
   id: string;
@@ -57,10 +57,23 @@ export interface Task {
   calls?: JsCall[]; // 関数を呼んだ結果がこの通りなら正解
   // シェル(OS)用。ShellCheck は lib/shell.ts
   shellChecks?: ShellCheckLike[];
+  // ネットワーク用。NetCheck は lib/netsim.ts
+  netChecks?: NetCheckLike[];
+  faults?: string[]; // 課題を開いたときに壊しておく部品(診断型の課題)
+  hideStatus?: boolean; // 図の上に正常/故障を表示しない(自分で調べる)
   // 構成(Webアプリの道具)用
   picks?: Record<string, string[]>; // 層ごとに正解とする選択肢id。どれか1つ選べばよい
   why?: Record<string, string>; // 層ごとの「なぜそれか」(正解・不正解どちらでも表示)
   rejects?: Record<string, Record<string, string>>; // 層 → 選択肢id → その選択肢が合わない理由
+}
+
+export interface NetCheckLike {
+  parts?: Record<string, boolean>;
+  healthy?: boolean;
+  lastCommandIncludes?: string;
+  lastOutputIncludes?: string;
+  usedCommand?: string;
+  message: string;
 }
 
 export interface CatalogOption {
