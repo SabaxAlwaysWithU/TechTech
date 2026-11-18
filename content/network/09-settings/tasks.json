@@ -1,0 +1,80 @@
+[
+  {
+    "id": "wrong-gateway",
+    "title": "外にだけ出られない",
+    "text": "<p>PC の設定が手動になっていて、どこかが間違っています。<code>ping 192.168.1.1</code> と <code>ping 8.8.8.8</code> を打ち比べて、どの欄が悪いかを考え、左の設定画面で直してください。</p><p>直せたら <code>curl http://example.com/</code> でページが取れるはずです。</p>",
+    "netConfig": { "dhcp": false, "ip": "192.168.1.10", "mask": "255.255.255.0", "gateway": "192.168.1.254", "dns": "8.8.8.8" },
+    "answer": "ping 192.168.1.1\nping 8.8.8.8\n(設定画面: 手動 ip=192.168.1.10 mask=255.255.255.0 gateway=192.168.1.1 dns=8.8.8.8)\ncurl http://example.com/",
+    "hints": [
+      "家の中のルーターには届くのに、外には届きません。外に出るときの出入口の欄を見てください。",
+      "デフォルトゲートウェイが 192.168.1.254 になっています。ルーターの 192.168.1.1 に直して「適用」します。"
+    ],
+    "netChecks": [
+      { "usedCommand": "ping", "message": "まず ping 192.168.1.1 と ping 8.8.8.8 を打ち比べてください。" },
+      { "config": { "gateway": "192.168.1.1" }, "message": "まだ設定が直っていません。家の外に出るときの出入口(デフォルトゲートウェイ)を見てください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "直せたら curl http://example.com/ で確かめてください。" }
+    ]
+  },
+  {
+    "id": "wrong-dns",
+    "title": "名前だけ引けない",
+    "text": "<p>今度は別の欄が間違っています。<code>ping 8.8.8.8</code> と <code>nslookup example.com</code> を打ち比べて原因を見つけ、設定画面で直してください。</p>",
+    "netConfig": { "dhcp": false, "ip": "192.168.1.10", "mask": "255.255.255.0", "gateway": "192.168.1.1", "dns": "192.168.1.99" },
+    "answer": "ping 8.8.8.8\nnslookup example.com\n(設定画面: 手動 ip=192.168.1.10 mask=255.255.255.0 gateway=192.168.1.1 dns=8.8.8.8)\ncurl http://example.com/",
+    "hints": [
+      "外までは届くのに名前が引けません。電話帳の番号の欄を見てください。",
+      "DNSサーバーが 192.168.1.99 になっています。8.8.8.8 か 1.1.1.1 に直して「適用」します。"
+    ],
+    "netChecks": [
+      { "usedCommand": "nslookup", "message": "nslookup example.com で、名前が引けるか確かめてください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "DNSサーバーの欄を直して、curl http://example.com/ で確かめてください。" }
+    ]
+  },
+  {
+    "id": "wrong-subnet",
+    "title": "どこにも届かない",
+    "text": "<p>今度は <code>ping 192.168.1.1</code> すら <code>Network is unreachable</code> になります。<code>ip addr</code> で自分の住所を確かめ、ルーターと同じネットワークの番号に直してください。ただし 192.168.1.1(ルーター自身)は使えません。</p>",
+    "netConfig": { "dhcp": false, "ip": "192.168.2.10", "mask": "255.255.255.0", "gateway": "192.168.1.1", "dns": "8.8.8.8" },
+    "answer": "ip addr\nping 192.168.1.1\n(設定画面: 手動 ip=192.168.1.10 mask=255.255.255.0 gateway=192.168.1.1 dns=8.8.8.8)\ncurl http://example.com/",
+    "hints": [
+      "自分は 192.168.2.10、ルーターは 192.168.1.1。マスク 255.255.255.0 では最初の3つの数が違うので、別のネットワークです。",
+      "IPアドレスを 192.168.1.10 のように 192.168.1.x(1 以外)に直して「適用」します。"
+    ],
+    "netChecks": [
+      { "usedCommand": "ip", "message": "まず ip addr で、自分の住所を確かめてください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "IPアドレスを直して、curl http://example.com/ で確かめてください。" }
+    ]
+  },
+  {
+    "id": "dhcp-static",
+    "title": "DHCP が壊れたら手動で",
+    "text": "<p>ルーターの DHCP が壊れていて、PC が IPアドレスをもらえません(<code>ip addr</code> で <code>169.254.x.x</code>)。<strong>図の部品は直さずに</strong>、設定画面を「手動」にして、自分で4つの欄を書いて通信できるようにしてください。</p><p>IPアドレスは 192.168.1.50 など、家のネットワークで空いている番号を使います。</p>",
+    "faults": ["ipconfig"],
+    "answer": "ip addr\n(設定画面: 手動 ip=192.168.1.50 mask=255.255.255.0 gateway=192.168.1.1 dns=8.8.8.8)\ncurl http://example.com/",
+    "hints": [
+      "設定画面で「手動」を選ぶと、4つの欄が書けるようになります。",
+      "IP 192.168.1.50、マスク 255.255.255.0、ゲートウェイ 192.168.1.1、DNS 8.8.8.8 を入れて「適用」します。"
+    ],
+    "netChecks": [
+      { "parts": { "ipconfig": false }, "message": "この課題は DHCP が壊れたまま行います。図の「IPアドレスの設定」は直さないでください。" },
+      { "config": { "dhcp": false }, "message": "設定画面を「手動」にして、4つの欄を自分で書いてください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "設定できたら curl http://example.com/ で確かめてください。" }
+    ]
+  },
+  {
+    "id": "switch-dns",
+    "title": "DNS が落ちたら乗り換える",
+    "text": "<p>Google の DNS サーバー(8.8.8.8)が落ちています。あなたには直せません。設定画面で DNS を <strong>1.1.1.1</strong>(Cloudflare)に乗り換えて、名前が引けるようにしてください。</p>",
+    "faults": ["dns"],
+    "answer": "nslookup example.com\n(設定画面: 手動 ip=192.168.1.10 mask=255.255.255.0 gateway=192.168.1.1 dns=1.1.1.1)\nnslookup example.com\ncurl http://example.com/",
+    "hints": [
+      "DNS だけを変えるには、設定画面を「手動」にして、ほかの3つはいつもの値(IP 192.168.1.10、マスク 255.255.255.0、ゲートウェイ 192.168.1.1)を入れます。",
+      "DNSサーバーの欄を 1.1.1.1 にして「適用」し、curl http://example.com/ で確かめます。"
+    ],
+    "netChecks": [
+      { "parts": { "dns": false }, "message": "この課題は 8.8.8.8 が落ちたまま行います(図の DNS は直さないでください)。" },
+      { "config": { "dns": "1.1.1.1" }, "message": "設定画面で DNSサーバーを 1.1.1.1 にしてください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "乗り換えたら curl http://example.com/ で確かめてください。" }
+    ]
+  }
+]

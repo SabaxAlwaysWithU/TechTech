@@ -61,6 +61,7 @@ export interface Task {
   netChecks?: NetCheckLike[];
   faults?: string[]; // 課題を開いたときに壊しておく部品(診断型の課題)
   hideStatus?: boolean; // 図の上に正常/故障を表示しない(自分で調べる)
+  netConfig?: Record<string, string | boolean>; // 課題を開いたときの PC の設定(設定ミスの課題)
   // 構成(Webアプリの道具)用
   picks?: Record<string, string[]>; // 層ごとに正解とする選択肢id。どれか1つ選べばよい
   why?: Record<string, string>; // 層ごとの「なぜそれか」(正解・不正解どちらでも表示)
@@ -73,6 +74,7 @@ export interface NetCheckLike {
   lastCommandIncludes?: string;
   lastOutputIncludes?: string;
   usedCommand?: string;
+  config?: Record<string, string | boolean>;
   message: string;
 }
 

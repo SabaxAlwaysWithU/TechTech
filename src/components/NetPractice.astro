@@ -57,6 +57,23 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
         </>
       )}
     </section>
+    <section class="netcfg">
+      <h2>PCのネットワーク設定</h2>
+      <form id="cfg" class="cfg" autocomplete="off">
+        <div class="cfg-mode" role="radiogroup" aria-label="設定のしかた">
+          <label><input type="radio" name="cfg-mode" id="cfg-auto" value="auto" /> 自動(DHCP)</label>
+          <label><input type="radio" name="cfg-mode" id="cfg-manual" value="manual" /> 手動</label>
+        </div>
+        <label class="cfg-row"><span>IPアドレス</span><input id="cfg-ip" inputmode="decimal" spellcheck="false" /></label>
+        <label class="cfg-row"><span>サブネットマスク</span><input id="cfg-mask" inputmode="decimal" spellcheck="false" /></label>
+        <label class="cfg-row"><span>デフォルトゲートウェイ</span><input id="cfg-gateway" inputmode="decimal" spellcheck="false" /></label>
+        <label class="cfg-row"><span>DNSサーバー</span><input id="cfg-dns" inputmode="decimal" spellcheck="false" /></label>
+        <div class="cfg-actions">
+          <button class="btn" type="submit">適用</button>
+          <span id="cfg-msg" class="muted small"></span>
+        </div>
+      </form>
+    </section>
     <section class="parts">
       <h2>部品の状態</h2>
       <ul id="part-list" class="part-list"></ul>
@@ -113,7 +130,7 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
 <script type="application/json" id="practice-data" set:html={JSON.stringify({ lessonId, tasks })} />
 
 <script>
-  import { createNet, exec, toggle, judgeNet, healthy, PARTS, type NetState, type Part } from '../lib/netsim';
+  import { createNet, exec, toggle, judgeNet, healthy, effective, setConfig, PARTS, type NetState, type Part, type NetConfig } from '../lib/netsim';
   import { getProgress, markTaskCleared } from '../lib/progress';
   import type { Task } from '../lib/content';
 
@@ -171,6 +188,49 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
       partList.appendChild(li);
     }
   }
+
+  // ---- PC のネットワーク設定 ----
+  const cfgFields = ['ip', 'mask', 'gateway', 'dns'] as const;
+  const cfgInput = (k: (typeof cfgFields)[number]) => $<HTMLInputElement>(`cfg-${k}`);
+
+  // 自動のときは、実際に使っている値を灰色で見せ、入力はできないようにする
+  function renderConfig() {
+    const manual = !state.config.dhcp;
+    $<HTMLInputElement>('cfg-auto').checked = !manual;
+    $<HTMLInputElement>('cfg-manual').checked = manual;
+    const e = effective(state);
+    for (const k of cfgFields) {
+      const el = cfgInput(k);
+      el.disabled = !manual;
+      el.value = manual ? state.config[k] : e[k] || '(なし)';
+    }
+  }
+
+  function setMode(manual: boolean) {
+    for (const k of cfgFields) {
+      const el = cfgInput(k);
+      el.disabled = !manual;
+      if (manual && el.value === '(なし)') el.value = '';
+    }
+  }
+
+  $('cfg-auto').addEventListener('change', () => setMode(false));
+  $('cfg-manual').addEventListener('change', () => setMode(true));
+  $('cfg').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const manual = $<HTMLInputElement>('cfg-manual').checked;
+    const next: Partial<NetConfig> = { dhcp: !manual };
+    if (manual) for (const k of cfgFields) next[k] = cfgInput(k).value.trim();
+    setConfig(state, next);
+    const c = state.config;
+    append(manual
+      ? `# 設定を変更しました: 手動 IP ${c.ip} / マスク ${c.mask} / ゲートウェイ ${c.gateway || '(なし)'} / DNS ${c.dns || '(なし)'}\n`
+      : '# 設定を変更しました: 自動(DHCP)\n');
+    $('cfg-msg').textContent = '適用しました。コマンドで確かめてみましょう。';
+    renderConfig();
+    judge();
+    input.focus();
+  });
 
   function flip(part: Part) {
     toggle(state, part);
@@ -248,6 +308,9 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
     const t = currentTask();
     hideStatus = !!(t?.hideStatus && applyFaults);
     if (applyFaults && t?.faults) for (const f of t.faults) state[f as Part] = false;
+    if (applyFaults && t?.netConfig) setConfig(state, t.netConfig as Partial<NetConfig>);
+    $('cfg-msg').textContent = '';
+    renderConfig();
     screen.textContent = WELCOME + (applyFaults && t?.faults?.length ? (hideStatus ? '# どこかが壊れています。コマンドで調べて、直してください。\n' : '# この課題の開始状態では、いくつかの部品が壊れています。\n') : '');
     render();
   }
@@ -360,6 +423,22 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
   .label { font-size: 0.85rem; color: var(--muted); font-weight: 600; }
   .bar { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
   .bar .small-btn { margin-left: auto; font-size: 0.85rem; padding: 0.3rem 0.9rem; }
+
+  /* PC のネットワーク設定(OS の設定画面のような見た目) */
+  .cfg { display: flex; flex-direction: column; gap: 0.45rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.8rem 0.9rem; }
+  .cfg-mode { display: flex; gap: 1rem; font-size: 0.9rem; }
+  .cfg-mode label { display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer; }
+  .cfg-row { display: grid; grid-template-columns: 9.5rem 1fr; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+  .cfg-row span { color: var(--muted); }
+  .cfg-row input {
+    font-family: var(--mono); font-size: 0.85rem; padding: 0.3rem 0.5rem; min-width: 0;
+    border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg); color: var(--fg);
+  }
+  .cfg-row input:disabled { background: var(--surface); color: var(--muted); }
+  .cfg-row input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .cfg-actions { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.2rem; }
+  .cfg-actions .btn { padding: 0.3rem 1rem; font-size: 0.85rem; }
+  @media (max-width: 420px) { .cfg-row { grid-template-columns: 1fr; gap: 0.15rem; } }
 
   /* 部品の一覧 */
   .part-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }

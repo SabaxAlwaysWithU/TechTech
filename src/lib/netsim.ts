@@ -17,10 +17,20 @@ export interface NetState {
   cert: boolean; // nginx の HTTPS 証明書が有効
   app: boolean; // nginx の後ろのアプリが動いている
   db: boolean; // アプリの後ろのデータベースが動いている
+  config: NetConfig; // PC のネットワーク設定(OS の設定画面に相当)
   lastOutput: string;
   lastCommand: string;
   used: string[]; // 使ったコマンド名
   history: string[];
+}
+
+/** PC のネットワーク設定。dhcp が true なら残りは無視され、ルーターから自動でもらう */
+export interface NetConfig {
+  dhcp: boolean;
+  ip: string;
+  mask: string;
+  gateway: string;
+  dns: string;
 }
 
 export const PARTS: { id: Part; label: string; where: string; broken: string; fixed: string }[] = [
@@ -45,9 +55,76 @@ const SERVER_IP = '93.184.216.34';
 const GATEWAY = '192.168.1.1';
 const PC_IP = '192.168.1.10';
 const DNS_IP = '8.8.8.8';
+const ALT_DNS_IP = '1.1.1.1'; // もう1つの公開DNS(Cloudflare)。部品としては壊れない
+const LAN_MASK = '255.255.255.0';
+
+export const DEFAULT_CONFIG: NetConfig = { dhcp: true, ip: PC_IP, mask: LAN_MASK, gateway: GATEWAY, dns: DNS_IP };
 
 export function createNet(): NetState {
-  return { cable: true, ipconfig: true, router: true, wan: true, dns: true, server: true, port: true, cert: true, app: true, db: true, lastOutput: '', lastCommand: '', used: [], history: [] };
+  return { cable: true, ipconfig: true, router: true, wan: true, dns: true, server: true, port: true, cert: true, app: true, db: true, config: { ...DEFAULT_CONFIG }, lastOutput: '', lastCommand: '', used: [], history: [] };
+}
+
+// ---- IPアドレスの計算 ----
+
+function toNum(ip: string): number | null {
+  const p = ip.trim().split('.');
+  if (p.length !== 4) return null;
+  let n = 0;
+  for (const x of p) {
+    if (!/^\d{1,3}$/.test(x) || Number(x) > 255) return null;
+    n = n * 256 + Number(x);
+  }
+  return n;
+}
+
+function validMask(m: string): boolean {
+  const n = toNum(m);
+  if (n === null || n === 0) return false;
+  const inv = ~n >>> 0;
+  return ((inv + 1) & inv) === 0; // 1 が左に連続しているか(255.255.255.0 など)
+}
+
+function prefixLen(m: string): number {
+  let n = toNum(m) ?? 0;
+  let c = 0;
+  while (n) { c += n & 1; n = Math.floor(n / 2); }
+  return c;
+}
+
+/** a と b が、マスク m で見て同じネットワークか */
+function sameNet(a: string, b: string, m: string): boolean {
+  const A = toNum(a), B = toNum(b), M = toNum(m);
+  if (A === null || B === null || M === null) return false;
+  return ((A & M) >>> 0) === ((B & M) >>> 0);
+}
+
+/** 家の中のネットワーク(192.168.1.0/24)で使える番号か */
+function onLan(ip: string): boolean {
+  return sameNet(ip, GATEWAY, LAN_MASK) && ip !== '192.168.1.0' && ip !== '192.168.1.255';
+}
+
+export interface Effective {
+  ip: string;
+  mask: string;
+  gateway: string;
+  dns: string;
+  auto: boolean;
+  apipa: boolean; // DHCP に失敗して 169.254.x.x になっている
+}
+
+/** 今の PC が実際に使っている設定 */
+export function effective(state: NetState): Effective {
+  const c = state.config;
+  if (c.dhcp) {
+    if (!state.ipconfig) return { ip: '169.254.33.7', mask: '255.255.0.0', gateway: '', dns: '', auto: true, apipa: true };
+    return { ip: PC_IP, mask: LAN_MASK, gateway: GATEWAY, dns: DNS_IP, auto: true, apipa: false };
+  }
+  return { ip: c.ip.trim(), mask: c.mask.trim(), gateway: c.gateway.trim(), dns: c.dns.trim(), auto: false, apipa: false };
+}
+
+/** 設定を書き換える(OS の設定画面で「適用」を押したのと同じ) */
+export function setConfig(state: NetState, c: Partial<NetConfig>) {
+  state.config = { ...state.config, ...c };
 }
 
 export function toggle(state: NetState, part: Part) {
@@ -75,20 +152,51 @@ const HELP = `使えるコマンド:
 
 // ---- 到達性の判定(下の層から順に調べる) ----
 
-type Reach =
-  | { ok: true }
-  | { ok: false; stage: 'ipconfig' | 'cable' | 'router' | 'wan' | 'server' };
+// 失敗の段階
+//   noaddr   自分の IP / マスクが使えない        → Network is unreachable
+//   cable    ケーブルが抜けている               → Network is unreachable
+//   noroute  宛先が自分のネットワーク外で、ゲートウェイが使えない → Network is unreachable
+//   nohost   隣(同じネットワーク)に呼びかけたが誰も応えない → Destination Host Unreachable
+//   conflict 自分の IP が他の機器(ルーター)と重複   → Destination Host Unreachable
+//   wan      ルーターの先で消えた                → packet loss / timed out
+//   server   宛先が応えない                     → packet loss / timed out
+type Stage = 'noaddr' | 'cable' | 'noroute' | 'nohost' | 'conflict' | 'wan' | 'server';
+type Reach = { ok: true } | { ok: false; stage: Stage };
 
-function reach(state: NetState, ip: string): Reach {
-  if (!state.ipconfig) return { ok: false, stage: 'ipconfig' };
+const NOT_CONNECTED: Stage[] = ['noaddr', 'cable', 'noroute'];
+
+/** 宛先への1段目(ゲートウェイ)まで行けるか */
+function gatewayWorks(state: NetState, e: Effective): boolean {
+  return onLan(e.ip) && e.ip !== GATEWAY && e.gateway === GATEWAY && state.router;
+}
+
+function reach(state: NetState, target: string): Reach {
+  const e = effective(state);
+  if (toNum(e.ip) === null || !validMask(e.mask)) return { ok: false, stage: 'noaddr' };
   if (!state.cable) return { ok: false, stage: 'cable' };
-  if (ip === PC_IP || ip === '127.0.0.1') return { ok: true };
-  if (!state.router) return { ok: false, stage: 'router' };
-  if (ip === GATEWAY) return { ok: true };
+  if (target === e.ip || target === '127.0.0.1') return { ok: true };
+  if (e.ip === GATEWAY) return { ok: false, stage: 'conflict' };
+  // 宛先が同じネットワーク内なら、ゲートウェイを通らずに直接呼びかける
+  if (sameNet(target, e.ip, e.mask)) {
+    if (onLan(e.ip) && target === GATEWAY && state.router) return { ok: true };
+    return { ok: false, stage: 'nohost' };
+  }
+  // 外なら、ゲートウェイに渡す。ゲートウェイは自分と同じネットワークにいる必要がある
+  if (!e.gateway || toNum(e.gateway) === null || !sameNet(e.gateway, e.ip, e.mask)) return { ok: false, stage: 'noroute' };
+  if (!gatewayWorks(state, e)) return { ok: false, stage: 'nohost' };
   if (!state.wan) return { ok: false, stage: 'wan' };
-  if (ip === DNS_IP) return state.dns ? { ok: true } : { ok: false, stage: 'server' };
-  if (ip === SERVER_IP) return state.server ? { ok: true } : { ok: false, stage: 'server' };
+  if (target === DNS_IP) return state.dns ? { ok: true } : { ok: false, stage: 'server' };
+  if (target === ALT_DNS_IP) return { ok: true };
+  if (target === SERVER_IP) return state.server ? { ok: true } : { ok: false, stage: 'server' };
   return { ok: false, stage: 'server' };
+}
+
+/** その番号が DNS サーバーとして答えてくれるか(届いたうえで) */
+function dnsAnswers(state: NetState, ip: string): boolean {
+  if (ip === DNS_IP) return state.dns;
+  if (ip === ALT_DNS_IP) return true;
+  if (ip === GATEWAY) return state.wan && state.dns; // 家庭用ルーターは DNS の問い合わせを 8.8.8.8 に中継する
+  return false;
 }
 
 type Resolve = { ok: true; ip: string } | { ok: false; error: string };
@@ -96,8 +204,10 @@ type Resolve = { ok: true; ip: string } | { ok: false; error: string };
 function resolve(state: NetState, host: string): Resolve {
   if (/^\d+\.\d+\.\d+\.\d+$/.test(host)) return { ok: true, ip: host };
   if (host === 'localhost') return { ok: true, ip: '127.0.0.1' };
-  const r = reach(state, DNS_IP);
-  if (!r.ok || !state.dns) return { ok: false, error: 'Temporary failure in name resolution' };
+  const e = effective(state);
+  if (toNum(e.dns) === null) return { ok: false, error: 'Temporary failure in name resolution' };
+  const r = reach(state, e.dns);
+  if (!r.ok || !dnsAnswers(state, e.dns)) return { ok: false, error: 'Temporary failure in name resolution' };
   const ip = HOSTS[host];
   if (!ip) return { ok: false, error: 'Name or service not known' };
   return { ok: true, ip };
@@ -108,8 +218,19 @@ function isIp(s: string) { return /^\d+\.\d+\.\d+\.\d+$/.test(s); }
 // ---- コマンド ----
 
 function cmdIp(state: NetState): string {
-  if (!state.ipconfig) return `1: lo: <LOOPBACK,UP>\n    inet 127.0.0.1/8\n2: eth0: <BROADCAST,MULTICAST${state.cable ? ',UP' : ''}>\n    inet 169.254.33.7/16 (自動構成アドレス: DHCP からIPをもらえていません)`;
-  return `1: lo: <LOOPBACK,UP>\n    inet 127.0.0.1/8\n2: eth0: <BROADCAST,MULTICAST${state.cable ? ',UP,LOWER_UP' : ''}>\n    inet ${PC_IP}/24\n    gateway ${GATEWAY}\n    dns ${DNS_IP}`;
+  const e = effective(state);
+  const up = state.cable ? ',UP,LOWER_UP' : '';
+  const lines = ['1: lo: <LOOPBACK,UP>', '    inet 127.0.0.1/8', `2: eth0: <BROADCAST,MULTICAST${up}>`];
+  if (toNum(e.ip) === null || !validMask(e.mask)) {
+    lines.push(`    inet ${e.ip || '(なし)'} / ${e.mask || '(なし)'}  (IPアドレスかサブネットマスクの書き方が正しくありません)`);
+  } else {
+    let note = '';
+    if (e.apipa) note = '  (自動構成アドレス: DHCP からIPをもらえていません)';
+    else if (e.ip === GATEWAY) note = '  dadfailed (重複: この番号はすでに別の機器が使っています)';
+    lines.push(`    inet ${e.ip}/${prefixLen(e.mask)}${note}`);
+  }
+  lines.push(`    gateway ${e.gateway || '(なし)'}`, `    dns ${e.dns || '(なし)'}`, `    (設定: ${e.auto ? '自動 / DHCP' : '手動'})`);
+  return lines.join('\n');
 }
 
 function cmdPing(state: NetState, target?: string): string {
@@ -118,34 +239,34 @@ function cmdPing(state: NetState, target?: string): string {
   if (!res.ok) return `ping: ${target}: ${res.error}`;
   const ip = res.ip;
   const r = reach(state, ip);
+  const me = effective(state).ip;
   const head = `PING ${target} (${ip}) 56(84) bytes of data.`;
   if (r.ok) {
-    const ms = ip === PC_IP || ip === '127.0.0.1' ? 0.05 : ip === GATEWAY ? 0.8 : 12.4;
+    const ms = ip === me || ip === '127.0.0.1' ? 0.05 : ip === GATEWAY ? 0.8 : 12.4;
     const lines = [1, 2, 3].map((i) => `64 bytes from ${ip}: icmp_seq=${i} ttl=${ip === GATEWAY ? 64 : 56} time=${(ms + i * 0.1).toFixed(1)} ms`);
     return [head, ...lines, '', `--- ${target} ping statistics ---`, '3 packets transmitted, 3 received, 0% packet loss'].join('\n');
   }
-  switch (r.stage) {
-    case 'ipconfig':
-    case 'cable':
-      return `ping: connect: Network is unreachable`;
-    case 'router':
-      return [head, `From ${PC_IP} icmp_seq=1 Destination Host Unreachable`, `From ${PC_IP} icmp_seq=2 Destination Host Unreachable`, `From ${PC_IP} icmp_seq=3 Destination Host Unreachable`, '', `--- ${target} ping statistics ---`, '3 packets transmitted, 0 received, +3 errors, 100% packet loss'].join('\n');
-    case 'wan':
-    case 'server':
-      return [head, '', `--- ${target} ping statistics ---`, '3 packets transmitted, 0 received, 100% packet loss, time 2050ms'].join('\n');
+  if (NOT_CONNECTED.includes(r.stage)) return `ping: connect: Network is unreachable`;
+  if (r.stage === 'nohost' || r.stage === 'conflict') {
+    return [head, `From ${me} icmp_seq=1 Destination Host Unreachable`, `From ${me} icmp_seq=2 Destination Host Unreachable`, `From ${me} icmp_seq=3 Destination Host Unreachable`, '', `--- ${target} ping statistics ---`, '3 packets transmitted, 0 received, +3 errors, 100% packet loss'].join('\n');
   }
+  return [head, '', `--- ${target} ping statistics ---`, '3 packets transmitted, 0 received, 100% packet loss, time 2050ms'].join('\n');
 }
 
 function cmdNslookup(state: NetState, host?: string): string {
   if (!host) return 'nslookup: 名前を指定してください(例: nslookup example.com)';
-  const r = reach(state, DNS_IP);
-  if (!r.ok || !state.dns) {
-    return `;; connection timed out; no servers could be reached\n\n(DNSサーバー ${DNS_IP} に届きません)`;
+  const e = effective(state);
+  const server = e.dns;
+  if (toNum(server) === null) return `;; no servers could be reached\n\n(DNSサーバーが設定されていません)`;
+  const r = reach(state, server);
+  if (!r.ok || !dnsAnswers(state, server)) {
+    return `;; connection timed out; no servers could be reached\n\n(DNSサーバー ${server} に届きません)`;
   }
-  if (isIp(host)) return `Server:\t\t${DNS_IP}\nAddress:\t${DNS_IP}#53\n\n${host} の名前は登録されていません(逆引きなし)`;
+  const head = `Server:\t\t${server}\nAddress:\t${server}#53\n\n`;
+  if (isIp(host)) return `${head}${host} の名前は登録されていません(逆引きなし)`;
   const ip = HOSTS[host];
-  if (!ip) return `Server:\t\t${DNS_IP}\nAddress:\t${DNS_IP}#53\n\n** server can't find ${host}: NXDOMAIN`;
-  return `Server:\t\t${DNS_IP}\nAddress:\t${DNS_IP}#53\n\nNon-authoritative answer:\nName:\t${host}\nAddress: ${ip}`;
+  if (!ip) return `${head}** server can't find ${host}: NXDOMAIN`;
+  return `${head}Non-authoritative answer:\nName:\t${host}\nAddress: ${ip}`;
 }
 
 function cmdTraceroute(state: NetState, target?: string): string {
@@ -153,16 +274,22 @@ function cmdTraceroute(state: NetState, target?: string): string {
   const res = resolve(state, target);
   if (!res.ok) return `traceroute: ${target}: ${res.error}`;
   const ip = res.ip;
+  const e = effective(state);
+  const r = reach(state, ip);
+  if (!r.ok && NOT_CONNECTED.includes(r.stage)) return `traceroute: connect: Network is unreachable`;
   const lines = [`traceroute to ${target} (${ip}), 30 hops max`];
-  if (!state.ipconfig || !state.cable) return `traceroute: connect: Network is unreachable`;
-  lines.push(state.router ? ` 1  ${GATEWAY} (${GATEWAY})  0.8 ms  0.7 ms  0.9 ms` : ' 1  * * *');
-  if (!state.router) { lines.push(' 2  * * *', ' 3  * * *', '(ルーターから先に進めません)'); return lines.join('\n'); }
-  if (ip === GATEWAY) return lines.join('\n');
+  // 同じネットワーク内の宛先は1段で終わる
+  if (ip === e.ip || ip === '127.0.0.1' || sameNet(ip, e.ip, e.mask)) {
+    lines.push(r.ok ? ` 1  ${ip} (${ip})  0.8 ms  0.7 ms  0.9 ms` : ' 1  * * *\n 2  * * *\n(同じネットワークの中に、その番号で応える機器がいません)');
+    return lines.join('\n');
+  }
+  const gw = gatewayWorks(state, e);
+  lines.push(gw ? ` 1  ${e.gateway} (${e.gateway})  0.8 ms  0.7 ms  0.9 ms` : ' 1  * * *');
+  if (!gw) { lines.push(' 2  * * *', ' 3  * * *', `(ゲートウェイ ${e.gateway} から先に進めません)`); return lines.join('\n'); }
   lines.push(state.wan ? ' 2  10.0.0.1 (10.0.0.1)  4.2 ms  4.0 ms  4.3 ms(プロバイダ)' : ' 2  * * *');
   if (!state.wan) { lines.push(' 3  * * *', '(インターネット回線の先に進めません)'); return lines.join('\n'); }
   lines.push(' 3  203.0.113.1 (203.0.113.1)  8.1 ms  8.3 ms  8.0 ms');
-  const alive = ip === DNS_IP ? state.dns : ip === SERVER_IP ? state.server : false;
-  lines.push(alive ? ` 4  ${ip} (${ip})  12.4 ms  12.6 ms  12.3 ms` : ' 4  * * *\n 5  * * *\n(宛先が応答しません)');
+  lines.push(r.ok ? ` 4  ${ip} (${ip})  12.4 ms  12.6 ms  12.3 ms` : ' 4  * * *\n 5  * * *\n(宛先が応答しません)');
   return lines.join('\n');
 }
 
@@ -182,8 +309,8 @@ function cmdCurl(state: NetState, args: string[]): string {
   const ip = res.ip;
   const r = reach(state, ip);
   if (!r.ok) {
-    if (r.stage === 'ipconfig' || r.stage === 'cable') return `curl: (7) Failed to connect to ${host} port ${port}: Network is unreachable`;
-    if (r.stage === 'router') return `curl: (7) Failed to connect to ${host} port ${port}: No route to host`;
+    if (NOT_CONNECTED.includes(r.stage)) return `curl: (7) Failed to connect to ${host} port ${port}: Network is unreachable`;
+    if (r.stage === 'nohost' || r.stage === 'conflict') return `curl: (7) Failed to connect to ${host} port ${port}: No route to host`;
     return `curl: (28) Failed to connect to ${host} port ${port} after 30000 ms: Connection timed out`;
   }
   if (ip !== SERVER_IP) return `curl: (7) Failed to connect to ${host} port ${port}: Connection refused`;
@@ -275,6 +402,7 @@ export interface NetCheck {
   lastCommandIncludes?: string;
   lastOutputIncludes?: string;
   usedCommand?: string; // このコマンドを一度は使った
+  config?: Partial<NetConfig>; // PC の設定がこの通り
   message: string;
 }
 
@@ -282,6 +410,12 @@ export function judgeNet(state: NetState, checks: NetCheck[]): { correct: boolea
   for (const c of checks) {
     const fail = { correct: false, message: c.message };
     if (c.parts) for (const [k, v] of Object.entries(c.parts)) if (state[k as Part] !== v) return fail;
+    if (c.config) {
+      for (const [k, v] of Object.entries(c.config)) {
+        const cur = state.config[k as keyof NetConfig];
+        if ((typeof cur === 'string' ? cur.trim() : cur) !== v) return fail;
+      }
+    }
     if (c.healthy !== undefined && healthy(state) !== c.healthy) return fail;
     if (c.lastCommandIncludes !== undefined && !state.lastCommand.includes(c.lastCommandIncludes)) return fail;
     if (c.lastOutputIncludes !== undefined && !state.lastOutput.includes(c.lastOutputIncludes)) return fail;
