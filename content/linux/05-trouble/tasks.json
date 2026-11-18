@@ -1,0 +1,47 @@
+[
+  {
+    "id": "journal",
+    "title": "ログを読む",
+    "text": "<p><code>journalctl -u ssh</code> で SSH サーバーのログを読み、何番のポートで待ち始めたかを確かめてください。</p>",
+    "answer": "journalctl -u ssh",
+    "hints": [
+      "journalctl -u サービス名 です。",
+      "journalctl -u ssh と打つと、Server listening on 0.0.0.0 port 22 の行があります。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "journalctl", "lastOutputIncludes": "port 22", "message": "journalctl -u ssh で SSH のログを読んでください。" }
+    ]
+  },
+  {
+    "id": "port-conflict",
+    "title": "nginx が起動しない",
+    "text": "<p>nginx を入れたのに、起動に失敗しています(<code>systemctl status nginx</code> が failed)。ログと <code>ss -tlnp</code> で原因を突き止め、nginx が動いて <code>curl http://localhost/</code> で「Welcome to nginx!」が返るようにしてください。</p><p>邪魔をしているプログラムは、今後も自動で動かないようにしておきましょう。</p>",
+    "starter": "__scenario port-conflict",
+    "answer": "systemctl status nginx\njournalctl -u nginx\nss -tlnp\nsudo systemctl stop apache2\nsudo systemctl disable apache2\nsudo systemctl start nginx\ncurl http://localhost/",
+    "hints": [
+      "journalctl -u nginx に Address already in use と出ています。ss -tlnp で、80番を誰が使っているか見てください。",
+      "80番は apache2 が使っています。sudo systemctl stop apache2、sudo systemctl disable apache2 のあと、sudo systemctl start nginx です。"
+    ],
+    "shellChecks": [
+      { "linux": { "inactive": "apache2" }, "message": "80番を使っているプログラムがまだ動いています。journalctl と ss -tlnp で探してください。" },
+      { "linux": { "active": "nginx" }, "message": "邪魔なプログラムは止まりました。nginx を起動してください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Welcome to nginx", "message": "curl http://localhost/ で nginx のページが返ることを確かめてください。" }
+    ]
+  },
+  {
+    "id": "disk-full",
+    "title": "ディスクがいっぱい",
+    "text": "<p><code>echo memo &gt; note.txt</code> を打つと <code>No space left on device</code> になります。<code>df -h</code> と <code>du</code> で原因を探し、<strong>大きすぎるログだけ</strong>を消して、<code>echo memo &gt; note.txt</code> が成功するようにしてください。</p>",
+    "starter": "__scenario disk-full",
+    "answer": "echo memo > note.txt\ndf -h\ndu -h -d 1 /var/log | sort -h\nls -l /var/log/app\nsudo rm /var/log/app/debug.log\ndf -h\necho memo > note.txt",
+    "hints": [
+      "df -h で 100% を確かめたら、du -h -d 1 /var/log で /var/log の中のどこが大きいかを見ます。",
+      "/var/log/app/debug.log が巨大です。root のファイルなので sudo rm /var/log/app/debug.log で消し、もう一度 echo memo > note.txt を打ちます。"
+    ],
+    "shellChecks": [
+      { "linux": { "diskBelow": 90 }, "message": "ディスクがまだいっぱいです。df -h と du で、何が場所を取っているか探してください。" },
+      { "exists": "/var/log/app/app.log", "message": "消しすぎています。app.log は必要なログです。「初期状態に戻す」でやり直し、大きいファイルだけを消してください。" },
+      { "content": { "path": "/home/saba/note.txt", "includes": "memo" }, "message": "空きができたら、echo memo > note.txt で書き込めることを確かめてください。" }
+    ]
+  }
+]

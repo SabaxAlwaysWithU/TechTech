@@ -1,0 +1,54 @@
+[
+  {
+    "id": "grep-log",
+    "title": "ログから警告を探す",
+    "text": "<p><code>/var/log/system.log</code> から、<code>warning</code> を含む行だけを <code>grep</code> で取り出してください。</p>",
+    "answer": "grep warning /var/log/system.log",
+    "hints": [
+      "grep 探す文字 ファイル の形です。",
+      "grep warning /var/log/system.log"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "grep", "lastOutputIncludes": "process 777", "message": "grep warning /var/log/system.log で警告の行を取り出してください。" }
+    ]
+  },
+  {
+    "id": "ps-grep",
+    "title": "パイプでつなぐ",
+    "text": "<p><code>ps</code> の一覧から、<code>firefox</code> の行だけをパイプ(<code>|</code>)と <code>grep</code> で取り出してください。</p>",
+    "answer": "ps | grep firefox",
+    "hints": [
+      "ps の出力を | で grep に渡します。",
+      "ps | grep firefox"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "|", "lastOutputIncludes": "firefox", "message": "ps | grep firefox のように、| でつないで取り出してください。" }
+    ]
+  },
+  {
+    "id": "count-users",
+    "title": "数える",
+    "text": "<p><code>/etc/passwd</code> は1行に1ユーザーが書かれています。<code>wc -l</code> を使って、登録されているユーザーの人数(行数)を数えてください。</p>",
+    "answer": "cat /etc/passwd | wc -l",
+    "hints": [
+      "wc -l ファイル、または cat ファイル | wc -l で行数が数えられます。",
+      "cat /etc/passwd | wc -l と打つと 2 と出ます。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "wc", "lastOutputIncludes": "2", "message": "wc -l で /etc/passwd の行数を数えてください。" }
+    ]
+  },
+  {
+    "id": "tail-log",
+    "title": "最新のログ",
+    "text": "<p><code>/var/log/system.log</code> の<strong>最後の2行</strong>(いちばん新しい出来事)を表示してください。</p>",
+    "answer": "tail -n 2 /var/log/system.log",
+    "hints": [
+      "末尾を見るのは tail です。行数は -n で指定します。",
+      "tail -n 2 /var/log/system.log"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "tail", "lastOutputIncludes": "backup finished", "message": "tail -n 2 /var/log/system.log で最後の2行を表示してください。" }
+    ]
+  }
+]

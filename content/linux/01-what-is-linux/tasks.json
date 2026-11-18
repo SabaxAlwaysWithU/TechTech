@@ -1,0 +1,41 @@
+[
+  {
+    "id": "uname",
+    "title": "カーネルを確かめる",
+    "text": "<p><code>uname -a</code> で、このコンピュータのカーネルの名前とバージョンを表示してください。</p>",
+    "answer": "uname -a",
+    "hints": [
+      "uname に -a(all、全部)を付けます。",
+      "uname -a と打つと Linux から始まる1行が出ます。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "uname", "lastOutputIncludes": "x86_64", "message": "uname -a を実行してください(-a を付けると詳しく出ます)。" }
+    ]
+  },
+  {
+    "id": "root-dirs",
+    "title": "いちばん上を見る",
+    "text": "<p><code>ls /</code> で、ルート(<code>/</code>)の下にあるディレクトリを見てください。<code>etc</code>(設定)、<code>var</code>(ログなど)、<code>home</code>(ユーザーの置き場所)があるのを確かめましょう。</p>",
+    "answer": "ls /",
+    "hints": [
+      "ls のあとに見たい場所を書きます。",
+      "ls /"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "ls", "lastOutputIncludes": "etc", "message": "ls / でルートの中身を表示してください。" }
+    ]
+  },
+  {
+    "id": "etc-config",
+    "title": "設定は文字のファイル",
+    "text": "<p>「すべてはファイル」を確かめます。ホスト名(このコンピュータの名前)は <code>/etc/hostname</code> というファイルに書かれています。<code>cat</code> で中身を表示してください。</p>",
+    "answer": "cat /etc/hostname",
+    "hints": [
+      "cat ファイルの場所 で中身が見られます。",
+      "cat /etc/hostname"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "hostname", "lastOutputIncludes": "study-pc", "message": "cat /etc/hostname で中身を表示してください。" }
+    ]
+  }
+]

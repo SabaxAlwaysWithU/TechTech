@@ -1,0 +1,42 @@
+[
+  {
+    "question": "SSH の鍵のうち、サーバーに登録するのはどちらですか?",
+    "options": [
+      "公開鍵(id_ed25519.pub)",
+      "秘密鍵(id_ed25519)",
+      "両方",
+      "どちらも登録しない"
+    ],
+    "explanation": "サーバーに置くのは公開鍵(南京錠)です。秘密鍵(その鍵)は自分のパソコンから出しません。"
+  },
+  {
+    "question": "鍵を作ってからサーバーにつなぐまでの正しい順番はどれですか?",
+    "options": [
+      "ssh-keygen → ssh-copy-id → ssh",
+      "ssh → ssh-keygen → ssh-copy-id",
+      "ssh-copy-id → ssh-keygen → ssh",
+      "ssh-keygen → ssh → ssh-copy-id"
+    ],
+    "explanation": "鍵を作り、公開鍵をサーバーに登録してから、つなぎます。"
+  },
+  {
+    "question": "「Permissions 0644 for ... are too open」と出ました。どう直しますか?",
+    "options": [
+      "chmod 600 で秘密鍵を自分だけが読めるようにする",
+      "chmod 777 で誰でも読めるようにする",
+      "鍵を消す",
+      "sudo ssh にする"
+    ],
+    "explanation": "秘密鍵が他人にも読める権限になっています。600(rw-------)にすると使えるようになります。777 は逆効果です。"
+  },
+  {
+    "question": "ssh で「Permission denied (publickey)」と出ました。最も考えられる原因はどれですか?",
+    "options": [
+      "公開鍵がサーバーに登録されていない",
+      "サーバーの電源が落ちている",
+      "DNS が壊れている",
+      "ディスクがいっぱい"
+    ],
+    "explanation": "サーバーまでは届いていて、鍵で本人確認ができなかった状態です。ssh-copy-id で公開鍵を登録します。"
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "厳密な意味で「Linux」という名前が指すものはどれですか?",
+    "options": ["OS の中心部分(カーネル)", "Ubuntu のこと", "ターミナルのこと", "Webサーバーのこと"],
+    "explanation": "Linux はカーネルの名前です。カーネルにコマンドやパッケージ管理などを付けてまとめたものが、Ubuntu などのディストリビューションです。"
+  },
+  {
+    "question": "サーバーで Linux が広く使われている理由として正しいものはどれですか?",
+    "options": [
+      "無料で中身が公開されていて、画面なしでも軽く動く",
+      "画面がいちばん美しい",
+      "Microsoft が作っている",
+      "ゲームが一番多い"
+    ],
+    "explanation": "オープンソースで無料、軽い、安定していることが理由です。サーバーを何台並べても OS 代がかかりません。"
+  },
+  {
+    "question": "Windows のパソコンで Ubuntu を手軽に動かす仕組みはどれですか?",
+    "options": ["WSL", "Alpine", "Docker Hub", "GitHub Pages"],
+    "explanation": "WSL(Windows Subsystem for Linux)を使うと、Windows の中で Ubuntu などが動きます。"
+  },
+  {
+    "question": "使っているディストリビューションの名前やバージョンが書かれているファイルはどれですか?",
+    "options": ["/etc/os-release", "/var/log/system.log", "/home/saba/readme.txt", "/bin/bash"],
+    "explanation": "/etc/os-release に NAME や VERSION が書かれています。Linux では設定や情報が文字のファイルになっています。"
+  }
+]

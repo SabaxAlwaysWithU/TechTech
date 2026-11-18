@@ -1,0 +1,59 @@
+[
+  {
+    "id": "status-ssh",
+    "title": "サービスの状態を見る",
+    "text": "<p><code>systemctl status ssh</code> で、SSH サーバーの状態を見てください。<code>Active: active (running)</code> になっていれば動いています。</p>",
+    "answer": "systemctl status ssh",
+    "hints": [
+      "systemctl status サービス名 です。",
+      "systemctl status ssh"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "status", "lastOutputIncludes": "active (running)", "message": "systemctl status ssh で状態を見てください。" }
+    ]
+  },
+  {
+    "id": "start-nginx",
+    "title": "止まっている nginx を動かす",
+    "text": "<p>nginx は入っていますが、止まっています。<code>curl http://localhost/</code> で失敗するのを確かめてから、<code>systemctl</code> で起動し、もう一度 <code>curl http://localhost/</code> を打って「Welcome to nginx!」のページが返るのを見てください。</p>",
+    "starter": "__scenario nginx-stopped",
+    "answer": "curl http://localhost/\nsudo systemctl start nginx\ncurl http://localhost/",
+    "hints": [
+      "起動は sudo systemctl start nginx です。sudo を忘れると断られます。",
+      "起動したら curl http://localhost/ で確かめます。"
+    ],
+    "shellChecks": [
+      { "linux": { "active": "nginx" }, "message": "nginx がまだ止まっています。sudo systemctl start nginx で起動してください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Welcome to nginx", "message": "起動したら curl http://localhost/ でページを確かめてください。" }
+    ]
+  },
+  {
+    "id": "ss",
+    "title": "待ち受けているポート",
+    "text": "<p>nginx が動いています。<code>ss -tlnp</code> で、80番で nginx が、22番で sshd が待っていることを確かめてください。</p>",
+    "starter": "sudo apt install nginx",
+    "answer": "ss -tlnp",
+    "hints": [
+      "ss に -tlnp を付けます。",
+      "ss -tlnp と打ち、0.0.0.0:80 の行を探します。"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "ss", "lastOutputIncludes": "0.0.0.0:80", "message": "ss -tlnp で待ち受けポートの一覧を表示してください。" }
+    ]
+  },
+  {
+    "id": "stop-enable",
+    "title": "止めて、確かめる",
+    "text": "<p>動いている nginx を <code>systemctl</code> で止め、<code>curl http://localhost/</code> がつながらなくなるのを確かめてください。ネットワーク分野の <code>Connection refused</code> と同じ「そのポートで誰も待っていない」状態です。</p>",
+    "starter": "sudo apt install nginx",
+    "answer": "sudo systemctl stop nginx\ncurl http://localhost/",
+    "hints": [
+      "止めるのは sudo systemctl stop nginx です。",
+      "止めたら curl http://localhost/ で、Couldn't connect になるのを見ます。"
+    ],
+    "shellChecks": [
+      { "linux": { "inactive": "nginx" }, "message": "nginx がまだ動いています。sudo systemctl stop nginx で止めてください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Couldn't connect", "message": "止めたら curl http://localhost/ を打って、つながらないのを確かめてください。" }
+    ]
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "keygen",
+    "title": "鍵を作る",
+    "text": "<p><code>ssh-keygen</code> で鍵を作り、<code>ls -l ~/.ssh</code> で、秘密鍵 <code>id_ed25519</code> が <code>rw-------</code>(自分だけ)、公開鍵 <code>id_ed25519.pub</code> が <code>rw-r--r--</code> になっていることを確かめてください。</p>",
+    "answer": "ssh-keygen\nls -l ~/.ssh",
+    "hints": [
+      "ssh-keygen と打つだけで鍵ができます。",
+      "そのあと ls -l ~/.ssh で権限を見ます。"
+    ],
+    "shellChecks": [
+      { "exists": "/home/saba/.ssh/id_ed25519.pub", "message": "まだ鍵がありません。ssh-keygen を実行してください。" },
+      { "mode": { "path": "/home/saba/.ssh/id_ed25519", "mode": "rw-------" }, "message": "秘密鍵の権限が rw------- になっていません。" },
+      { "lastCommandIncludes": "ls", "lastOutputIncludes": "id_ed25519.pub", "message": "ls -l ~/.ssh で、2つの鍵の権限を確かめてください。" }
+    ]
+  },
+  {
+    "id": "copy-login",
+    "title": "登録してつなぐ",
+    "text": "<p>鍵はもうできています。まず <code>ssh saba@server</code> を試して断られるのを見てから、<code>ssh-copy-id</code> で公開鍵をサーバーに登録し、<code>ssh saba@server hostname</code> でサーバーの名前を表示してください。</p>",
+    "starter": "ssh-keygen",
+    "answer": "ssh saba@server\nssh-copy-id saba@server\nssh saba@server hostname",
+    "hints": [
+      "公開鍵の登録は ssh-copy-id saba@server です。",
+      "登録したら ssh saba@server hostname と打つと web-server と返ります。"
+    ],
+    "shellChecks": [
+      { "linux": { "sshRegistered": true }, "message": "まだ公開鍵がサーバーに登録されていません。ssh-copy-id saba@server を実行してください。" },
+      { "lastCommandIncludes": "ssh", "lastOutputIncludes": "web-server", "message": "ssh saba@server hostname で、サーバーの名前を表示してください。" }
+    ]
+  },
+  {
+    "id": "bad-perm",
+    "title": "鍵が拒否される",
+    "text": "<p>別のパソコンから鍵をコピーしてきたら、<code>ssh saba@server hostname</code> が警告を出して拒否されるようになりました。エラーを読んで原因を直し、つなげるようにしてください。</p>",
+    "starter": "__scenario ssh-badperm",
+    "answer": "ssh saba@server hostname\nls -l ~/.ssh\nchmod 600 ~/.ssh/id_ed25519\nssh saba@server hostname",
+    "hints": [
+      "Permissions 0644 ... are too open と出ています。秘密鍵が他人にも読める権限です。",
+      "chmod 600 ~/.ssh/id_ed25519 で自分だけにしてから、もう一度 ssh saba@server hostname です。"
+    ],
+    "shellChecks": [
+      { "mode": { "path": "/home/saba/.ssh/id_ed25519", "mode": "rw-------" }, "message": "秘密鍵の権限がまだ緩いままです。エラーに出ている数字(0644)を見てください。" },
+      { "lastCommandIncludes": "ssh", "lastOutputIncludes": "web-server", "message": "権限を直したら、ssh saba@server hostname でつながることを確かめてください。" }
+    ]
+  }
+]

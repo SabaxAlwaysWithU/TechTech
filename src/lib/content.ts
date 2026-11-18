@@ -112,6 +112,8 @@ export interface ShellCheckLike {
   lastOutputIncludes?: string;
   lastCommandIncludes?: string;
   git?: Record<string, unknown>; // GitCheck(lib/shell.ts)
+  linux?: Record<string, unknown>; // LinuxCheck(lib/shell.ts)
+  mode?: { path: string; mode: string };
   message: string;
 }
 

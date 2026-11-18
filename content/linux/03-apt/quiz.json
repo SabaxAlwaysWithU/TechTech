@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Ubuntu で nginx を入れるコマンドはどれですか?",
+    "options": ["sudo apt install nginx", "apt get nginx", "sudo install nginx", "download nginx"],
+    "explanation": "sudo apt install パッケージ名 です。システム全体の場所にファイルを置くので sudo が必要です。"
+  },
+  {
+    "question": "apt install で「are you root?」と言われました。原因はどれですか?",
+    "options": [
+      "sudo を付け忘れている",
+      "パッケージ名が間違っている",
+      "インターネットにつながっていない",
+      "ディスクが壊れている"
+    ],
+    "explanation": "root(管理者)でないとパッケージは入れられません。sudo を付けて打ち直します。パッケージ名の間違いなら Unable to locate package と出ます。"
+  },
+  {
+    "question": "sudo apt update の役割はどれですか?",
+    "options": [
+      "どんなパッケージがあるかの一覧(カタログ)を最新にする",
+      "入っているパッケージを全部新しくする",
+      "apt 自体を消す",
+      "OS を入れ直す"
+    ],
+    "explanation": "update はカタログの更新です。中身を新しくするのは upgrade です。新しいサーバーではまず両方を打ちます。"
+  },
+  {
+    "question": "Red Hat 系(AlmaLinux など)で、apt の代わりに使う道具はどれですか?",
+    "options": ["dnf", "brew", "npm", "git"],
+    "explanation": "Red Hat 系は dnf(古くは yum)です。道具の名前は違っても、倉庫から取り寄せて入れる考え方は同じです。"
+  }
+]

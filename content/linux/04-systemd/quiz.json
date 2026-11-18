@@ -1,0 +1,32 @@
+[
+  {
+    "question": "サービスの状態(動いているか、最近のログ)を見るコマンドはどれですか?",
+    "options": ["systemctl status 名前", "systemctl start 名前", "ps 名前", "apt status 名前"],
+    "explanation": "systemctl status で Active の行とログが見られます。start は起動です。"
+  },
+  {
+    "question": "systemctl start と systemctl enable の違いはどれですか?",
+    "options": [
+      "start は今すぐ動かす、enable は次の起動時から自動で動かす",
+      "同じ意味",
+      "start は管理者用、enable は誰でも使える",
+      "start は止める、enable は動かす"
+    ],
+    "explanation": "別物です。サーバーを再起動したらサイトが止まっていた、という事故の多くは enable 忘れです。"
+  },
+  {
+    "question": "systemctl status の Active が failed になっていました。何を意味しますか?",
+    "options": [
+      "起動しようとしたが失敗した",
+      "正常に動いている",
+      "自分で止めた",
+      "まだ入っていない"
+    ],
+    "explanation": "failed は起動に失敗した状態です。止めただけなら inactive (dead) です。原因はログ(journalctl)で調べます。"
+  },
+  {
+    "question": "サーバーの中で、どのポートでどのプログラムが待っているかを見るコマンドはどれですか?",
+    "options": ["ss -tlnp", "df -h", "grep port", "apt list"],
+    "explanation": "ss -tlnp で、待ち受け中のポートとプログラム名が見られます。Connection refused の原因調べに使います。"
+  }
+]

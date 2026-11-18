@@ -1,0 +1,27 @@
+[
+  {
+    "question": "nginx のログを見るコマンドはどれですか?",
+    "options": ["journalctl -u nginx", "systemctl start nginx", "apt log nginx", "ss -u nginx"],
+    "explanation": "journalctl -u サービス名 で、そのサービスのログだけが見られます。"
+  },
+  {
+    "question": "ログに「bind() to 0.0.0.0:80 failed (98: Address already in use)」と出ていました。原因はどれですか?",
+    "options": [
+      "80番のポートを、すでに別のプログラムが使っている",
+      "ディスクがいっぱい",
+      "nginx が入っていない",
+      "ネットワークのケーブルが抜けている"
+    ],
+    "explanation": "1つのポートで待てるのは1つのプログラムだけです。ss -tlnp で誰が使っているかを確かめます。"
+  },
+  {
+    "question": "「No space left on device」と出ました。まず打つべきコマンドはどれですか?",
+    "options": ["df -h", "ss -tlnp", "journalctl -u nginx", "sudo apt upgrade"],
+    "explanation": "ディスクの空きがないというエラーです。df -h で全体の使用率を確かめ、du で大きいものを探します。"
+  },
+  {
+    "question": "du -h -d 1 /var/log | sort -h の結果のうち、いちばん大きいものはどこに出ますか?",
+    "options": ["いちばん下", "いちばん上", "真ん中", "表示されない"],
+    "explanation": "sort -h は小さい順に並べるので、最大のものは最後(いちばん下)です。"
+  }
+]

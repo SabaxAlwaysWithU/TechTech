@@ -1,0 +1,43 @@
+[
+  {
+    "id": "no-sudo",
+    "title": "sudo なしで入れようとする",
+    "text": "<p>まず、わざと <code>sudo</code> を付けずに <code>apt install tree</code> を打って、「<code>are you root?</code>」と断られるのを見てください。</p>",
+    "answer": "apt install tree",
+    "hints": [
+      "sudo を付けずにそのまま打ちます。",
+      "apt install tree"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "apt", "lastOutputIncludes": "are you root", "message": "sudo を付けずに apt install tree を打って、断られるのを確かめてください。" }
+    ]
+  },
+  {
+    "id": "install-tree",
+    "title": "tree を入れて使う",
+    "text": "<p><code>sudo</code> を付けて <code>tree</code> を入れ、<code>tree</code> コマンドでホームディレクトリの中身を木の形で表示してください。</p><p>入れる前に <code>tree</code> と打つと、入れ方を教えてくれます。</p>",
+    "answer": "tree\nsudo apt install tree\ntree",
+    "hints": [
+      "sudo apt install tree で入れます。",
+      "入れたあと tree と打つと、最後に「N directories, M files」と出ます。"
+    ],
+    "shellChecks": [
+      { "linux": { "installed": "tree" }, "message": "まだ tree が入っていません。sudo apt install tree を実行してください。" },
+      { "lastCommandIncludes": "tree", "lastOutputIncludes": "directories", "message": "入れたら tree と打って、木の形の一覧を表示してください。" }
+    ]
+  },
+  {
+    "id": "install-nginx",
+    "title": "Webサーバーを入れる",
+    "text": "<p>次のレッスンで使う <code>nginx</code> を入れて、<code>which nginx</code> で本体がどこに置かれたか確かめてください。</p>",
+    "answer": "sudo apt install nginx\nwhich nginx",
+    "hints": [
+      "sudo apt install nginx で入れます。",
+      "which nginx と打つと /usr/sbin/nginx と出ます。"
+    ],
+    "shellChecks": [
+      { "linux": { "installed": "nginx" }, "message": "まだ nginx が入っていません。sudo apt install nginx を実行してください。" },
+      { "lastCommandIncludes": "which", "lastOutputIncludes": "/usr/sbin/nginx", "message": "which nginx で、本体の場所を確かめてください。" }
+    ]
+  }
+]
