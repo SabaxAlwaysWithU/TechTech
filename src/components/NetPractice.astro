@@ -17,7 +17,7 @@ const nodes = [
   { id: 'router', label: 'ルーター', sub: '192.168.1.1', x: 32, y: 50, parts: ['router'] },
   { id: 'internet', label: 'インターネット', sub: 'プロバイダ', x: 56, y: 50, parts: ['wan'] },
   { id: 'dns', label: 'DNS', sub: '8.8.8.8', x: 84, y: 20, parts: ['dns'] },
-  { id: 'server', label: 'Webサーバー', sub: '93.184.216.34', x: 84, y: 80, parts: ['server', 'port'] },
+  { id: 'server', label: 'Webサーバー', sub: 'nginx → アプリ → DB', x: 84, y: 80, parts: ['server', 'port', 'cert', 'app', 'db'] },
 ];
 const links = [
   { id: 'cable', from: 'pc', to: 'router', label: 'ケーブル / Wi-Fi' },

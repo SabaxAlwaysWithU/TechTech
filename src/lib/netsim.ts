@@ -2,7 +2,7 @@
 // PC → ルーター → インターネット → DNS / Webサーバー の部品を壊したり直したりして、
 // ping / curl / nslookup などのコマンドが本物と同じ失敗の仕方をするのを見る。
 
-export type Part = 'cable' | 'ipconfig' | 'router' | 'wan' | 'dns' | 'server' | 'port';
+export type Part = 'cable' | 'ipconfig' | 'router' | 'wan' | 'dns' | 'server' | 'port' | 'cert' | 'app' | 'db';
 
 export interface NetState {
   // true = 正常
@@ -13,6 +13,10 @@ export interface NetState {
   dns: boolean; // DNSサーバー
   server: boolean; // Webサーバーの電源
   port: boolean; // Webサーバーの80/443番ポートが開いている(ファイアウォール)
+  // Webサーバーの中身: nginx(受付)→ アプリ(Express、:3000)→ データベース(PostgreSQL、:5432)
+  cert: boolean; // nginx の HTTPS 証明書が有効
+  app: boolean; // nginx の後ろのアプリが動いている
+  db: boolean; // アプリの後ろのデータベースが動いている
   lastOutput: string;
   lastCommand: string;
   used: string[]; // 使ったコマンド名
@@ -27,6 +31,9 @@ export const PARTS: { id: Part; label: string; where: string; broken: string; fi
   { id: 'dns', label: 'DNSサーバー', where: 'インターネット上', broken: '応答しない', fixed: '動いている(8.8.8.8)' },
   { id: 'server', label: 'Webサーバー', where: 'インターネット上', broken: '電源が入っていない', fixed: '動いている(93.184.216.34)' },
   { id: 'port', label: 'サーバーのポート', where: 'Webサーバーのファイアウォール', broken: '80 / 443 番が閉じている', fixed: '80 / 443 番が開いている' },
+  { id: 'cert', label: '証明書', where: 'Webサーバーの nginx', broken: '有効期限が切れている', fixed: '有効(認証局: Let\'s Encrypt)' },
+  { id: 'app', label: 'アプリ', where: 'nginx の後ろ(localhost:3000)', broken: '止まっている', fixed: '動いている(Express)' },
+  { id: 'db', label: 'データベース', where: 'アプリの後ろ(localhost:5432)', broken: '止まっている', fixed: '動いている(PostgreSQL)' },
 ];
 
 export const HOSTS: Record<string, string> = {
@@ -40,7 +47,7 @@ const PC_IP = '192.168.1.10';
 const DNS_IP = '8.8.8.8';
 
 export function createNet(): NetState {
-  return { cable: true, ipconfig: true, router: true, wan: true, dns: true, server: true, port: true, lastOutput: '', lastCommand: '', used: [], history: [] };
+  return { cable: true, ipconfig: true, router: true, wan: true, dns: true, server: true, port: true, cert: true, app: true, db: true, lastOutput: '', lastCommand: '', used: [], history: [] };
 }
 
 export function toggle(state: NetState, part: Part) {
@@ -58,7 +65,13 @@ const HELP = `使えるコマンド:
   traceroute 宛先     宛先までの経路を1段ずつ見る
   curl URL           Webページを取りに行く(例: curl http://example.com/)
   curl -I URL        ヘッダー(状態コードなど)だけ見る
-  help               この一覧`;
+  curl -k URL        証明書の確認を飛ばす(危険。確認用)
+  help               この一覧
+
+試せるURL:
+  http://example.com/                静的ページ(nginx が直接返す)
+  http://example.com/api/products    API(nginx → アプリ → データベース)
+  https://example.com/               HTTPS(証明書が必要)`;
 
 // ---- 到達性の判定(下の層から順に調べる) ----
 
@@ -153,8 +166,11 @@ function cmdTraceroute(state: NetState, target?: string): string {
   return lines.join('\n');
 }
 
+const NGINX_502 = '<html>\n<head><title>502 Bad Gateway</title></head>\n<body>\n<center><h1>502 Bad Gateway</h1></center>\n<hr><center>nginx/1.24.0</center>\n</body>\n</html>';
+
 function cmdCurl(state: NetState, args: string[]): string {
   const headOnly = args.includes('-I') || args.includes('--head');
+  const insecure = args.includes('-k') || args.includes('--insecure');
   const url = args.find((a) => !a.startsWith('-'));
   if (!url) return 'curl: URL を指定してください(例: curl http://example.com/)';
   const m = url.match(/^(https?):\/\/([^/:]+)(?::(\d+))?(\/.*)?$/);
@@ -174,16 +190,57 @@ function cmdCurl(state: NetState, args: string[]): string {
   if (!state.port || (port !== 80 && port !== 443)) return `curl: (7) Failed to connect to ${host} port ${port}: Connection refused`;
   if (scheme === 'http' && port === 443) return `curl: (1) Received HTTP/0.9 when not allowed(443番は HTTPS 用です。https:// にしてください)`;
   if (scheme === 'https' && port === 80) return `curl: (35) error:0A00010B:SSL routines::wrong version number(80番は HTTP 用です。http:// にしてください)`;
-  const status = path === '/' || path === '/index.html' ? 200 : path === '/admin' ? 403 : path === '/boom' ? 500 : 404;
-  const reason = { 200: 'OK', 403: 'Forbidden', 404: 'Not Found', 500: 'Internal Server Error' }[status];
-  const headers = [`HTTP/1.1 ${status} ${reason}`, 'Server: nginx/1.24.0', 'Content-Type: text/html; charset=utf-8', `Date: ${new Date().toUTCString()}`, scheme === 'https' ? 'Strict-Transport-Security: max-age=31536000' : ''].filter(Boolean);
-  if (headOnly) return headers.join('\n');
-  const body = status === 200
-    ? '<!doctype html>\n<html>\n<head><title>Example Domain</title></head>\n<body>\n<h1>Example Domain</h1>\n<p>このドメインは説明用の例です。</p>\n</body>\n</html>'
-    : status === 404 ? `<h1>404 Not Found</h1>\n<p>${path} というページはありません。</p>`
-    : status === 403 ? '<h1>403 Forbidden</h1>\n<p>このページを見る権限がありません。</p>'
-    : '<h1>500 Internal Server Error</h1>\n<p>サーバー側のプログラムでエラーが起きました。</p>';
-  return body;
+  // HTTPS: nginx が証明書を見せる。期限切れなら curl は通信を始める前に止める
+  if (scheme === 'https' && !state.cert && !insecure) {
+    return `curl: (60) SSL certificate problem: certificate has expired\nMore details here: https://curl.se/docs/sslcerts.html\n\n(証明書の有効期限が切れています。ブラウザなら「この接続ではプライバシーが保護されません」と表示されます)`;
+  }
+
+  let status: number;
+  let type = 'text/html; charset=utf-8';
+  let body: string;
+  const extra: string[] = [];
+  if (path.startsWith('/api/')) {
+    // /api/ 宛ては nginx がアプリ(localhost:3000)へ回す(リバースプロキシ)
+    if (!state.app) {
+      status = 502;
+      body = NGINX_502;
+    } else {
+      extra.push('X-Powered-By: Express');
+      type = 'application/json; charset=utf-8';
+      if (path === '/api/products') {
+        if (!state.db) {
+          status = 500;
+          body = '{"error":"connect ECONNREFUSED 127.0.0.1:5432"}';
+        } else {
+          status = 200;
+          body = '{"products":[{"id":1,"name":"ノートパソコン","price":128000},{"id":4,"name":"マウス","price":2500},{"id":9,"name":"USBメモリ","price":1800}]}';
+        }
+      } else {
+        status = 404;
+        body = `{"error":"${path} は見つかりません"}`;
+      }
+    }
+  } else {
+    // それ以外は nginx が自分でファイルを返す(アプリもデータベースも使わない)
+    status = path === '/' || path === '/index.html' ? 200 : path === '/admin' ? 403 : path === '/boom' ? 500 : 404;
+    body = status === 200
+      ? '<!doctype html>\n<html>\n<head><title>Example Domain</title></head>\n<body>\n<h1>Example Domain</h1>\n<p>このドメインは説明用の例です。</p>\n</body>\n</html>'
+      : status === 404 ? `<h1>404 Not Found</h1>\n<p>${path} というページはありません。</p>`
+      : status === 403 ? '<h1>403 Forbidden</h1>\n<p>このページを見る権限がありません。</p>'
+      : '<h1>500 Internal Server Error</h1>\n<p>サーバー側のプログラムでエラーが起きました。</p>';
+  }
+  const reason = ({ 200: 'OK', 403: 'Forbidden', 404: 'Not Found', 500: 'Internal Server Error', 502: 'Bad Gateway' } as Record<number, string>)[status];
+  const headers = [
+    `HTTP/1.1 ${status} ${reason}`,
+    'Server: nginx/1.24.0',
+    `Content-Type: ${type}`,
+    ...extra,
+    `Date: ${new Date().toUTCString()}`,
+    scheme === 'https' ? 'Strict-Transport-Security: max-age=31536000' : '',
+  ].filter(Boolean);
+  const warn = scheme === 'https' && !state.cert && insecure ? '(警告: 証明書の確認を飛ばしています。本番では使わないでください)\n' : '';
+  if (headOnly) return warn + headers.join('\n');
+  return warn + body;
 }
 
 function tokenize(line: string): string[] {

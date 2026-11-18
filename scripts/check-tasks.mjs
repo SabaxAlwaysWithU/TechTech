@@ -85,7 +85,7 @@ for (const field of readdirSync(root)) {
     }
     if (existsSync(tasksPath) && practice === 'net') {
       // ネットワーク: 構造だけ確かめる。模範解答の検証はブラウザのテストで行う
-      const PARTS = ['cable', 'ipconfig', 'router', 'wan', 'dns', 'server', 'port'];
+      const PARTS = ['cable', 'ipconfig', 'router', 'wan', 'dns', 'server', 'port', 'cert', 'app', 'db'];
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
         let ok = true;

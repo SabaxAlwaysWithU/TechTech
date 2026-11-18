@@ -1,0 +1,46 @@
+[
+  {
+    "id": "https-head",
+    "title": "HTTPS でつなぐ",
+    "text": "<p><code>curl -I https://example.com/</code> で HTTPS のヘッダーを見て、<code>Strict-Transport-Security</code>(次からは必ず HTTPS で来て、という指示)が付いていることを確かめてください。</p>",
+    "answer": "curl -I https://example.com/",
+    "hints": [
+      "URL を https:// にして、-I でヘッダーだけ見ます。",
+      "curl -I https://example.com/"
+    ],
+    "netChecks": [
+      { "lastCommandIncludes": "https://", "lastOutputIncludes": "Strict-Transport-Security", "message": "curl -I https://example.com/ でヘッダーを見てください。" }
+    ]
+  },
+  {
+    "id": "expired",
+    "title": "証明書を期限切れにする",
+    "text": "<p>図の「Webサーバー」から「証明書」を壊し(期限切れにし)、<code>curl https://example.com/</code> を打ってください。<code>certificate has expired</code> で止まるのを確かめましょう。</p><p>そのあと <code>curl http://example.com/</code>(http)も試すと、サーバー自体は元気なことが分かります。</p>",
+    "answer": "(図で証明書を壊す)\ncurl https://example.com/",
+    "hints": [
+      "Webサーバーの箱をクリックして「証明書」を壊します。",
+      "証明書が故障になったら curl https://example.com/ です。"
+    ],
+    "netChecks": [
+      { "parts": { "cert": false }, "message": "まず図の Webサーバーから「証明書」を壊してください。" },
+      { "lastCommandIncludes": "https://", "lastOutputIncludes": "certificate has expired", "message": "証明書が切れた状態で curl https://example.com/ を打ってください。" }
+    ]
+  },
+  {
+    "id": "diag-https",
+    "title": "故障診断: 一覧が出ない",
+    "text": "<p>「HTTPS の商品一覧ページが見られない」と連絡がありました。図は「?」になっています。<code>curl https://example.com/api/products</code> から始めて、エラーの文言を手がかりに壊れている部品を全部直してください。</p><p>商品の一覧(JSON)が返れば完成です。</p>",
+    "faults": ["cert", "app"],
+    "hideStatus": true,
+    "answer": "curl https://example.com/api/products\n(certificate has expired なので証明書を直す)\ncurl https://example.com/api/products\n(502 Bad Gateway なのでアプリを直す)\ncurl https://example.com/api/products",
+    "hints": [
+      "最初のエラーは証明書の期限切れです。Webサーバーの箱から「証明書」を直します。",
+      "直すと今度は 502 Bad Gateway。nginx の後ろの「アプリ」が止まっています。"
+    ],
+    "netChecks": [
+      { "usedCommand": "curl", "message": "まず curl https://example.com/api/products を打って、エラーを見てください。" },
+      { "healthy": true, "message": "まだ壊れている部品があります。エラーの文言が変わったら、1つ先に進んでいる証拠です。" },
+      { "lastCommandIncludes": "/api/products", "lastOutputIncludes": "マウス", "message": "全部直せたら curl https://example.com/api/products で一覧を取ってください。" }
+    ]
+  }
+]

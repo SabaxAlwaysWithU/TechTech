@@ -1,0 +1,59 @@
+[
+  {
+    "id": "api",
+    "title": "API を叩く",
+    "text": "<p><code>curl http://example.com/api/products</code> で API を叩き、JSON で商品の一覧が返ってくるのを見てください。nginx → アプリ → データベースの全員が働いた結果です。</p>",
+    "answer": "curl http://example.com/api/products",
+    "hints": [
+      "パスを /api/products にします。",
+      "curl http://example.com/api/products"
+    ],
+    "netChecks": [
+      { "lastCommandIncludes": "/api/products", "lastOutputIncludes": "マウス", "message": "curl http://example.com/api/products で商品の一覧を取ってください。" }
+    ]
+  },
+  {
+    "id": "502",
+    "title": "アプリを止める",
+    "text": "<p>図の「Webサーバー」をクリックして「アプリ」を止め、<code>curl -I http://example.com/api/products</code> を打ってください。<code>502 Bad Gateway</code> が返り、<code>Server: nginx</code> と書いてあることを確かめましょう。返事をしているのは nginx です。</p>",
+    "answer": "(図でアプリを壊す)\ncurl -I http://example.com/api/products",
+    "hints": [
+      "Webサーバーの箱をクリックすると部品が選べます。「アプリ」を壊します。",
+      "アプリが故障になったら curl -I http://example.com/api/products です。"
+    ],
+    "netChecks": [
+      { "parts": { "app": false }, "message": "まず図の Webサーバーから「アプリ」を止めてください。" },
+      { "lastCommandIncludes": "/api/", "lastOutputIncludes": "502 Bad Gateway", "message": "アプリが止まった状態で curl -I http://example.com/api/products を打ってください。" }
+    ]
+  },
+  {
+    "id": "static-alive",
+    "title": "それでもトップは見られる",
+    "text": "<p>アプリが止まったままの状態で、トップページ <code>curl -I http://example.com/</code> を打ってください。<code>200 OK</code> が返ります。静的なファイルは nginx が自分で返すので、アプリがいなくても困らないからです。</p>",
+    "faults": ["app"],
+    "answer": "curl -I http://example.com/",
+    "hints": [
+      "パスを / にします。",
+      "curl -I http://example.com/"
+    ],
+    "netChecks": [
+      { "parts": { "app": false }, "message": "この課題はアプリが止まったまま行います(直さないでください)。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "200 OK", "message": "curl -I http://example.com/ でトップページが 200 になることを確かめてください。" }
+    ]
+  },
+  {
+    "id": "db-down",
+    "title": "データベースを止める",
+    "text": "<p>アプリは動かしたまま、今度は「データベース」を止めて、<code>curl http://example.com/api/products</code> を打ってください。アプリが返す JSON に <code>127.0.0.1:5432</code>(データベースの番号)につなげなかった、と書いてあるのを確かめましょう。</p>",
+    "answer": "(図でデータベースを壊す)\ncurl http://example.com/api/products",
+    "hints": [
+      "Webサーバーの箱から「データベース」を壊します。アプリは正常のままにします。",
+      "curl http://example.com/api/products で、5432 を含むエラーが返ります。"
+    ],
+    "netChecks": [
+      { "parts": { "app": true }, "message": "アプリは動かしておいてください。" },
+      { "parts": { "db": false }, "message": "Webサーバーの箱から「データベース」を止めてください。" },
+      { "lastCommandIncludes": "/api/products", "lastOutputIncludes": "5432", "message": "データベースが止まった状態で curl http://example.com/api/products を打ってください。" }
+    ]
+  }
+]
