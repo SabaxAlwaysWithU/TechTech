@@ -13,11 +13,11 @@ const { lessonId, lessonTitle, tasks = [], backHref, nextHref, nextLabel } = Ast
 const hasTasks = tasks.length > 0;
 // 図に置く部品。x, y は 0〜100 の割合
 const nodes = [
-  { id: 'pc', label: 'PC', sub: '192.168.1.10', x: 8, y: 50, parts: ['ipconfig'] },
-  { id: 'router', label: 'ルーター', sub: '192.168.1.1', x: 32, y: 50, parts: ['router'] },
-  { id: 'internet', label: 'インターネット', sub: 'プロバイダ', x: 56, y: 50, parts: ['wan'] },
-  { id: 'dns', label: 'DNS', sub: '8.8.8.8', x: 84, y: 20, parts: ['dns'] },
-  { id: 'server', label: 'Webサーバー', sub: 'nginx → アプリ → DB', x: 84, y: 80, parts: ['server', 'port', 'cert', 'app', 'db'] },
+  { id: 'pc', label: 'PC', sub: '192.168.1.10', x: 12, y: 50, parts: ['ipconfig'] },
+  { id: 'router', label: 'ルーター', sub: '192.168.1.1', x: 34, y: 50, parts: ['router'] },
+  { id: 'internet', label: 'インターネット', sub: 'プロバイダ', x: 58, y: 50, parts: ['wan'] },
+  { id: 'dns', label: 'DNS', sub: '8.8.8.8', x: 86, y: 20, parts: ['dns'] },
+  { id: 'server', label: 'Webサーバー', sub: 'nginx → アプリ → DB', x: 86, y: 80, parts: ['server', 'port', 'cert', 'app', 'db'] },
 ];
 const links = [
   { id: 'cable', from: 'pc', to: 'router', label: 'ケーブル / Wi-Fi' },
@@ -86,25 +86,28 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
         <span class="muted small">(部品や線をクリックすると壊れる / 直る)</span>
         <button id="reset" class="btn secondary small-btn" type="button">全部直す</button>
       </div>
-      <svg id="diagram" class="diagram" viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="ネットワーク図">
-        {links.map((l) => (
-          <g class="link" data-part={l.id === 'cable' ? 'cable' : l.id === 'wan' ? 'wan' : ''} data-link={l.id}>
-            <line x1={pos[l.from].x} y1={pos[l.from].y} x2={pos[l.to].x} y2={pos[l.to].y} class="wire" />
-            <line x1={pos[l.from].x} y1={pos[l.from].y} x2={pos[l.to].x} y2={pos[l.to].y} class="wire-hit" />
-            {l.label && (
-              <text x={(pos[l.from].x + pos[l.to].x) / 2} y={(pos[l.from].y + pos[l.to].y) / 2 - 6} class="wire-label" text-anchor="middle">{l.label}</text>
-            )}
-          </g>
-        ))}
-      </svg>
-      <div class="nodes" id="nodes">
-        {nodes.map((n) => (
-          <button type="button" class="node" data-node={n.id} data-parts={n.parts.join(',')} style={`left:${n.x}%; top:${n.y}%`}>
-            <span class="node-label">{n.label}</span>
-            <span class="node-sub">{n.sub}</span>
-            <span class="node-state" data-state></span>
-          </button>
-        ))}
+      <!-- 線(SVG)と部品の箱(HTML)を同じ枠に重ねる。枠が基準なので、上の見出し行の高さに影響されない -->
+      <div class="diagram-box">
+        <svg id="diagram" class="diagram" viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="ネットワーク図">
+          {links.map((l) => (
+            <g class="link" data-part={l.id === 'cable' ? 'cable' : l.id === 'wan' ? 'wan' : ''} data-link={l.id}>
+              <line x1={pos[l.from].x} y1={pos[l.from].y} x2={pos[l.to].x} y2={pos[l.to].y} class="wire" />
+              <line x1={pos[l.from].x} y1={pos[l.from].y} x2={pos[l.to].x} y2={pos[l.to].y} class="wire-hit" />
+            </g>
+          ))}
+        </svg>
+        <div class="nodes" id="nodes">
+          {links.filter((l) => l.label).map((l) => (
+            <span class="wire-label" style={`left:${(pos[l.from].x + pos[l.to].x) / 2}%; top:${(pos[l.from].y + pos[l.to].y) / 2}%`}>{l.label}</span>
+          ))}
+          {nodes.map((n) => (
+            <button type="button" class="node" data-node={n.id} data-parts={n.parts.join(',')} style={`left:${n.x}%; top:${n.y}%`}>
+              <span class="node-label">{n.label}</span>
+              <span class="node-sub">{n.sub}</span>
+              <span class="node-state" data-state></span>
+            </button>
+          ))}
+        </div>
       </div>
       <div id="menu" class="menu" hidden></div>
     </section>
@@ -456,13 +459,18 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
 
   /* 図 */
   .diagram-wrap { position: relative; }
-  .diagram { width: 100%; height: 15rem; display: block; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+  .diagram-box { position: relative; height: 17rem; }
+  .diagram { width: 100%; height: 100%; display: block; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
   .wire { stroke: var(--muted); stroke-width: 0.6; vector-effect: non-scaling-stroke; stroke-width: 3px; }
   .wire-hit { stroke: transparent; stroke-width: 14px; vector-effect: non-scaling-stroke; cursor: pointer; }
   .link.broken .wire { stroke: var(--error); stroke-dasharray: 6 6; }
   .link.unknown .wire { stroke-dasharray: 2 4; }
-  .wire-label { font-size: 3.2px; fill: var(--muted); pointer-events: none; }
-  .nodes { position: absolute; inset: 0; height: 15rem; pointer-events: none; }
+  /* 線のラベルは HTML で置く(SVG の文字は枠に合わせて引き伸ばされてしまうため) */
+  .wire-label {
+    position: absolute; transform: translate(-50%, -150%); pointer-events: none; white-space: nowrap;
+    font-size: 0.72rem; color: var(--muted); background: var(--surface); padding: 0 0.3rem; border-radius: 4px;
+  }
+  .nodes { position: absolute; inset: 0; pointer-events: none; }
   .node {
     position: absolute; transform: translate(-50%, -50%); pointer-events: auto;
     font: inherit; cursor: pointer; text-align: center;
@@ -478,6 +486,14 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
   .node.broken .node-state { color: #fff; background: var(--error); padding: 0 0.5rem; border-radius: 999px; }
   .node.unknown { border-style: dashed; }
   .node.unknown .node-state { color: var(--muted); }
+  /* スマホ幅: 5つの箱が横に並ぶように小さくし、IPアドレスの行と線のラベルは省く */
+  @media (max-width: 600px) {
+    .node { min-width: 0; width: 4.6rem; padding: 0.3rem 0.2rem; }
+    .node-label { font-size: 0.7rem; }
+    .node-sub { display: none; }
+    .node-state { font-size: 0.65rem; }
+    .wire-label { display: none; }
+  }
   .menu { position: absolute; z-index: 5; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0.3rem; display: flex; flex-direction: column; gap: 0.2rem; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
   .menu :global(button) { font: inherit; font-size: 0.85rem; text-align: left; background: none; border: 0; padding: 0.35rem 0.7rem; cursor: pointer; color: var(--fg); border-radius: 5px; }
   .menu :global(button:hover) { background: var(--surface); }
