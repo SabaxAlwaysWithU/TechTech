@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getFields, getLessons } from '../../lib/content';
+import { fieldIcon } from '../../lib/icons';
 
 export async function getStaticPaths() {
   const fields = getFields();
@@ -10,10 +11,12 @@ export async function getStaticPaths() {
 }
 const { field, lessons } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const icon = fieldIcon(field.id);
 ---
 <Base title={`${field.title} — TechTech`}>
   <main class="prose">
     <p class="eyebrow muted"><a href={`${base}/`}>レッスン</a> · {field.title}</p>
+    {icon && <span class="field-icon field-icon-lg" style={`--icon: url("${icon}")`} aria-hidden="true"></span>}
     <h1>{field.title}</h1>
     <p class="muted">{field.description}</p>
     <p class="muted">レッスンは順に並んでいますが、どこからでも始められます。各レッスンは「記事を読む → クイズに答える → 練習場で打つ」の3ステップです。</p>
