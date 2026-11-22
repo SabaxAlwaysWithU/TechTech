@@ -15,11 +15,13 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 
 ## 今の状態
 
-8分野・54レッスン(SQL 7、HTML/CSS 6、JavaScript 8、OS 6、Linux 6、ネットワーク 9、Git 6、Webアプリの道具 6)。
+8分野・55レッスン(SQL 7、HTML/CSS 7、JavaScript 8、OS 6、Linux 6、ネットワーク 9、Git 6、Webアプリの道具 6)。
 
 - 2026-11-22 PR #1(ネットワーク図の位置ずれ修正、PR でのビルドチェック)をマージ済み
 - 2026-11-23 `deploy.yml` の Node.js を 22 から 26(LTS、2029年4月までサポート)に上げた
 - 2026-11-23 JavaScript に 07 待つ処理(async / await)と 08 fetch と API を追加。練習場で await と、練習用のにせ API(`https://shop.example`)への fetch が使える(仕組みは README の「課題の判定」)
+- 2026-11-23 HTML/CSS に 07 フォームを追加(label、input の type、radio、select、textarea、required、action / method)
+- 2026-11-23 ネットワーク図を 320〜1280px で確認して直した。図の枠の幅(コンテナクエリ)で、狭いときは箱を小さく・名前を短く(ネット、サーバー)する。PC 幅では線のラベル「ケーブル / Wi-Fi」を2行にして箱の間に収めた
 
 ## 次にやること
 
@@ -28,7 +30,6 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
   - 変換は `scripts/convert-icon.ps1`(白背景 → 透明、#555555、512×512、余白をそろえる)。出力先は `public/images/fields/<分野>.png`
   - 画像を置くだけで、トップの分野一覧(番号の代わり)と分野ページ(見出しの上)に出る。色は CSS の mask で塗るのでダーク表示でも浮かない(`src/lib/icons.ts`、`.field-icon`)
   - GitHub のロゴ・Octocat・ディストリビューションのロゴは使わない
-- [ ] 公開版のネットワーク図を、PC 幅とスマホ幅で見て確認する
 
 ## いずれやるかもしれないこと
 

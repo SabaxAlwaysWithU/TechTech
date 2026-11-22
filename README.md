@@ -112,7 +112,7 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 2. 正誤判定を付ける — 完了
 3. 記事とクイズを付ける — 完了
 4. レッスンを増やして公開する — SQL 7レッスン完了、GitHub に push 済み
-5. HTMLとCSS分野 — 練習場(プレビュー、要素の判定)と6レッスン完了
+5. HTMLとCSS分野 — 練習場(プレビュー、要素の判定)と6レッスン完了。のちに 07 フォーム(label、input の type、radio、select、textarea、required、action / method)を追加して7レッスン(2026-11-23)
 6. JavaScript分野 — 練習場(隔離実行、出力・戻り値の判定)と6レッスン完了。のちに 07 待つ処理(setTimeout、Promise、async / await、try / catch)と 08 fetch と API(JSON、にせ API、ステータス、POST)を追加して8レッスン(2026-11-23)
 7. OSの仕組み分野 — 練習場(疑似ターミナル)と6レッスン完了
 8. Webアプリの道具分野 — 練習場(構成を組む)と6レッスン完了
