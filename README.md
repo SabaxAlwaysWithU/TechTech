@@ -78,6 +78,10 @@ JavaScript(利用者のコードを隔離された iframe で実行し、[jsrunn
 - `expectOutput`: `console.log` の出力がこの通り(1行ずつ、前後の空白は無視)なら正解
 - `calls`: コード実行後に `call` を評価し、`expect` と一致すれば正解(`[{ "call": "add(2, 3)", "expect": 5 }]`)。両方書いたら両方満たす必要がある
 - 3秒で打ち切る(無限ループ対策)。`check-tasks.mjs` が `answer` を Node の vm で実行して検証する
+- 実際に動かす部分は [jsrun-core.js](src/lib/jsrun-core.js) の1か所で、ブラウザ(iframe に文字列で埋め込む)と `check-tasks.mjs` の両方が使う。コードは async 関数として動かすので、いちばん外側でも `await` が使える。`calls` の結果が Promise なら待ってから比べる
+- `setTimeout` と `fetch` がすべて終わるまで待ってから判定する(`setTimeout` の待ちは最大2秒)
+- `fetch` は本物のネットワークにつながず、練習用のにせ API が 0.2秒後に答える。`https://shop.example` の `GET /api/products`(SQL 分野と同じ12商品に `stock` を足したもの)、`GET /api/products/番号`(ない番号は 404)、`POST /api/orders`(`{ productId, quantity }`、成功は 201 で `total` を返す。数量や在庫の誤りは 400)、`GET /api/broken`(500)。ほかのホストは `TypeError: Failed to fetch`
+- iframe は `display:none` にしない(ブラウザがタイマーを1秒単位に間引き、待ちがのびるため)。1px・透明で置く
 
 OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellChecks` で調べる。すべて満たせば正解):
 
@@ -108,8 +112,8 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 2. 正誤判定を付ける — 完了
 3. 記事とクイズを付ける — 完了
 4. レッスンを増やして公開する — SQL 7レッスン完了、GitHub に push 済み
-5. HTMLとCSS分野 — 練習場(プレビュー、要素の判定)と6レッスン完了
-6. JavaScript分野 — 練習場(隔離実行、出力・戻り値の判定)と6レッスン完了
+5. HTMLとCSS分野 — 練習場(プレビュー、要素の判定)と6レッスン完了。のちに 07 フォーム(label、input の type、radio、select、textarea、required、action / method)を追加して7レッスン(2026-11-23)
+6. JavaScript分野 — 練習場(隔離実行、出力・戻り値の判定)と6レッスン完了。のちに 07 待つ処理(setTimeout、Promise、async / await、try / catch)と 08 fetch と API(JSON、にせ API、ステータス、POST)を追加して8レッスン(2026-11-23)
 7. OSの仕組み分野 — 練習場(疑似ターミナル)と6レッスン完了
 8. Webアプリの道具分野 — 練習場(構成を組む)と6レッスン完了
 9. レッスン内のステップバー(記事→クイズ→練習の進み具合、次にやること、レッスン完了)とトップの達成率バー

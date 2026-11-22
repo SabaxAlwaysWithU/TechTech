@@ -1,0 +1,44 @@
+[
+  {
+    "id": "await",
+    "title": "できあがりを待つ",
+    "text": "<p>関数 <code>cook</code> は、0.3秒後に料理を渡す Promise を返します。<code>cook(\"カレー\")</code> の結果を <code>await</code> で待って受け取り、「<code>カレーができました</code>」と出力してください。</p><p>いまのまま実行すると <code>[Promise]</code> と表示されます。</p>",
+    "starter": "function cook(dish) {\n  return new Promise((resolve) => {\n    setTimeout(() => resolve(dish + \"ができました\"), 300);\n  });\n}\n\nconst message = cook(\"カレー\");\nconsole.log(message);\n",
+    "answer": "function cook(dish) {\n  return new Promise((resolve) => {\n    setTimeout(() => resolve(dish + \"ができました\"), 300);\n  });\n}\n\nconst message = await cook(\"カレー\");\nconsole.log(message);",
+    "hints": [
+      "cook(\"カレー\") が返すのは引換券(Promise)です。結果に換えるには前に await を付けます。",
+      "const message = await cook(\"カレー\");"
+    ],
+    "expectOutput": ["カレーができました"]
+  },
+  {
+    "id": "async-function",
+    "title": "セットを作る async 関数",
+    "text": "<p>主食 <code>main</code> と副菜 <code>side</code> を受け取り、<code>cook</code> で順に作って、2つのメッセージを配列にして返す関数 <code>lunchSet(main, side)</code> を作ってください。</p><p>例: <code>lunchSet(\"カレー\", \"サラダ\")</code> の結果は <code>[\"カレーができました\", \"サラダができました\"]</code>。</p>",
+    "starter": "function cook(dish) {\n  return new Promise((resolve) => {\n    setTimeout(() => resolve(dish + \"ができました\"), 300);\n  });\n}\n\nfunction lunchSet(main, side) {\n\n}\n\nconsole.log(await lunchSet(\"カレー\", \"サラダ\"));\n",
+    "answer": "function cook(dish) {\n  return new Promise((resolve) => {\n    setTimeout(() => resolve(dish + \"ができました\"), 300);\n  });\n}\n\nasync function lunchSet(main, side) {\n  const a = await cook(main);\n  const b = await cook(side);\n  return [a, b];\n}\n\nconsole.log(await lunchSet(\"カレー\", \"サラダ\"));",
+    "hints": [
+      "中で await を使うので、function の前に async を付けます。const a = await cook(main); のように1つずつ待ちます。",
+      "async function lunchSet(main, side) { const a = await cook(main); const b = await cook(side); return [a, b]; }"
+    ],
+    "calls": [
+      { "call": "lunchSet(\"カレー\", \"サラダ\")", "expect": ["カレーができました", "サラダができました"] },
+      { "call": "lunchSet(\"うどん\", \"天ぷら\")", "expect": ["うどんができました", "天ぷらができました"] }
+    ]
+  },
+  {
+    "id": "try-catch",
+    "title": "売り切れでも止まらない",
+    "text": "<p>関数 <code>order</code> は、ふつうは「<code>○○ができました</code>」を渡しますが、<code>\"うなぎ\"</code> だけは「売り切れです」というエラーで失敗します。</p><p><code>order</code> の結果をそのまま返し、失敗したときは「<code>注文できませんでした: 売り切れです</code>」を返す関数 <code>safeOrder(dish)</code> を作ってください。理由の部分は <code>error.message</code> を使います。</p>",
+    "starter": "function order(dish) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (dish === \"うなぎ\") reject(new Error(\"売り切れです\"));\n      else resolve(dish + \"ができました\");\n    }, 300);\n  });\n}\n\nasync function safeOrder(dish) {\n\n}\n\nconsole.log(await safeOrder(\"カレー\"));\nconsole.log(await safeOrder(\"うなぎ\"));\n",
+    "answer": "function order(dish) {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      if (dish === \"うなぎ\") reject(new Error(\"売り切れです\"));\n      else resolve(dish + \"ができました\");\n    }, 300);\n  });\n}\n\nasync function safeOrder(dish) {\n  try {\n    return await order(dish);\n  } catch (error) {\n    return \"注文できませんでした: \" + error.message;\n  }\n}\n\nconsole.log(await safeOrder(\"カレー\"));\nconsole.log(await safeOrder(\"うなぎ\"));",
+    "hints": [
+      "try { return await order(dish); } catch (error) { ... } の形にします。await を付けないと、失敗が catch に届きません。",
+      "catch の中で return \"注文できませんでした: \" + error.message; と返します。"
+    ],
+    "calls": [
+      { "call": "safeOrder(\"カレー\")", "expect": "カレーができました" },
+      { "call": "safeOrder(\"うなぎ\")", "expect": "注文できませんでした: 売り切れです" }
+    ]
+  }
+]

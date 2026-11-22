@@ -4,6 +4,14 @@ import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
 import initSqlJs from 'sql.js';
+import { runUserCode } from '../src/lib/jsrun-core.js';
+
+/** 練習場と同じ jsrun-core.js の関数を、vm の別環境で動かす(await、setTimeout、練習用の fetch が使える) */
+function runJsInVm(code, calls) {
+  const run = vm.runInNewContext(`(${runUserCode.toString()})`, { setTimeout, clearTimeout });
+  const timeout = new Promise((resolve) => setTimeout(() => resolve({ ok: false, logs: [], error: '5秒たっても終わりませんでした' }), 5000).unref());
+  return Promise.race([run(code, calls), timeout]);
+}
 
 const SQL = await initSqlJs();
 const root = join(import.meta.dirname, '..', 'content');
@@ -41,14 +49,12 @@ for (const field of readdirSync(root)) {
       for (const t of tasks) {
         if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); failures++; }
         if (!t.expectOutput && !t.calls) { console.log(`  !! 課題 ${t.id}: expectOutput か calls が必要です`); failures++; continue; }
-        const logs = [];
-        const fmt = (v) => (typeof v === 'string' ? v : v === undefined ? 'undefined' : typeof v === 'function' ? '[関数 ' + v.name + ']' : JSON.stringify(v));
-        const fakeConsole = { log: (...a) => logs.push(a.map(fmt).join(' ')), error: (...a) => logs.push('エラー: ' + a.map(fmt).join(' ')) };
         const calls = (t.calls ?? []).map((c) => c.call);
-        const tail = '\n;return [' + calls.map((c) => `(function(){try{return {v:(${c})}}catch(e){return {e:String(e)}}})()`).join(',') + '];';
         try {
-          const fn = vm.runInNewContext(`(function(console){${t.answer}${tail}})`, {}, { timeout: 2000 });
-          const results = fn(fakeConsole);
+          const out = await runJsInVm(t.answer, calls);
+          if (!out.ok) throw new Error(out.error);
+          const logs = out.logs;
+          const results = out.results;
           let ok = true;
           if (t.expectOutput) {
             const exp = t.expectOutput.map((s) => s.trim());
