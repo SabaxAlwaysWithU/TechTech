@@ -1,0 +1,37 @@
+[
+  {
+    "question": "const response = await fetch(URL); のあと、返ってきた JSON の中身をオブジェクトとして取り出す書き方はどれですか?",
+    "options": ["await response.json()", "response.data", "JSON.stringify(response)", "await fetch(response)"],
+    "explanation": "response は届いた箱(返事全体)です。中身の JSON は await response.json() で取り出します。json() も時間のかかる処理なので await が必要です。"
+  },
+  {
+    "question": "存在しない商品の URL を fetch して 404 が返ってきました。どうなりますか?",
+    "options": [
+      "fetch はエラーにならず、response.ok が false になる",
+      "fetch がエラーを投げて catch に移る",
+      "response.json() が必ず空の配列を返す",
+      "自動でもう一度取りに行く"
+    ],
+    "explanation": "返事は届いているので、fetch はエラーになりません。response.ok(200番台なら true)や response.status で確かめます。エラーを投げるのは、返事そのものが来ないときです。"
+  },
+  {
+    "question": "fetch で JSON のデータを送るとき、body に入れるものはどれですか?",
+    "options": [
+      "JSON.stringify(オブジェクト) で作った文字列",
+      "オブジェクトそのもの",
+      "JSON.parse(オブジェクト) の結果",
+      "response.json() の結果"
+    ],
+    "explanation": "ネットワークには文字しか流せないので、JSON.stringify でオブジェクトを JSON の文字列にしてから送ります。"
+  },
+  {
+    "question": "API キーについて正しいものはどれですか?",
+    "options": [
+      "ページの JavaScript に書いたキーは誰でも見られるので、秘密のキーはサーバー側で使う",
+      "ページの JavaScript に書けば、利用者からは見えない",
+      "API キーは JSON.stringify で暗号化できる",
+      "API キーがあれば CORS の制限はなくなる"
+    ],
+    "explanation": "ブラウザに届いた JavaScript は、開発者ツールで誰でも読めます。秘密のキーはサーバー側に置き、ブラウザには渡しません。"
+  }
+]

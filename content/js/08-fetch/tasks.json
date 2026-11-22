@@ -1,0 +1,59 @@
+[
+  {
+    "id": "first-fetch",
+    "title": "商品一覧を取ってくる",
+    "text": "<p><code>https://shop.example/api/products</code> から商品の一覧を取ってきて、商品の数と、最初の商品の名前を、この順に1行ずつ出力してください。</p>",
+    "starter": "const response = await fetch(\"https://shop.example/api/products\");\n",
+    "answer": "const response = await fetch(\"https://shop.example/api/products\");\nconst products = await response.json();\nconsole.log(products.length);\nconsole.log(products[0].name);",
+    "hints": [
+      "中身は const products = await response.json(); で取り出します。products は商品オブジェクトの配列です。",
+      "数は products.length、最初の商品の名前は products[0].name です。"
+    ],
+    "expectOutput": ["12", "ノートパソコン"]
+  },
+  {
+    "id": "filter",
+    "title": "5000円未満の商品",
+    "text": "<p>商品の一覧を取ってきて、価格(<code>price</code>)が 5000 円未満の商品の名前を、一覧の順に1行ずつ出力してください。</p>",
+    "starter": "const response = await fetch(\"https://shop.example/api/products\");\nconst products = await response.json();\n",
+    "answer": "const response = await fetch(\"https://shop.example/api/products\");\nconst products = await response.json();\nfor (const p of products) {\n  if (p.price < 5000) {\n    console.log(p.name);\n  }\n}",
+    "hints": [
+      "for (const p of products) { ... } で1つずつ取り出し、if (p.price < 5000) で絞ります。",
+      "for (const p of products) { if (p.price < 5000) { console.log(p.name); } }"
+    ],
+    "expectOutput": ["マウス", "Webカメラ", "USBメモリ", "LANケーブル"]
+  },
+  {
+    "id": "not-found",
+    "title": "見つからないときの処理",
+    "text": "<p>商品の番号 <code>id</code> を受け取り、<code>https://shop.example/api/products/番号</code> から取ってきて、商品名を返す関数 <code>productName(id)</code> を作ってください。</p><p>ない番号のときは 404 が返ってきます。そのときは「<code>見つかりません</code>」を返します。</p>",
+    "starter": "async function productName(id) {\n  const response = await fetch(\"https://shop.example/api/products/\" + id);\n\n}\n\nconsole.log(await productName(4));\nconsole.log(await productName(99));\n",
+    "answer": "async function productName(id) {\n  const response = await fetch(\"https://shop.example/api/products/\" + id);\n  if (!response.ok) {\n    return \"見つかりません\";\n  }\n  const product = await response.json();\n  return product.name;\n}\n\nconsole.log(await productName(4));\nconsole.log(await productName(99));",
+    "hints": [
+      "404 でも fetch はエラーになりません。if (!response.ok) { return \"見つかりません\"; } で先に確かめます。",
+      "見つかったときは const product = await response.json(); return product.name;"
+    ],
+    "calls": [
+      { "call": "productName(4)", "expect": "マウス" },
+      { "call": "productName(10)", "expect": "外付けSSD" },
+      { "call": "productName(99)", "expect": "見つかりません" }
+    ]
+  },
+  {
+    "id": "post",
+    "title": "注文して合計を受け取る",
+    "text": "<p>商品の番号と数量を受け取り、<code>https://shop.example/api/orders</code> に POST で注文する関数 <code>orderTotal(productId, quantity)</code> を作ってください。送るデータは <code>{ productId, quantity }</code> の JSON です。</p><p>成功したら返事の <code>total</code>(合計金額)を、失敗したら返事の <code>error</code>(理由)を返します。</p>",
+    "starter": "async function orderTotal(productId, quantity) {\n\n}\n\nconsole.log(await orderTotal(4, 2));\nconsole.log(await orderTotal(4, 0));\n",
+    "answer": "async function orderTotal(productId, quantity) {\n  const response = await fetch(\"https://shop.example/api/orders\", {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify({ productId: productId, quantity: quantity }),\n  });\n  const data = await response.json();\n  if (!response.ok) {\n    return data.error;\n  }\n  return data.total;\n}\n\nconsole.log(await orderTotal(4, 2));\nconsole.log(await orderTotal(4, 0));",
+    "hints": [
+      "fetch(URL, { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: JSON.stringify({ productId: productId, quantity: quantity }) }) で送ります。",
+      "const data = await response.json(); のあと、response.ok なら data.total、そうでなければ data.error を返します。"
+    ],
+    "calls": [
+      { "call": "orderTotal(4, 2)", "expect": 5000 },
+      { "call": "orderTotal(6, 3)", "expect": 96000 },
+      { "call": "orderTotal(4, 0)", "expect": "数量は1以上の整数にしてください" },
+      { "call": "orderTotal(2, 10)", "expect": "在庫が足りません(在庫 3個)" }
+    ]
+  }
+]

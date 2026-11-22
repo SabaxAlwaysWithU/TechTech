@@ -1,0 +1,32 @@
+[
+  {
+    "question": "console.log(\"A\"); setTimeout(() => console.log(\"B\"), 1000); console.log(\"C\"); の出力の順番はどれですか?",
+    "options": ["A C B", "A B C", "B A C", "C A B"],
+    "explanation": "setTimeout は「1秒後にこれをやって」と頼むだけで、待たずに次の行へ進みます。先に A と C が出て、1秒後に B が出ます。"
+  },
+  {
+    "question": "Promise をたとえると、どれがいちばん近いですか?",
+    "options": [
+      "あとで料理と交換できる呼び出しベル",
+      "料理そのもの",
+      "お店のメニュー表",
+      "注文を取り消すボタン"
+    ],
+    "explanation": "Promise は「今はまだないけれど、あとで結果を渡す」という引換券です。await で中身(結果)に換えます。"
+  },
+  {
+    "question": "async 関数の中で const data = cook(\"カレー\"); と await を付け忘れると、data には何が入りますか?(cook は Promise を返す関数)",
+    "options": [
+      "Promise(まだ結果ではない引換券)",
+      "\"カレーができました\" という文字列",
+      "undefined",
+      "エラーになって止まる"
+    ],
+    "explanation": "await がないと、結果を待たずに Promise そのものが入ります。console.log すると [Promise] と表示されます。"
+  },
+  {
+    "question": "await しているところで Promise が失敗したとき、受け止める書き方はどれですか?",
+    "options": ["try { } catch (error) { }", "if (error) { }", "for (const error of ...) { }", "return error;"],
+    "explanation": "失敗した Promise を await するとエラーが投げられます。try の中で起きたエラーは catch で受け止められ、error.message で理由が分かります。"
+  }
+]
