@@ -5,7 +5,8 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 
 ## 進め方
 
-- git の操作(branch / commit / push / PR の作成とマージ)はユーザーが自分でやる。Claude は手順を示すだけで、頼まれない限り commit や push をしない
+- git の操作(branch / commit / push / PR の作成)は Claude がやる(2026-11-23 から。それまではユーザーが手で打って覚えていた)。マージは main に入ると公開されるので、ユーザーが差分を見てから行う
+- この PC には GitHub CLI(gh)がない。PR は push 後に作成用のリンク(`https://github.com/SabaxAlwaysWithU/TechTech/pull/new/<ブランチ>`)を渡す
 - 変更は ブランチ → push → GitHub で PR → 差分を確認 → マージ → `git pull` の流れで入れる。PR では Actions がビルドと課題チェックだけを行い、main に入ると公開される
 - 説明は初心者向けに、たとえ話を交えて短く
 - デザインは白・黒・灰色と深緑 #1f7a5c の1色。グラデーション、絵文字アイコン、影付きカード3枚並び、大きなヒーロー、全部フェードインは使わない
@@ -20,8 +21,10 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 
 ## 次にやること
 
-- [ ] 分野ごとの画像を組み込む。ユーザーが Gemini でピクトグラムを作る(#555555 の単色、白背景、512×512、文字・ロゴなし)。置き場所は `public/images/fields/{sql,html,js,os,linux,network,git,webdev}.png`。トップの分野一覧と分野ページに出し、ダーク表示で白背景が浮かないようにする
-  - Linux をペンギンにした場合は、分野ページに「ペンギンのモチーフ: Tux(Larry Ewing, The GIMP)」と書く
+- [ ] 分野ごとの画像の残り4枚(html、network、git、webdev)。ユーザーが Gemini でピクトグラムを作る(#555555 の単色、白背景、文字・ロゴなし)
+  - 済み: sql(データベース)、js(`{ }`)、os(CPU チップ)、linux(ターミナル画面)。2026-11-23
+  - 変換は `scripts/convert-icon.ps1`(白背景 → 透明、#555555、512×512、余白をそろえる)。出力先は `public/images/fields/<分野>.png`
+  - 画像を置くだけで、トップの分野一覧(番号の代わり)と分野ページ(見出しの上)に出る。色は CSS の mask で塗るのでダーク表示でも浮かない(`src/lib/icons.ts`、`.field-icon`)
   - GitHub のロゴ・Octocat・ディストリビューションのロゴは使わない
 - [ ] 公開版のネットワーク図を、PC 幅とスマホ幅で見て確認する
 
