@@ -1,0 +1,80 @@
+[
+  {
+    "id": "label-input",
+    "title": "名前の欄とラベル",
+    "text": "<p><code>form</code> の中に、お名前を入れる欄を作ってください。</p><ul><li>文字が「お名前」の <code>label</code>(<code>for=\"name\"</code>)</li><li><code>id=\"name\"</code>、<code>name=\"name\"</code> の <code>input</code></li></ul>",
+    "starter": "<form>\n\n</form>\n",
+    "answer": "<form>\n  <label for=\"name\">お名前</label>\n  <input type=\"text\" id=\"name\" name=\"name\">\n</form>",
+    "hints": [
+      "label の for と、input の id を同じ \"name\" にすると結び付きます。送るときの名前は input の name 属性です。",
+      "<label for=\"name\">お名前</label> <input type=\"text\" id=\"name\" name=\"name\">"
+    ],
+    "checks": [
+      { "selector": "form label[for=\"name\"]", "text": "お名前", "message": "form の中に、文字が「お名前」で for=\"name\" の label がありません。" },
+      { "selector": "form input#name", "message": "form の中に id=\"name\" の input がありません。" },
+      { "selector": "form input#name", "attr": { "name": "name" }, "message": "input に name=\"name\" が付いていません。送るときの名前になります。" }
+    ]
+  },
+  {
+    "id": "email-required",
+    "title": "メールアドレスを必須にする",
+    "text": "<p>メールアドレスの欄を作ってください。</p><ul><li>文字が「メールアドレス」の <code>label</code>(<code>for=\"email\"</code>)</li><li><code>id=\"email\"</code>、<code>name=\"email\"</code> で、メールアドレス用の <code>type</code></li><li>空のままでは送れないようにする</li></ul>",
+    "starter": "<form>\n\n  <button type=\"submit\">登録</button>\n</form>\n",
+    "answer": "<form>\n  <label for=\"email\">メールアドレス</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required>\n  <button type=\"submit\">登録</button>\n</form>",
+    "hints": [
+      "メールアドレス用の type は email です。空のまま送れないようにするには required を付けます(値はいりません)。",
+      "<label for=\"email\">メールアドレス</label> <input type=\"email\" id=\"email\" name=\"email\" required>"
+    ],
+    "checks": [
+      { "selector": "form label[for=\"email\"]", "text": "メールアドレス", "message": "文字が「メールアドレス」で for=\"email\" の label がありません。" },
+      { "selector": "form input#email", "message": "id=\"email\" の input がありません。" },
+      { "selector": "form input#email", "attr": { "type": "email", "name": "email" }, "message": "input に type=\"email\" と name=\"email\" を付けてください。" },
+      { "selector": "form input#email[required]", "message": "メール欄に required が付いていません。空のままでも送れてしまいます。" },
+      { "selector": "form button[type=\"submit\"]", "message": "送信ボタン(button type=\"submit\")は消さないでください。" }
+    ]
+  },
+  {
+    "id": "radio",
+    "title": "1つだけ選ばせる",
+    "text": "<p>お問い合わせの種類を選ぶラジオボタンを3つ作ってください。</p><ul><li>3つとも <code>name=\"kind\"</code>(同じグループ)</li><li><code>value</code> はそれぞれ <code>question</code>、<code>order</code>、<code>other</code>。文字は「質問」「注文について」「その他」</li><li>それぞれ <code>label</code> で包む</li><li>最初から「質問」を選んでおく</li></ul>",
+    "starter": "<form>\n  <p>お問い合わせの種類</p>\n\n</form>\n",
+    "answer": "<form>\n  <p>お問い合わせの種類</p>\n  <label><input type=\"radio\" name=\"kind\" value=\"question\" checked> 質問</label>\n  <label><input type=\"radio\" name=\"kind\" value=\"order\"> 注文について</label>\n  <label><input type=\"radio\" name=\"kind\" value=\"other\"> その他</label>\n</form>",
+    "hints": [
+      "<label><input type=\"radio\" name=\"kind\" value=\"question\"> 質問</label> の形を3つ書きます。name は3つとも同じ kind にします。",
+      "最初から選んでおくものには checked を付けます。<input type=\"radio\" name=\"kind\" value=\"question\" checked>"
+    ],
+    "checks": [
+      { "selector": "form input[type=\"radio\"][name=\"kind\"]", "count": 3, "message": "type=\"radio\" で name=\"kind\" の input がちょうど3つ必要です。" },
+      { "selector": "form label > input[type=\"radio\"][name=\"kind\"]", "count": 3, "message": "3つのラジオボタンを、それぞれ label で包んでください。" },
+      { "selector": "label", "textIncludes": "質問", "message": "「質問」という文字の label がありません。" },
+      { "selector": "label", "textIncludes": "注文について", "message": "「注文について」という文字の label がありません。" },
+      { "selector": "label", "textIncludes": "その他", "message": "「その他」という文字の label がありません。" },
+      { "selector": "input[type=\"radio\"][value=\"question\"]", "message": "value=\"question\" のラジオボタンがありません。" },
+      { "selector": "input[type=\"radio\"][value=\"order\"]", "message": "value=\"order\" のラジオボタンがありません。" },
+      { "selector": "input[type=\"radio\"][value=\"other\"]", "message": "value=\"other\" のラジオボタンがありません。" },
+      { "selector": "input[type=\"radio\"][name=\"kind\"][checked]", "count": 1, "message": "checked は1つだけ付けてください。" },
+      { "selector": "input[type=\"radio\"][value=\"question\"][checked]", "message": "最初から「質問」が選ばれていません。value=\"question\" の input に checked を付けます。" }
+    ]
+  },
+  {
+    "id": "contact",
+    "title": "お問い合わせフォームを仕上げる",
+    "text": "<p>作りかけのお問い合わせフォームを仕上げてください。</p><ul><li><code>form</code> に、送り先 <code>/api/contact</code>(<code>action</code>)と、送り方 <code>post</code>(<code>method</code>)</li><li>文字が「お問い合わせ内容」の <code>label</code> と、それに結び付いた何行も書ける欄(<code>id=\"message\"</code>、<code>name=\"message\"</code>、必須)</li><li>文字が「送信」の送信ボタン</li></ul>",
+    "starter": "<form>\n  <label for=\"name\">お名前</label>\n  <input type=\"text\" id=\"name\" name=\"name\" required>\n\n</form>\n",
+    "answer": "<form action=\"/api/contact\" method=\"post\">\n  <label for=\"name\">お名前</label>\n  <input type=\"text\" id=\"name\" name=\"name\" required>\n  <label for=\"message\">お問い合わせ内容</label>\n  <textarea id=\"message\" name=\"message\" rows=\"4\" required></textarea>\n  <button type=\"submit\">送信</button>\n</form>",
+    "hints": [
+      "<form action=\"/api/contact\" method=\"post\"> にします。何行も書ける欄は textarea で、閉じタグ </textarea> が必要です。",
+      "<label for=\"message\">お問い合わせ内容</label> <textarea id=\"message\" name=\"message\" required></textarea> <button type=\"submit\">送信</button>"
+    ],
+    "checks": [
+      { "selector": "form[action=\"/api/contact\"]", "message": "form に action=\"/api/contact\" が付いていません。" },
+      { "selector": "form[method=\"post\" i]", "message": "form に method=\"post\" が付いていません。" },
+      { "selector": "form label[for=\"message\"]", "text": "お問い合わせ内容", "message": "文字が「お問い合わせ内容」で for=\"message\" の label がありません。" },
+      { "selector": "form textarea#message", "message": "id=\"message\" の textarea がありません。何行も書ける欄は textarea です。" },
+      { "selector": "form textarea#message", "attr": { "name": "message" }, "message": "textarea に name=\"message\" が付いていません。" },
+      { "selector": "form textarea#message[required]", "message": "textarea に required が付いていません。" },
+      { "selector": "form button[type=\"submit\"]", "text": "送信", "message": "文字が「送信」の button type=\"submit\" がありません。" },
+      { "selector": "form input#name[name=\"name\"][required]", "message": "お名前の欄(id、name、required)は消さないでください。" }
+    ]
+  }
+]

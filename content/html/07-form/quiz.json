@@ -1,0 +1,42 @@
+[
+  {
+    "question": "<label for=\"email\">メールアドレス</label> を入力欄と結び付けるには、input をどう書きますか?",
+    "options": [
+      "<input id=\"email\">",
+      "<input name=\"label\">",
+      "<input for=\"email\">",
+      "<input class=\"メールアドレス\">"
+    ],
+    "explanation": "label の for と、input の id を同じ値にすると結び付きます。ラベルを押すと欄にカーソルが入り、読み上げソフトも欄の名前を読めるようになります。"
+  },
+  {
+    "question": "メールアドレスを入れる欄に向いている書き方はどれですか?",
+    "options": [
+      "<input type=\"email\">",
+      "<input type=\"text\" class=\"email\">",
+      "<input type=\"mail\">",
+      "<email></email>"
+    ],
+    "explanation": "type=\"email\" にすると、スマホで @ のあるキーボードが出て、送るときに形式もブラウザが確かめてくれます。type=\"mail\" という種類はありません。"
+  },
+  {
+    "question": "ラジオボタン3つを「その中から1つだけ選べる」グループにするには、どうしますか?",
+    "options": [
+      "3つの name を同じ値にする",
+      "3つの id を同じ値にする",
+      "3つとも checked を付ける",
+      "3つを別々の form に入れる"
+    ],
+    "explanation": "同じ name のラジオボタンが1つのグループになり、1つ選ぶと他は外れます。id はページ内で重ならないようにします。"
+  },
+  {
+    "question": "placeholder をラベルの代わりに使わないほうがよい理由はどれですか?",
+    "options": [
+      "入力を始めると消えて、何の欄か分からなくなるから",
+      "placeholder の文字はサーバーに送られてしまうから",
+      "placeholder を付けると入力が必須になるから",
+      "placeholder は input には使えないから"
+    ],
+    "explanation": "placeholder は空の欄に出る記入例で、書き始めると消えます。欄の名前は、ずっと表示される label で付けます。"
+  }
+]
