@@ -11,19 +11,20 @@ interface Props {
 }
 const { lessonId, lessonTitle, tasks = [], backHref, nextHref, nextLabel } = Astro.props;
 const hasTasks = tasks.length > 0;
-// 図に置く部品。x, y は 0〜100 の割合
+// 図に置く部品。x, y は 0〜100 の割合。short は図が狭いときに出す短い名前
 const nodes = [
-  { id: 'pc', label: 'PC', sub: '192.168.1.10', x: 12, y: 50, parts: ['ipconfig'] },
-  { id: 'router', label: 'ルーター', sub: '192.168.1.1', x: 34, y: 50, parts: ['router'] },
-  { id: 'internet', label: 'インターネット', sub: 'プロバイダ', x: 58, y: 50, parts: ['wan'] },
-  { id: 'dns', label: 'DNS', sub: '8.8.8.8', x: 86, y: 20, parts: ['dns'] },
-  { id: 'server', label: 'Webサーバー', sub: 'nginx → アプリ → DB', x: 86, y: 80, parts: ['server', 'port', 'cert', 'app', 'db'] },
+  { id: 'pc', label: 'PC', sub: '192.168.1.10', x: 10, y: 50, parts: ['ipconfig'] },
+  { id: 'router', label: 'ルーター', sub: '192.168.1.1', x: 33, y: 50, parts: ['router'] },
+  { id: 'internet', label: 'インターネット', short: 'ネット', sub: 'プロバイダ', x: 58, y: 50, parts: ['wan'] },
+  { id: 'dns', label: 'DNS', sub: '8.8.8.8', x: 87, y: 20, parts: ['dns'] },
+  { id: 'server', label: 'Webサーバー', short: 'サーバー', sub: 'nginx → アプリ → DB', x: 87, y: 80, parts: ['server', 'port', 'cert', 'app', 'db'] },
 ];
+// label は1要素が1行。箱の間に収まるように短く区切る
 const links = [
-  { id: 'cable', from: 'pc', to: 'router', label: 'ケーブル / Wi-Fi' },
-  { id: 'wan', from: 'router', to: 'internet', label: '回線' },
-  { id: 'l-dns', from: 'internet', to: 'dns', label: '' },
-  { id: 'l-srv', from: 'internet', to: 'server', label: '' },
+  { id: 'cable', from: 'pc', to: 'router', label: ['ケーブル /', 'Wi-Fi'] },
+  { id: 'wan', from: 'router', to: 'internet', label: ['回線'] },
+  { id: 'l-dns', from: 'internet', to: 'dns', label: [] },
+  { id: 'l-srv', from: 'internet', to: 'server', label: [] },
 ];
 const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
 ---
@@ -97,12 +98,12 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
           ))}
         </svg>
         <div class="nodes" id="nodes">
-          {links.filter((l) => l.label).map((l) => (
-            <span class="wire-label" style={`left:${(pos[l.from].x + pos[l.to].x) / 2}%; top:${(pos[l.from].y + pos[l.to].y) / 2}%`}>{l.label}</span>
+          {links.filter((l) => l.label.length).map((l) => (
+            <span class="wire-label" style={`left:${(pos[l.from].x + pos[l.to].x) / 2}%; top:${(pos[l.from].y + pos[l.to].y) / 2}%`}>{l.label.map((s) => <span>{s}</span>)}</span>
           ))}
           {nodes.map((n) => (
             <button type="button" class="node" data-node={n.id} data-parts={n.parts.join(',')} style={`left:${n.x}%; top:${n.y}%`}>
-              <span class="node-label">{n.label}</span>
+              <span class="node-label"><span class="label-full">{n.label}</span><span class="label-short">{n.short ?? n.label}</span></span>
               <span class="node-sub">{n.sub}</span>
               <span class="node-state" data-state></span>
             </button>
@@ -459,7 +460,7 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
 
   /* 図 */
   .diagram-wrap { position: relative; }
-  .diagram-box { position: relative; height: 17rem; }
+  .diagram-box { position: relative; height: 17rem; container-type: inline-size; }
   .diagram { width: 100%; height: 100%; display: block; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
   .wire { stroke: var(--muted); stroke-width: 0.6; vector-effect: non-scaling-stroke; stroke-width: 3px; }
   .wire-hit { stroke: transparent; stroke-width: 14px; vector-effect: non-scaling-stroke; cursor: pointer; }
@@ -467,9 +468,10 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
   .link.unknown .wire { stroke-dasharray: 2 4; }
   /* 線のラベルは HTML で置く(SVG の文字は枠に合わせて引き伸ばされてしまうため) */
   .wire-label {
-    position: absolute; transform: translate(-50%, -150%); pointer-events: none; white-space: nowrap;
-    font-size: 0.72rem; color: var(--muted); background: var(--surface); padding: 0 0.3rem; border-radius: 4px;
+    position: absolute; transform: translate(-50%, calc(-100% - 0.35rem)); pointer-events: none; white-space: nowrap;
+    font-size: 0.72rem; line-height: 1.25; text-align: center; color: var(--muted); background: var(--surface); padding: 0 0.3rem; border-radius: 4px;
   }
+  .wire-label > span { display: block; }
   .nodes { position: absolute; inset: 0; pointer-events: none; }
   .node {
     position: absolute; transform: translate(-50%, -50%); pointer-events: auto;
@@ -479,20 +481,27 @@ const pos = Object.fromEntries(nodes.map((n) => [n.id, n]));
     transition: border-color 0.15s, box-shadow 0.15s;
   }
   .node:hover { box-shadow: 0 0 0 3px var(--surface); }
-  .node-label { display: block; font-weight: 600; font-size: 0.85rem; }
+  .node-label { display: block; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+  .label-short { display: none; }
   .node-sub { display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
   .node-state { display: inline-block; margin-top: 0.25rem; font-size: 0.7rem; font-weight: 700; color: var(--accent); }
   .node.broken { border-color: var(--error); }
   .node.broken .node-state { color: #fff; background: var(--error); padding: 0 0.5rem; border-radius: 999px; }
   .node.unknown { border-style: dashed; }
   .node.unknown .node-state { color: var(--muted); }
-  /* スマホ幅: 5つの箱が横に並ぶように小さくし、IPアドレスの行と線のラベルは省く */
-  @media (max-width: 600px) {
-    .node { min-width: 0; width: 4.6rem; padding: 0.3rem 0.2rem; }
+  /* 図が狭いとき(スマホや、PC でもウィンドウが狭いとき): 箱が重ならないように小さくし、
+     名前を短くして、IPアドレスの行と線のラベルは省く。画面ではなく図の枠の幅で切り替える */
+  @container (max-width: 680px) {
+    .node { min-width: 0; width: 3.9rem; padding: 0.3rem 0.1rem; }
     .node-label { font-size: 0.7rem; }
+    .label-full { display: none; }
+    .label-short { display: inline; }
     .node-sub { display: none; }
     .node-state { font-size: 0.65rem; }
     .wire-label { display: none; }
+  }
+  @container (max-width: 340px) {
+    .node { width: 3.4rem; }
   }
   .menu { position: absolute; z-index: 5; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0.3rem; display: flex; flex-direction: column; gap: 0.2rem; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
   .menu :global(button) { font: inherit; font-size: 0.85rem; text-align: left; background: none; border: 0; padding: 0.35rem 0.7rem; cursor: pointer; color: var(--fg); border-radius: 5px; }
