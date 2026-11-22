@@ -1,6 +1,8 @@
 // JavaScript練習場の実行と判定。
 // 利用者のコードは sandbox 付きの iframe(別オリジン)の中で動かし、結果だけを postMessage で受け取る。
+// 実際に動かす部分は jsrun-core.js(check-tasks.mjs と共通)。await、setTimeout、練習用の fetch が使える。
 import type { JsCall } from './content';
+import { runUserCode } from './jsrun-core.js';
 
 export interface RunOutcome {
   ok: boolean;
@@ -12,40 +14,27 @@ export interface RunOutcome {
 }
 
 // iframe の中で動くコード。ページ側から {code, calls} を受け取り、結果を返す。
+// .then を付け忘れた Promise の失敗(unhandledrejection)も、エラーとして返す。
 const RUNNER_HTML = `<!doctype html><meta charset="utf-8"><script>
 (function () {
-  function fmt(v) {
-    if (typeof v === 'string') return v;
-    if (v === undefined) return 'undefined';
-    if (typeof v === 'function') return '[関数 ' + (v.name || '') + ']';
-    try { return JSON.stringify(v); } catch (e) { return String(v); }
-  }
+  var runUserCode = ${runUserCode.toString()};
+  var unhandled = null;
+  addEventListener('unhandledrejection', function (ev) {
+    if (!unhandled) unhandled = String(ev.reason);
+    ev.preventDefault();
+  });
   addEventListener('message', function (ev) {
     var data = ev.data || {};
     if (!data.__run) return;
-    var logs = [];
-    var fakeConsole = {
-      log: function () { logs.push(Array.prototype.map.call(arguments, fmt).join(' ')); },
-      error: function () { logs.push('エラー: ' + Array.prototype.map.call(arguments, fmt).join(' ')); },
-      warn: function () { logs.push('警告: ' + Array.prototype.map.call(arguments, fmt).join(' ')); },
-    };
-    var calls = data.calls || [];
-    var tail = '\\n;return [' + calls.map(function (c) {
-      return '(function(){try{return {v:(' + c + ')}}catch(e){return {e:String(e)}}})()';
-    }).join(',') + '];';
-    var fn;
-    try {
-      fn = new Function('console', 'alert', 'prompt', data.code + tail);
-    } catch (e) {
-      parent.postMessage({ __result: true, ok: false, logs: logs, error: String(e) }, '*');
-      return;
-    }
-    try {
-      var results = fn(fakeConsole, function (m) { logs.push('[alert] ' + fmt(m)); }, function () { return null; });
-      parent.postMessage({ __result: true, ok: true, logs: logs, results: JSON.parse(JSON.stringify(results)) }, '*');
-    } catch (e) {
-      parent.postMessage({ __result: true, ok: false, logs: logs, error: String(e) }, '*');
-    }
+    unhandled = null;
+    runUserCode(String(data.code), data.calls || []).then(function (r) {
+      if (r.ok && unhandled) r = { ok: false, logs: r.logs, error: unhandled };
+      var msg = { __result: true, ok: r.ok, logs: r.logs, error: r.error };
+      if (r.results) {
+        try { msg.results = JSON.parse(JSON.stringify(r.results)); } catch (e) { msg.results = r.results.map(function () { return { e: String(e) }; }); }
+      }
+      parent.postMessage(msg, '*');
+    });
   });
   parent.postMessage({ __ready: true }, '*');
 })();
@@ -54,6 +43,10 @@ const RUNNER_HTML = `<!doctype html><meta charset="utf-8"><script>
 /** JavaScriptのエラーメッセージに日本語の補足を付ける */
 export function translateJsError(msg: string): string {
   let m: RegExpMatchArray | null;
+  if (/Failed to fetch/.test(msg)) return '通信できませんでした(返事が来ませんでした)。URL のつづりを確認してください。この練習場で使えるのは https://shop.example/ の練習用 API だけです。';
+  if (/await is only valid/.test(msg)) return 'await は async を付けた関数の中で使います。function の前に async を付けてください。';
+  if (/\.json is not a function/.test(msg)) return 'json() は、await fetch(...) で受け取ったレスポンスにあります。fetch の前の await を忘れていないか、すでに取り出したデータに .json() を付けていないか確認してください。';
+  if (/is not valid JSON|Unexpected end of JSON input|in JSON at position/.test(msg)) return 'JSON として読めない文字列です。JSON.stringify で作った文字列か確認してください。';
   if ((m = msg.match(/ReferenceError: (\S+) is not defined/))) return `「${m[1]}」という名前の変数や関数がありません。つづりや、let / const で宣言したかを確認してください。`;
   if ((m = msg.match(/TypeError: (\S+) is not a function/))) return `「${m[1]}」は関数ではないので呼び出せません。名前やカッコの位置を確認してください。`;
   if (/TypeError: Cannot read propert/.test(msg)) return '存在しないもの(undefined や null)の中身を読もうとしています。変数に値が入っているか確認してください。';
@@ -75,7 +68,11 @@ export function runJs(code: string, calls: string[] = [], timeoutMs = 3000): Pro
   return new Promise((resolve) => {
     const iframe = document.createElement('iframe');
     iframe.setAttribute('sandbox', 'allow-scripts');
-    iframe.style.display = 'none';
+    // display:none にすると、ブラウザが iframe のタイマーを最大1秒単位に間引き、setTimeout や fetch の待ちがのびる。
+    // そのため、見えない 1px の iframe として画面に置く
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.tabIndex = -1;
+    iframe.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;border:0;pointer-events:none;';
     iframe.srcdoc = RUNNER_HTML;
     const id = ++seq;
     let done = false;
@@ -87,7 +84,7 @@ export function runJs(code: string, calls: string[] = [], timeoutMs = 3000): Pro
       iframe.remove();
       resolve(o);
     };
-    const timer = setTimeout(() => finish({ ok: false, logs: [], timeout: true, error: 'タイムアウト', hint: `${timeoutMs / 1000}秒たっても終わりませんでした。無限ループになっていませんか?` }), timeoutMs);
+    const timer = setTimeout(() => finish({ ok: false, logs: [], timeout: true, error: 'タイムアウト', hint: `${timeoutMs / 1000}秒たっても終わりませんでした。無限ループになっていないか、終わらない待ち(setTimeout の繰り返しなど)がないか確認してください。` }), timeoutMs);
     const onMessage = (ev: MessageEvent) => {
       if (ev.source !== iframe.contentWindow) return;
       const d = ev.data || {};
