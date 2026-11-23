@@ -1,6 +1,6 @@
 {
   "title": "GitとGitHub",
-  "description": "全6レッスン。コードの履歴を残し、戻し、分けて、GitHubで共有する。疑似ターミナルで実際に打つ。",
+  "description": "全6レッスンと総合演習。コードの履歴を残し、戻し、分けて、GitHubで共有する。疑似ターミナルで実際に打つ。",
   "order": 7,
   "practice": "shell",
   "languages": ["sh", "bash", "shell"]
