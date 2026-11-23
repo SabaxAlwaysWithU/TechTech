@@ -1,0 +1,32 @@
+[
+  {
+    "question": "保存もログインもない告知ページの構成として、いちばん手間とお金がかからないのはどれですか?",
+    "options": [
+      "静的サイト(バックエンド・DB なし)を GitHub Pages などで無料公開",
+      "Django + PostgreSQL をクラウドで動かす",
+      "BaaS でログインを付けて Firestore に保存",
+      "VPS を借りて OS から設定する"
+    ],
+    "explanation": "サーバー側の処理がいらないなら、HTML などのファイルを置くだけで公開できます。サーバーの運用もお金もかかりません。"
+  },
+  {
+    "question": "チームの得意な言語が Python のとき、ログインや管理画面が最初からそろったバックエンドとして向いているのはどれですか?",
+    "options": ["Django", "Spring Boot", "Laravel", "Ruby on Rails"],
+    "explanation": "Django は Python の「全部入り」の枠組みです。Spring Boot は Java、Laravel は PHP、Rails は Ruby です。"
+  },
+  {
+    "question": "Redis の使い方として正しいものはどれですか?",
+    "options": [
+      "ランキングやキャッシュなど、速さが大事な一時データに使う",
+      "会員情報や注文など、消えると困る大事なデータの唯一の保存先にする",
+      "画像ファイルを保存する",
+      "静的サイトを公開する"
+    ],
+    "explanation": "Redis はメモリ上で動くので非常に速い一方、メインの保存先にはしません。一時データや、消えても作り直せるデータに使います。"
+  },
+  {
+    "question": "会社の決まりで「AWS を使う」と決まっているとき、公開先はどれを選びますか?",
+    "options": ["クラウド(AWS / GCP / Azure)", "GitHub Pages", "レンタルサーバー", "PaaS(Render / Railway / Fly.io)"],
+    "explanation": "AWS はクラウドです。技術的には他でも動かせても、会社の決まり(セキュリティや契約)がある場合はそれに従います。"
+  }
+]
