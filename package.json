@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node scripts/copy-pyodide.mjs",
     "dev": "astro dev",
+    "prebuild": "node scripts/copy-pyodide.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "check:tasks": "node scripts/check-tasks.mjs",
@@ -11,6 +13,7 @@
   },
   "dependencies": {
     "astro": "^7.4.8",
+    "pyodide": "314.0.7",
     "sql.js": "^1.16.0"
   }
 }
