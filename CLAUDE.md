@@ -16,7 +16,7 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 
 ## 今の状態
 
-9分野・62レッスン(SQL 7、HTML/CSS 7、JavaScript 8、OS 6、Linux 6、ネットワーク 9、Git 6、Webアプリの道具 6、Python 7)と、各分野の最後に総合演習(計9つ、課題41個)。
+9分野・65レッスン(SQL 7、HTML/CSS 7、JavaScript 9、OS 6、Linux 6、ネットワーク 9、Git 6、Webアプリの道具 6、Python 9)と、各分野の最後に総合演習(計9つ、課題41個)。
 
 - 2026-11-22 PR #1(ネットワーク図の位置ずれ修正、PR でのビルドチェック)をマージ済み
 - 2026-11-23 `deploy.yml` の Node.js を 22 から 26(LTS、2029年4月までサポート)に上げた
@@ -26,6 +26,9 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 - 2026-11-23 `scripts/browser-check.mjs` を追加し、Actions に組み込んだ。全課題の模範解答をブラウザで解いて正解になるか、starter のままで正解にならないか、全ページがスマホ幅ではみ出さないかを確かめる(約20秒)
 - 2026-11-23 8分野に総合演習を追加(各分野の最後のレッスン、`content/<分野>/<番号>-final/`)。短い状況説明の記事(依頼の設定、使う知識の表、進め方のコツ)+ 振り返りクイズ4問 + 習ったことを組み合わせる課題4〜5個。新しい練習場の仕組みは使っていない
 - 2026-11-23 Python 分野を追加(7レッスン + 総合演習「成績表を作る」、課題32)。練習場はブラウザの中の本物の Python(Pyodide 314.0.7 = Python 3.14)を Web Worker で動かす。Pyodide は npm から入れ、`npm run dev` / `npm run build` の前に `scripts/copy-pyodide.mjs` が `public/pyodide/` へコピーする(約12MB、git には入れない)。無限ループは5秒で Worker ごと止める
+- 2026-11-24 公開に使う GitHub Actions を最新版に上げた(checkout v7、setup-node v7、upload-pages-artifact v5、deploy-pages v5)。Node.js 20 の終了への対応
+- 2026-11-24 JavaScript に 09 画面を書き換える(DOM)を追加。練習場に「画面」の欄(見本のページ SAMPLE_PAGE)ができ、課題は `"dom": true` と `actions`(click / fill)と `checks`(HTML と同じ)で書く。総合演習は 10-final に移した(js/09-final の進捗は消える)
+- 2026-11-24 Python に 08 クラス、09 ファイルとモジュールを追加。練習場で open が使える(練習用のファイル memo.txt / scores.csv と、課題の `files`)。総合演習は 10-final に移した
 
 ## 次にやること
 
@@ -39,5 +42,4 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 ## いずれやるかもしれないこと
 
 - Webアプリの道具に「サーバーの裏側」「コードを書かない選択肢」
-- Python の続き: ファイルの読み書き、クラス、標準ライブラリ(datetime、collections)。練習場にファイルはないので、読み書きは仮のファイルを用意する仕組みが必要
-- JavaScript の続き: 取ってきたデータを HTML に表示する(DOM 操作)。今の JS 練習場には画面がないので、HTML 練習場との組み合わせが必要
+- Python の続き: 内包表記、辞書やリストの並べ替え(sorted の key、lambda)、標準ライブラリ(collections、json)。JavaScript の続き: localStorage、フォームの送信、画面の課題に自分の HTML を使う(今は SAMPLE_PAGE だけ)

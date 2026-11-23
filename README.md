@@ -85,12 +85,17 @@ JavaScript(利用者のコードを隔離された iframe で実行し、[jsrunn
 - `setTimeout` と `fetch` がすべて終わるまで待ってから判定する(`setTimeout` の待ちは最大2秒)
 - `fetch` は本物のネットワークにつながず、練習用のにせ API が 0.2秒後に答える。`https://shop.example` の `GET /api/products`(SQL 分野と同じ12商品に `stock` を足したもの)、`GET /api/products/番号`(ない番号は 404)、`POST /api/orders`(`{ productId, quantity }`、成功は 201 で `total` を返す。数量や在庫の誤りは 400)、`GET /api/broken`(500)。ほかのホストは `TypeError: Failed to fetch`
 - iframe は `display:none` にしない(ブラウザがタイマーを1秒単位に間引き、待ちがのびるため)。1px・透明で置く
+- 画面の課題(`"dom": true`): 見本のページ([jsrunner.ts](src/lib/jsrunner.ts) の `SAMPLE_PAGE`。`#title` `#message` `#btn` `#count` `#name` `#add` `#list`)を入れた iframe を「画面」の欄に見えるように置いて実行する。コードと待ちが終わったら `actions`(`{ "click": "#add" }`、`{ "fill": "#name", "value": "牛乳" }`)を順に行い、`checks`(HTML の課題と同じ書き方)でページを調べる。ボタンの処理が fetch などで遅れても間に合うよう、1.5秒までは調べ直す。フリーモードにも同じ画面がある。記事の例もこの画面の要素を使う
+- ページを調べる判定と操作は [dom-core.js](src/lib/dom-core.js) の1か所で、HTML の練習場(`htmljudge.ts`)と共通。iframe には文字列で埋め込む
+- 画面の課題は Node では動かせないので、`check-tasks.mjs` は形だけ確かめ、正解になるかは `browser-check.mjs` が確かめる
+- 実行が終わったあとに出た `console.log` やエラー(画面のボタンを自分で押したときなど)も、出力に足していく
 
 Python(Web Worker の中の Pyodide で実行し、[pyrunner.ts](src/lib/pyrunner.ts) で判定):
 
 - `expectOutput` と `calls` は JavaScript と同じ書き方。`print` の出力と、コード実行後に評価した式の値を比べる。値は JSON にして比べるので、タプルはリスト、`None` は `null`。辞書のキーの順番は問わない。整数と小数は区別しない(`80.0` と `80` は同じ)
 - 実際に動かす部分は [pyrun-core.js](src/lib/pyrun-core.js) の1か所で、ブラウザ([pyworker.ts](src/lib/pyworker.ts))と `check-tasks.mjs`(Node 版の Pyodide)の両方が使う。毎回まっさらな名前空間で実行し、エラーは「何行目か」と最後の1行だけを返す(`translatePyError` が日本語の補足を付ける)
 - 5秒で打ち切る。Web Worker ごと止めて、次の実行の前に作り直す(1秒ほど)
+- ファイル: 実行のたびに作業フォルダ(`/home/pyodide/work`)を作り直し、練習用のファイル([pyrun-core.js](src/lib/pyrun-core.js) の `SAMPLE_FILES`: `memo.txt`、`scores.csv`)と課題の `files`(名前 → 中身)を置いてから実行する。`open("memo.txt")` のように名前だけで開ける。実行後のファイルは左の「練習用のファイル」に出る(新しくできた・変わったものに印)。書いたファイルの判定は `calls` で `open("passed.txt", encoding="utf-8").read()` などを評価する。課題に `files` があると(`{}` でも)、ファイルの欄を最初から開く
 - `input()` は使えない(呼ぶとエラーで知らせる)。標準ライブラリは使えるが、numpy などの追加パッケージは読み込まない
 - Pyodide の版は package.json で固定(`pyodide`)。上げるときは `npm install --save-exact pyodide@版` のあと、check-tasks と browser-check を通す
 - 初回は約12MB を読み込む(2回目からはブラウザのキャッシュ)。読み込みが終わるまで「実行」は押せない
@@ -149,6 +154,8 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 11. ネットワーク分野 — 部品を壊してエラーを見る練習場と9レッスン(全体像、IPとルーター、DNS、TCPとポート、HTTP、故障診断、Webサーバーの裏側(nginx・リバースプロキシ・502)、HTTPSと証明書、設定を間違える(IP・マスク・ゲートウェイ・DNS の設定画面))。課題の `netConfig` で開始時の PC 設定を、`netChecks` の `config` で設定の状態を判定できる
 13. 総合演習 — 8分野すべての最後に1レッスンずつ(`<番号>-final`)。依頼の設定を説明する短い記事、振り返りクイズ、習ったことを組み合わせる課題(SQL 5、HTML/CSS 5、JavaScript 5、OS 5、Linux 4、ネットワーク 4、Git 4、Webアプリの道具 4)。課題の `starter` で `__scenario` を2つ重ねたり(Linux)、`faults` と `netConfig` を組み合わせたり(ネットワーク)している(2026-11-23)
 14. Python分野 — 練習場(Pyodide を Web Worker で実行、出力・戻り値の判定、エラーの行と日本語の補足、Tab と Enter の字下げの手助け)と7レッスン(Python を動かす、文字列、条件分岐、リストと繰り返し、辞書、関数、エラーと例外)+ 総合演習「成績表を作る」(課題5)。課題は計32(2026-11-23)
+15. JavaScript 09 画面を書き換える(DOM)— JavaScript の練習場に「画面」の欄を足し、querySelector、textContent、createElement / append、addEventListener、入力欄の value、fetch したデータを並べる、innerHTML と XSS。課題5。総合演習は 10-final に移した(2026-11-24)
+16. Python 08 クラス、09 ファイルとモジュール — Python の練習場でファイルを読み書きできるようにした(練習用のファイル、課題の files)。総合演習は 10-final に移した(2026-11-24)
 
 ## 未決事項
 
