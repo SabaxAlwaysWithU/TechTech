@@ -47,6 +47,7 @@ for (let i = 1; i <= 3; i++) {
         <>
           <h1>フリーモード</h1>
           <p class="muted">課題はありません。JavaScriptを自由に書いて実行できます。<code>console.log</code> の出力が右に表示されます。</p>
+          <p class="muted">「画面」には見本のページが入っていて、<code>document.querySelector</code> で書き換えられます。</p>
         </>
       )}
     </section>
@@ -60,6 +61,11 @@ for (let i = 1; i <= 3; i++) {
         <button id="reset" class="btn secondary">最初に戻す</button>
         <span id="status" class="muted"></span>
       </div>
+    </section>
+    <section class="screen" id="screen-section" hidden={hasTasks && !tasks[0].dom}>
+      <h2>画面</h2>
+      <div id="screen"></div>
+      <p class="muted small">実行したあとは、画面のボタンや入力欄を自分で操作できます。「実行」を押すたびに最初の状態からやり直します。</p>
     </section>
     <section class="output">
       <h2>出力</h2>
@@ -77,7 +83,7 @@ for (let i = 1; i <= 3; i++) {
 <script type="application/json" id="practice-data" set:html={JSON.stringify({ lessonId, tasks, freeStarter })} />
 
 <script>
-  import { runJs, judgeJs } from '../lib/jsrunner';
+  import { runJs, judgeJs, showPage, SAMPLE_PAGE } from '../lib/jsrunner';
   import { getProgress, markTaskCleared } from '../lib/progress';
   import type { Task } from '../lib/content';
 
@@ -90,6 +96,27 @@ for (let i = 1; i <= 3; i++) {
   const status = $('status');
   let taskIndex = 0;
   let hintsShown = 0;
+  const screen = $('screen');
+  const screenSection = $('screen-section');
+
+  // 画面を使うのは、画面の課題(dom)とフリーモード
+  function usesScreen(): boolean {
+    const t = tasks[taskIndex];
+    return t ? !!t.dom : true;
+  }
+  function updateScreen() {
+    const on = usesScreen();
+    screenSection.hidden = !on;
+    if (on) showPage(screen, SAMPLE_PAGE); else screen.replaceChildren();
+  }
+  // 実行が終わったあとに出た console.log(画面のボタンを自分で押したときなど)を出力に足す
+  function appendLine(line: string) {
+    output.querySelector(':scope > .muted')?.remove();
+    const div = document.createElement('div');
+    div.textContent = line;
+    if (line.startsWith('エラー: ')) div.className = 'err';
+    output.appendChild(div);
+  }
 
   function currentTask(): Task | undefined { return tasks[taskIndex]; }
 
@@ -118,6 +145,7 @@ for (let i = 1; i <= 3; i++) {
     }
     if (prog.tasks?.[t.id]) { verdict.hidden = false; verdict.classList.add('correct'); verdict.textContent = 'クリア済み。別の書き方も試してみましょう。'; }
     input.value = t.starter ?? '';
+    updateScreen();
     output.innerHTML = '<span class="muted">まだ実行していません。</span>';
   }
 
@@ -143,10 +171,16 @@ for (let i = 1; i <= 3; i++) {
     runBtn.disabled = true;
     status.textContent = '実行中…';
     const t = currentTask();
-    const out = await runJs(input.value, t?.calls?.map((c) => c.call) ?? []);
+    const onScreen = usesScreen();
+    const calls = t?.calls?.map((c) => c.call) ?? [];
+    const out = onScreen
+      ? await runJs(input.value, calls, 5000, { container: screen, page: SAMPLE_PAGE, actions: t?.actions, checks: t?.checks, onLateLog: appendLine })
+      : await runJs(input.value, calls);
     output.innerHTML = '';
     if (out.logs.length === 0 && out.ok) {
-      output.innerHTML = '<span class="muted">(出力はありません。console.log で表示できます)</span>';
+      output.innerHTML = onScreen
+        ? '<span class="muted">(出力はありません。画面を見てください)</span>'
+        : '<span class="muted">(出力はありません。console.log で表示できます)</span>';
     }
     for (const line of out.logs) {
       const div = document.createElement('div');
@@ -163,7 +197,7 @@ for (let i = 1; i <= 3; i++) {
     }
     status.textContent = `実行: ${new Date().toLocaleTimeString('ja-JP')}`;
     if (t) {
-      const j = judgeJs(out, t.expectOutput, t.calls);
+      const j = judgeJs(out, t.expectOutput, t.calls, t.dom ? t.checks : undefined);
       const verdict = $('verdict');
       verdict.hidden = false;
       verdict.className = 'verdict ' + (j.correct ? 'correct' : 'wrong');
@@ -203,7 +237,7 @@ for (let i = 1; i <= 3; i++) {
   const preset = params.get('code');
   const presetTask = Number(params.get('task'));
   if (tasks.length && presetTask >= 1 && presetTask <= tasks.length) taskIndex = presetTask - 1;
-  if (tasks.length) renderTask();
+  if (tasks.length) renderTask(); else updateScreen();
   if (preset) { input.value = preset; if (!tasks.length) run(); }
 </script>
 
@@ -250,6 +284,8 @@ for (let i = 1; i <= 3; i++) {
   textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
   .actions { display: flex; gap: 0.6rem; align-items: center; margin-top: 0.6rem; }
   .actions .muted { font-size: 0.85rem; }
+  .small { font-size: 0.8rem; margin: 0.4rem 0 0; }
+  #screen :global(.screen-frame) { display: block; width: 100%; height: 15rem; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
   .console {
     font-family: var(--mono); font-size: 0.9rem; line-height: 1.6; margin: 0;
     padding: 0.8rem 1rem; min-height: 6rem; border: 1px solid var(--line); border-radius: var(--radius);
