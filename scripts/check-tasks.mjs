@@ -17,9 +17,9 @@ function runJsInVm(code, calls) {
 
 /** 練習場と同じ pyrun-core.js を、Node の Pyodide で動かす(初めて使うときに読み込む) */
 let pyodide = null;
-async function runPy(code, calls) {
+async function runPy(code, calls, files) {
   pyodide ??= await loadPyodide();
-  return runPython(pyodide, code, calls);
+  return runPython(pyodide, code, calls, files);
 }
 
 /** Python の判定と同じく、辞書のキーの順番は問わずに比べる(pyrunner.ts の samePy と同じ) */
@@ -67,10 +67,18 @@ for (const field of readdirSync(root)) {
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
         if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); failures++; }
+        if (t.dom) {
+          // JavaScript の画面の課題: Node には画面がないので、形だけ確かめる(正解になるかは browser-check.mjs)
+          if (!Array.isArray(t.checks) || t.checks.length === 0) { console.log(`  !! 課題 ${t.id}: 画面の課題には checks が必要です`); failures++; }
+          if (!t.answer) { console.log(`  !! 課題 ${t.id}: answer(模範解答)がありません`); failures++; }
+          for (const a of t.actions ?? []) if (!a.click && !a.fill) { console.log(`  !! 課題 ${t.id}: actions は click か fill です: ${JSON.stringify(a)}`); failures++; }
+          console.log(`  課題 ${t.id}: 画面の判定 ${t.checks?.length ?? 0}件、操作 ${t.actions?.length ?? 0}件(ブラウザで確かめる)`);
+          continue;
+        }
         if (!t.expectOutput && !t.calls) { console.log(`  !! 課題 ${t.id}: expectOutput か calls が必要です`); failures++; continue; }
         const calls = (t.calls ?? []).map((c) => c.call);
         try {
-          const out = practice === 'python' ? await runPy(t.answer, calls) : await runJsInVm(t.answer, calls);
+          const out = practice === 'python' ? await runPy(t.answer, calls, t.files) : await runJsInVm(t.answer, calls);
           if (!out.ok) throw new Error(out.error);
           const logs = out.logs;
           const results = out.results;

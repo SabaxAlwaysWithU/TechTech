@@ -51,6 +51,13 @@ for i in range(1, 4):
         </>
       )}
     </section>
+    <section class="files">
+      <details id="files-box" open={hasTasks && !!tasks[0].files}>
+        <summary>練習用のファイル</summary>
+        <p class="muted small">コードからは <code>open("memo.txt")</code> のように名前だけで開けます。実行のたびに、この最初の状態に戻ってから実行します。書き込んだファイルは、実行のあとここに出ます。</p>
+        <div id="file-list"></div>
+      </details>
+    </section>
   </div>
   <div class="pane right">
     <section class="editor">
@@ -79,6 +86,7 @@ for i in range(1, 4):
 
 <script>
   import { preparePython, runPy, judgePy } from '../lib/pyrunner';
+  import { SAMPLE_FILES } from '../lib/pyrun-core.js';
   import { getProgress, markTaskCleared } from '../lib/progress';
   import type { Task } from '../lib/content';
 
@@ -91,6 +99,30 @@ for i in range(1, 4):
   const status = $('status');
   let taskIndex = 0;
   let hintsShown = 0;
+
+  // 練習用のファイル: 共通の SAMPLE_FILES に、課題の files を足したもの
+  function startFiles(): Record<string, string> {
+    return { ...SAMPLE_FILES, ...(tasks[taskIndex]?.files ?? {}) };
+  }
+  // before を渡すと、実行で新しくできたファイルと変わったファイルに印を付ける
+  function renderFiles(files: Record<string, string>, before?: Record<string, string>) {
+    const box = $('file-list');
+    box.replaceChildren();
+    for (const [name, text] of Object.entries(files)) {
+      const h = document.createElement('p');
+      h.className = 'file-name';
+      h.textContent = name;
+      if (before && !(name in before)) h.dataset.mark = '実行でできた';
+      else if (before && before[name] !== text) h.dataset.mark = '実行で変わった';
+      const pre = document.createElement('pre');
+      pre.className = 'file-body';
+      pre.textContent = text === '' ? '(空)' : text;
+      box.append(h, pre);
+    }
+    if (before && Object.keys(files).some((n) => !(n in before) || before[n] !== files[n])) {
+      $<HTMLDetailsElement>('files-box').open = true;
+    }
+  }
 
   function currentTask(): Task | undefined { return tasks[taskIndex]; }
 
@@ -119,6 +151,8 @@ for i in range(1, 4):
     }
     if (prog.tasks?.[t.id]) { verdict.hidden = false; verdict.classList.add('correct'); verdict.textContent = 'クリア済み。別の書き方も試してみましょう。'; }
     input.value = t.starter ?? '';
+    renderFiles(startFiles());
+    if (t.files) $<HTMLDetailsElement>('files-box').open = true;
     output.innerHTML = '<span class="muted">まだ実行していません。</span>';
   }
 
@@ -158,7 +192,8 @@ for i in range(1, 4):
     runBtn.disabled = true;
     status.textContent = '実行中…';
     const t = currentTask();
-    const out = await runPy(input.value, t?.calls?.map((c) => c.call) ?? []);
+    const out = await runPy(input.value, t?.calls?.map((c) => c.call) ?? [], t?.files ?? {});
+    if (out.files) renderFiles(out.files, startFiles());
     output.innerHTML = '';
     if (out.logs.length === 0 && out.ok) {
       output.innerHTML = '<span class="muted">(出力はありません。print で表示できます)</span>';
@@ -226,7 +261,7 @@ for i in range(1, 4):
   const preset = params.get('code');
   const presetTask = Number(params.get('task'));
   if (tasks.length && presetTask >= 1 && presetTask <= tasks.length) taskIndex = presetTask - 1;
-  if (tasks.length) renderTask();
+  if (tasks.length) renderTask(); else renderFiles(startFiles());
   if (preset) input.value = preset;
   prepare().then(() => { if (preset && !tasks.length) run(); });
 </script>
@@ -274,6 +309,12 @@ for i in range(1, 4):
   textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
   .actions { display: flex; gap: 0.6rem; align-items: center; margin-top: 0.6rem; }
   .actions .muted { font-size: 0.85rem; }
+  .files { margin-top: 2rem; }
+  .files summary { font-weight: 600; }
+  .small { font-size: 0.8rem; margin: 0.4rem 0 0.6rem; }
+  .files :global(.file-name) { font-family: var(--mono); font-size: 0.85rem; font-weight: 600; margin: 0.8rem 0 0.2rem; }
+  .files :global(.file-name[data-mark])::after { content: ' ' attr(data-mark); color: var(--accent); font-family: inherit; font-weight: 400; font-size: 0.8rem; }
+  .files :global(.file-body) { font-family: var(--mono); font-size: 0.85rem; background: var(--surface); padding: 0.5rem 0.8rem; margin: 0; border-radius: var(--radius-sm); white-space: pre-wrap; max-height: 12rem; overflow: auto; }
   .console {
     font-family: var(--mono); font-size: 0.9rem; line-height: 1.6; margin: 0;
     padding: 0.8rem 1rem; min-height: 6rem; border: 1px solid var(--line); border-radius: var(--radius);

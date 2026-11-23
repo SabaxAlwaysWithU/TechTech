@@ -9,6 +9,7 @@ export interface PyOutcome {
   line?: number; // エラーの行(分かるとき)
   hint?: string; // エラーの日本語補足
   results?: ({ v: unknown; r: string } | { e: string })[]; // calls の結果。r は Python での見え方(repr)
+  files?: Record<string, string>; // 実行後の作業フォルダのファイル(名前 → 中身)
   timeout?: boolean;
 }
 
@@ -35,8 +36,8 @@ export function preparePython(): Promise<void> {
   return ready;
 }
 
-/** コードを実行する。timeoutMs を超えたら作業者ごと止める(次の実行の前に作り直す) */
-export async function runPy(code: string, calls: string[] = [], timeoutMs = 5000): Promise<PyOutcome> {
+/** コードを実行する。files は練習用のファイルに足すもの。timeoutMs を超えたら作業者ごと止める(次の実行の前に作り直す) */
+export async function runPy(code: string, calls: string[] = [], files: Record<string, string> = {}, timeoutMs = 5000): Promise<PyOutcome> {
   await preparePython();
   const w = worker!;
   const id = ++seq;
@@ -52,10 +53,10 @@ export async function runPy(code: string, calls: string[] = [], timeoutMs = 5000
       if (d.type !== 'result' || d.id !== id) return;
       clearTimeout(timer);
       w.removeEventListener('message', onMessage);
-      resolve({ ok: d.ok, logs: d.logs ?? [], error: d.error, line: d.line, results: d.results, hint: d.error ? translatePyError(d.error) : undefined });
+      resolve({ ok: d.ok, logs: d.logs ?? [], error: d.error, line: d.line, results: d.results, files: d.files, hint: d.error ? translatePyError(d.error) : undefined });
     };
     w.addEventListener('message', onMessage);
-    w.postMessage({ type: 'run', id, code, calls });
+    w.postMessage({ type: 'run', id, code, calls, files });
   });
 }
 
@@ -81,8 +82,14 @@ export function translatePyError(msg: string): string {
   if (/unsupported operand type\(s\) for [+\-*/]+: '(int|float)' and 'str'/.test(msg)) return '数と文字列は計算できません。文字列の数は int(...) で数にしてください。';
   if (/unsupported operand type\(s\)/.test(msg)) return 'この組み合わせの値どうしは計算できません。それぞれの値の種類(数、文字列、リスト)を確認してください。';
   if ((m = msg.match(/^TypeError: '(\w+)' object is not callable/))) return `${m[1]} の値を関数のように呼び出しています。変数名が関数名(list、str、sum など)と重なっていないか確認してください。`;
-  if ((m = msg.match(/^TypeError: (\w+)\(\) missing (\d+) required positional argument/))) return `${m[1]}() に渡す値(引数)が ${m[2]}個 足りません。`;
-  if ((m = msg.match(/^TypeError: (\w+)\(\) takes (\d+) positional arguments? but (\d+) (were|was) given/))) return `${m[1]}() は引数を ${m[2]}個 受け取りますが、${m[3]}個 渡しています。`;
+  if ((m = msg.match(/^TypeError: ([\w.]+)\(\) missing (\d+) required positional argument/))) {
+    const name = m[1].replace(/\.__init__$/, '');
+    return `${name}() に渡す値(引数)が ${m[2]}個 足りません。${m[1].endsWith('__init__') ? 'クラスから作るときは、__init__ の self 以外の引数をすべて渡します。' : ''}`;
+  }
+  if ((m = msg.match(/^TypeError: ([\w.]+)\(\) takes (\d+) positional arguments? but (\d+) (were|was) given/))) {
+    const self = m[1].includes('.') && Number(m[3]) === Number(m[2]) + 1 ? ' メソッドの最初の引数に self を書き忘れていませんか？' : '';
+    return `${m[1]}() は引数を ${m[2]}個 受け取りますが、${m[3]}個 渡しています。${self}`;
+  }
   if (/object is not subscriptable/.test(msg)) return '[ ] で中身を取り出せない値に [ ] を付けています。変数の中身を確認してください。';
   if (/object is not iterable/.test(msg)) return 'for で1つずつ取り出せない値(数など)を回そうとしています。数の回数なら range(...) を使います。';
   if (/list indices must be integers/.test(msg)) return 'リストの番号は整数で指定します。辞書のつもりなら { } で作ったか確認してください。';
@@ -92,6 +99,8 @@ export function translatePyError(msg: string): string {
   if (/^ZeroDivisionError/.test(msg)) return '0 で割り算をしています。';
   if ((m = msg.match(/^AttributeError: '(\w+)' object has no attribute '(\w+)'/))) return `${m[1]} には .${m[2]} がありません。つづりや、値の種類を確認してください。${maybe}`;
   if (/^RecursionError/.test(msg)) return '関数が自分自身を呼び続けて止まらなくなりました。';
+  if ((m = msg.match(/^FileNotFoundError: .*'([^']+)'$/))) return `ファイル「${m[1]}」がありません。ファイル名のつづりを、「練習用のファイル」の一覧と見比べてください。`;
+  if (/not readable|not writable/.test(msg)) return 'ファイルを開いたときのモードと、していることが合っていません。読むときは "r"、書くときは "w" か "a" で開きます。';
   if (/^ModuleNotFoundError/.test(msg)) return 'その名前のモジュールはこの練習場にありません。標準ライブラリ(math、datetime など)は使えます。';
   if (/^UnboundLocalError/.test(msg)) return '関数の中で、値を入れる前にその変数を使っています。';
   return 'エラーの行とメッセージを確認してください。';

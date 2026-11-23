@@ -10,10 +10,18 @@
 /**
  * @param {string} code 利用者のコード
  * @param {string[]} calls コードを動かしたあとに評価する式(判定用)。Promise なら結果を待つ
+ * @param {{ onLog?: (line: string) => void, after?: (settle: () => Promise<void>) => Promise<void> }} [hooks]
+ *   onLog: console.log のたびに呼ぶ(実行が終わったあと、ボタンの処理などから出た行を画面に足すため)
+ *   after: コードと待ちが終わったあとに呼ぶ(画面の課題で、ボタンを押すなどの操作をしてから判定するため)。
+ *          settle を await すると、操作で始まった setTimeout や fetch が終わるまで待てる
  * @returns {Promise<{ ok: boolean, logs: string[], error?: string, results?: ({ v: unknown } | { e: string })[] }>}
  */
-export function runUserCode(code, calls) {
+export function runUserCode(code, calls, hooks) {
   var logs = [];
+  function out(s) {
+    logs.push(s);
+    if (hooks && hooks.onLog) hooks.onLog(s);
+  }
   var pending = 0; // まだ終わっていない setTimeout と fetch の数
   var idleWaiters = []; // pending が 0 になったら呼ぶ関数
   var asyncError = null; // setTimeout の中で起きたエラー
@@ -38,10 +46,10 @@ export function runUserCode(code, calls) {
   }
   function line(args) { return Array.prototype.map.call(args, fmt).join(' '); }
   var fakeConsole = {
-    log: function () { logs.push(line(arguments)); },
-    info: function () { logs.push(line(arguments)); },
-    error: function () { logs.push('エラー: ' + line(arguments)); },
-    warn: function () { logs.push('警告: ' + line(arguments)); },
+    log: function () { out(line(arguments)); },
+    info: function () { out(line(arguments)); },
+    error: function () { out('エラー: ' + line(arguments)); },
+    warn: function () { out('警告: ' + line(arguments)); },
   };
 
   // ---- setTimeout / clearTimeout(終わるまで待てるように数を数える) ----
@@ -170,11 +178,16 @@ export function runUserCode(code, calls) {
   } catch (e) {
     return Promise.resolve({ ok: false, logs: logs, error: String(e) });
   }
-  var alertFn = function (m) { logs.push('[alert] ' + fmt(m)); };
+  var alertFn = function (m) { out('[alert] ' + fmt(m)); };
   var promptFn = function () { return null; };
   return fn(fakeConsole, alertFn, promptFn, fakeFetch, userSetTimeout, userClearTimeout).then(
     function (results) {
       return settle().then(function () {
+        if (asyncError || !hooks || !hooks.after) return;
+        return Promise.resolve()
+          .then(function () { return hooks.after(settle); })
+          .then(settle, function (e) { if (!asyncError) asyncError = String(e); });
+      }).then(function () {
         return asyncError ? { ok: false, logs: logs, error: asyncError } : { ok: true, logs: logs, results: results };
       });
     },

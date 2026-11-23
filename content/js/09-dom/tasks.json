@@ -1,0 +1,93 @@
+[
+  {
+    "id": "text",
+    "title": "見出しを書き換える",
+    "text": "<p>画面の見出し(<code>#title</code>)を「<code>ようこそ TechTech へ</code>」に、その下の文(<code>#message</code>)を「<code>JavaScript で書き換えました</code>」に書き換えてください。</p>",
+    "dom": true,
+    "starter": "// #title と #message を見つけて、textContent を入れ替える\n",
+    "answer": "const title = document.querySelector(\"#title\");\ntitle.textContent = \"ようこそ TechTech へ\";\nconst message = document.querySelector(\"#message\");\nmessage.textContent = \"JavaScript で書き換えました\";",
+    "hints": [
+      "const title = document.querySelector(\"#title\"); で見出しが見つかります。id には # を付けます。",
+      "title.textContent = \"ようこそ TechTech へ\"; のあと、#message も同じように書き換えます。"
+    ],
+    "checks": [
+      { "selector": "#title", "text": "ようこそ TechTech へ", "message": "見出し(#title)の文字が「ようこそ TechTech へ」になっていません。" },
+      { "selector": "#message", "text": "JavaScript で書き換えました", "message": "#message の文字が「JavaScript で書き換えました」になっていません。" }
+    ]
+  },
+  {
+    "id": "list",
+    "title": "リストに並べる",
+    "text": "<p>配列 <code>fruits</code> の中身を、画面のリスト(<code>#list</code>)に <code>&lt;li&gt;</code> として1つずつ足してください。</p>",
+    "dom": true,
+    "starter": "const fruits = [\"りんご\", \"バナナ\", \"みかん\"];\nconst list = document.querySelector(\"#list\");\n",
+    "answer": "const fruits = [\"りんご\", \"バナナ\", \"みかん\"];\nconst list = document.querySelector(\"#list\");\nfor (const f of fruits) {\n  const li = document.createElement(\"li\");\n  li.textContent = f;\n  list.append(li);\n}",
+    "hints": [
+      "for (const f of fruits) { ... } の中で、document.createElement(\"li\") で li を作ります。",
+      "li.textContent = f; で中身を入れ、list.append(li); で足します。"
+    ],
+    "checks": [
+      { "selector": "#list li", "count": 3, "message": "#list の中に li が3つありません。fruits の数だけ append しているか確認してください。" },
+      { "selector": "#list li:first-child", "text": "りんご", "message": "1つ目の li が「りんご」になっていません。" },
+      { "selector": "#list li:last-child", "text": "みかん", "message": "最後の li が「みかん」になっていません。" }
+    ]
+  },
+  {
+    "id": "counter",
+    "title": "押した回数を数える",
+    "text": "<p>ボタン(<code>#btn</code>)が押されるたびに、横の数(<code>#count</code>)が 1 ずつ増えるようにしてください。</p><p>判定では、実行したあとにボタンを3回押して、<code>3</code> になっているかを調べます。実行したら、自分でもボタンを押してみましょう。</p>",
+    "dom": true,
+    "starter": "const btn = document.querySelector(\"#btn\");\nconst count = document.querySelector(\"#count\");\nlet n = 0;\n",
+    "answer": "const btn = document.querySelector(\"#btn\");\nconst count = document.querySelector(\"#count\");\nlet n = 0;\nbtn.addEventListener(\"click\", () => {\n  n++;\n  count.textContent = n;\n});",
+    "hints": [
+      "btn.addEventListener(\"click\", () => { ... }); の { } の中が、押されたときに動く処理です。",
+      "中で n++; として、count.textContent = n; で表示を変えます。"
+    ],
+    "actions": [{ "click": "#btn" }, { "click": "#btn" }, { "click": "#btn" }],
+    "checks": [
+      { "selector": "#count", "text": "3", "message": "ボタンを3回押したあと、#count が 3 になっていません。" }
+    ]
+  },
+  {
+    "id": "todo",
+    "title": "入力して追加する",
+    "text": "<p>「追加」ボタン(<code>#add</code>)を押したら、入力欄(<code>#name</code>)の文字を <code>&lt;li&gt;</code> にして <code>#list</code> に足し、入力欄を空にしてください。入力欄が空のときは、何も足しません。</p><p>判定では「牛乳」「卵」を順に入れて追加し、最後に空のまま「追加」を押します。</p>",
+    "dom": true,
+    "starter": "const input = document.querySelector(\"#name\");\nconst add = document.querySelector(\"#add\");\nconst list = document.querySelector(\"#list\");\n",
+    "answer": "const input = document.querySelector(\"#name\");\nconst add = document.querySelector(\"#add\");\nconst list = document.querySelector(\"#list\");\nadd.addEventListener(\"click\", () => {\n  if (input.value === \"\") {\n    return;\n  }\n  const li = document.createElement(\"li\");\n  li.textContent = input.value;\n  list.append(li);\n  input.value = \"\";\n});",
+    "hints": [
+      "add.addEventListener(\"click\", () => { ... }); の中で、input.value を読んで li を作ります。",
+      "最初に if (input.value === \"\") { return; } で空のときは終わらせます。li を append したあと input.value = \"\"; で空にします。"
+    ],
+    "actions": [
+      { "fill": "#name", "value": "牛乳" },
+      { "click": "#add" },
+      { "fill": "#name", "value": "卵" },
+      { "click": "#add" },
+      { "fill": "#name", "value": "" },
+      { "click": "#add" }
+    ],
+    "checks": [
+      { "selector": "#list li", "count": 2, "message": "#list の li が2つではありません。空のときに足していないか、押すたびに足しているか確認してください。" },
+      { "selector": "#list li:first-child", "text": "牛乳", "message": "1つ目の li が「牛乳」になっていません。" },
+      { "selector": "#list li:last-child", "text": "卵", "message": "2つ目の li が「卵」になっていません。" }
+    ]
+  },
+  {
+    "id": "fetch-list",
+    "title": "商品一覧を表示する",
+    "text": "<p>練習用の API(<code>https://shop.example/api/products</code>)から商品を取ってきて、カテゴリが「周辺機器」の商品だけを <code>#list</code> に「<code>マウス 2500円</code>」の形で並べてください。</p><p>さらに、見出し(<code>#title</code>)を「<code>周辺機器 5件</code>」のように、並べた数がわかる文字にします。</p>",
+    "dom": true,
+    "starter": "const res = await fetch(\"https://shop.example/api/products\");\nconst products = await res.json();\nconst list = document.querySelector(\"#list\");\n",
+    "answer": "const res = await fetch(\"https://shop.example/api/products\");\nconst products = await res.json();\nconst list = document.querySelector(\"#list\");\nconst items = products.filter((p) => p.category === \"周辺機器\");\nfor (const p of items) {\n  const li = document.createElement(\"li\");\n  li.textContent = `${p.name} ${p.price}円`;\n  list.append(li);\n}\ndocument.querySelector(\"#title\").textContent = `周辺機器 ${items.length}件`;",
+    "hints": [
+      "products.filter((p) => p.category === \"周辺機器\") で周辺機器だけの配列になります。それを for...of で回して li を足します。",
+      "li.textContent = `${p.name} ${p.price}円`; の形です。見出しは document.querySelector(\"#title\").textContent = `周辺機器 ${items.length}件`;"
+    ],
+    "checks": [
+      { "selector": "#list li", "count": 5, "message": "#list の li が5つではありません。周辺機器の商品だけを並べているか確認してください。" },
+      { "selector": "#list li", "text": "マウス 2500円", "message": "「マウス 2500円」の形の li がありません。名前と価格の間はスペース1つ、最後に「円」です。" },
+      { "selector": "#title", "text": "周辺機器 5件", "message": "見出しが「周辺機器 5件」になっていません。" }
+    ]
+  }
+]

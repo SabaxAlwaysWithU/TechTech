@@ -34,6 +34,13 @@ export interface HtmlCheck {
   message: string; // 満たさないときに出す1行
 }
 
+/** JavaScript練習場の画面の課題で、判定の前に行う操作。{ click: "#add" } か { fill: "#name", value: "牛乳" } */
+export interface DomAction {
+  click?: string;
+  fill?: string;
+  value?: string;
+}
+
 /** JavaScript練習場の判定: 利用者のコードを実行したあとに call を評価し、expect と比べる */
 export interface JsCall {
   call: string; // 例: "add(2, 3)"
@@ -55,6 +62,10 @@ export interface Task {
   // JS / Python 用
   expectOutput?: string[]; // console.log(Python は print)の出力がこの通りなら正解
   calls?: JsCall[]; // 関数を呼んだ結果がこの通りなら正解
+  dom?: boolean; // JS: 見本のページ(jsrunner.ts の SAMPLE_PAGE)の上で実行し、checks(HTML と同じ書き方)で画面を調べる
+  actions?: DomAction[]; // JS の画面の課題: コードを実行したあと、判定の前に行う操作
+  // Python: 練習用のファイル(名前 → 中身)。pyrun-core.js の SAMPLE_FILES に足して、実行のたびに作り直す
+  files?: Record<string, string>;
   // シェル(OS)用。ShellCheck は lib/shell.ts
   shellChecks?: ShellCheckLike[];
   // ネットワーク用。NetCheck は lib/netsim.ts

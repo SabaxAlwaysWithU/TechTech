@@ -1,0 +1,76 @@
+[
+  {
+    "id": "read-lines",
+    "title": "メモに番号を付ける",
+    "text": "<p><code>memo.txt</code> を1行ずつ読み、番号を付けて出力してください。</p><pre>1. 牛乳を買う\n2. 本を返す\n3. 部屋を掃除する</pre>",
+    "files": {},
+    "starter": "",
+    "answer": "n = 1\nwith open(\"memo.txt\", encoding=\"utf-8\") as f:\n    for line in f:\n        print(f\"{n}. {line.strip()}\")\n        n += 1",
+    "hints": [
+      "with open(\"memo.txt\", encoding=\"utf-8\") as f: の中で、for line in f: で1行ずつ取り出します。番号は n = 1 から数えます。",
+      "print(f\"{n}. {line.strip()}\") のあとに n += 1。strip() を忘れると、行末の改行で空行が入ります。"
+    ],
+    "expectOutput": ["1. 牛乳を買う", "2. 本を返す", "3. 部屋を掃除する"]
+  },
+  {
+    "id": "csv",
+    "title": "CSV を集計する",
+    "text": "<p><code>scores.csv</code> を読み、平均点と、いちばん点数の高い人を出力してください。1行目は列の名前なので飛ばします。</p><pre>平均 72.5点\n最高 鈴木 90点</pre>",
+    "files": {},
+    "starter": "with open(\"scores.csv\", encoding=\"utf-8\") as f:\n    next(f)\n    for line in f:\n        print(line.strip())\n",
+    "answer": "total = 0\ncount = 0\nbest_name = \"\"\nbest_score = -1\nwith open(\"scores.csv\", encoding=\"utf-8\") as f:\n    next(f)\n    for line in f:\n        name, score = line.strip().split(\",\")\n        score = int(score)\n        total += score\n        count += 1\n        if score > best_score:\n            best_name = name\n            best_score = score\nprint(f\"平均 {total / count}点\")\nprint(f\"最高 {best_name} {best_score}点\")",
+    "hints": [
+      "name, score = line.strip().split(\",\") で名前と点数に分け、score = int(score) で数にします。合計 total と人数 count を数えておき、平均は total / count です。",
+      "いちばん高い人は、best_score = -1 から始めて、if score > best_score: のときに best_name と best_score を入れ替えます。print は with の外(字下げなし)で。"
+    ],
+    "expectOutput": ["平均 72.5点", "最高 鈴木 90点"]
+  },
+  {
+    "id": "write",
+    "title": "合格者をファイルに書く",
+    "text": "<p><code>scores.csv</code> を読み、60点以上の人の名前を、1行に1人ずつ <code>passed.txt</code> に書いてください。並び順は CSV のままです。</p><p>書けたら、左の「練習用のファイル」に <code>passed.txt</code> が出ます。</p>",
+    "files": {},
+    "starter": "with open(\"scores.csv\", encoding=\"utf-8\") as f:\n    next(f)\n    for line in f:\n        name, score = line.strip().split(\",\")\n",
+    "answer": "with open(\"scores.csv\", encoding=\"utf-8\") as f, open(\"passed.txt\", \"w\", encoding=\"utf-8\") as out:\n    next(f)\n    for line in f:\n        name, score = line.strip().split(\",\")\n        if int(score) >= 60:\n            out.write(name + \"\\n\")",
+    "hints": [
+      "書くファイルは open(\"passed.txt\", \"w\", encoding=\"utf-8\") で開きます。読むファイルの with の外に、別の with で書いてもかまいません(先に名前をリストに集めておく)。",
+      "if int(score) >= 60: のときに out.write(name + \"\\n\")。write は改行を自動で付けないので \\n を足します。"
+    ],
+    "calls": [
+      { "call": "open(\"passed.txt\", encoding=\"utf-8\").read()", "expect": "山田\n佐藤\n鈴木\n" }
+    ]
+  },
+  {
+    "id": "append",
+    "title": "記録を書き足す",
+    "text": "<p>関数 <code>add_log(text)</code> を完成させてください。<code>log.txt</code> の最後に、<code>text</code> を1行書き足します。前の記録は消しません。</p><p>判定では <code>add_log(\"12:00 昼休み\")</code> を呼んだあと、<code>log.txt</code> の中身を調べます。</p>",
+    "files": { "log.txt": "09:00 開店\n" },
+    "starter": "def add_log(text):\n    with open(\"log.txt\", \"w\", encoding=\"utf-8\") as f:\n        f.write(text + \"\\n\")\n",
+    "answer": "def add_log(text):\n    with open(\"log.txt\", \"a\", encoding=\"utf-8\") as f:\n        f.write(text + \"\\n\")",
+    "hints": [
+      "今のコードは \"w\" で開いているので、前の記録(09:00 開店)が消えてしまいます。",
+      "\"w\" を \"a\"(書き足し)に変えます。"
+    ],
+    "calls": [
+      { "call": "add_log(\"12:00 昼休み\")", "expect": null },
+      { "call": "open(\"log.txt\", encoding=\"utf-8\").read()", "expect": "09:00 開店\n12:00 昼休み\n" }
+    ]
+  },
+  {
+    "id": "math",
+    "title": "割り勘",
+    "text": "<p>関数 <code>split_bill(total, people)</code> を作ってください。合計金額 <code>total</code> を <code>people</code> 人で割り、1人分を <strong>100円単位で切り上げた</strong>金額を返します。10000円を3人なら、3333.3…円を切り上げて 3400 です。</p><p><code>math</code> モジュールの <code>ceil</code>(切り上げ)を使います。</p>",
+    "starter": "import math\n\ndef split_bill(total, people):\n    return total // people\n\nprint(split_bill(10000, 3))\n",
+    "answer": "import math\n\ndef split_bill(total, people):\n    return math.ceil(total / people / 100) * 100\n\nprint(split_bill(10000, 3))",
+    "hints": [
+      "100円単位で切り上げるには、一度 100 で割って切り上げ、また 100 をかけます。3333.3 → 33.33 → 34 → 3400。",
+      "return math.ceil(total / people / 100) * 100"
+    ],
+    "calls": [
+      { "call": "split_bill(10000, 3)", "expect": 3400 },
+      { "call": "split_bill(9000, 3)", "expect": 3000 },
+      { "call": "split_bill(4500, 4)", "expect": 1200 },
+      { "call": "split_bill(1, 4)", "expect": 100 }
+    ]
+  }
+]
