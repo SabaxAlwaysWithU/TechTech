@@ -7,11 +7,11 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 
 - git の操作(branch / commit / push / PR の作成)は Claude がやる(2026-11-23 から。それまではユーザーが手で打って覚えていた)。マージは main に入ると公開されるので、ユーザーが差分を見てから行う
 - PR は `gh pr create` で作り、リンクをユーザーに渡す。メインの PC には gh(ログイン済み)と Node.js が入っている。PATH で見つからないときは `C:\Program Files\GitHub CLI\gh.exe`、`C:\Program Files\nodejs\` を直接使う。gh がない PC では、push 後に `https://github.com/SabaxAlwaysWithU/TechTech/pull/new/<ブランチ>` を渡す
-- 変更は ブランチ → push → GitHub で PR → 差分を確認 → マージ → `git pull` の流れで入れる。PR では Actions がビルドと課題チェックだけを行い、main に入ると公開される
+- 変更は ブランチ → push → GitHub で PR → 差分を確認 → マージ → `git pull` の流れで入れる。PR では Actions がビルド・課題チェック・ブラウザでの確認だけを行い、main に入ると公開される
 - 説明は初心者向けに、たとえ話を交えて短く
 - デザインは白・黒・灰色と深緑 #1f7a5c の1色。グラデーション、絵文字アイコン、影付きカード3枚並び、大きなヒーロー、全部フェードインは使わない
-- 課題を足したら `node scripts/check-tasks.mjs` を通す。画面の確認は手元のビルドか、公開版(https://sabaxalwayswithu.github.io/TechTech/)で
-- Claude がブラウザで確かめるときは、`npx astro preview` を立て、ヘッドレス Edge(`C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`)を DevTools プロトコル(`--remote-debugging-port`)で操作する。練習場に模範解答を入れて「実行」を押し、判定を読む。スマホ幅(375px)で横にはみ出していないかも見る。`--dump-dom` と `--virtual-time-budget` は時計を早送りして iframe の返事より先に打ち切りが来るので使わない
+- 課題やページを足したら、`node scripts/check-tasks.mjs` と、`npm run build` のあとの `node scripts/browser-check.mjs`(全課題をブラウザで解く、全ページのスマホ幅)を通す。どちらも PR で Actions が自動で走らせる
+- 見た目をスクリーンショットで確かめたいときは、`browser-check.mjs` と同じやり方(ヘッドレス Edge を DevTools プロトコルで操作)で撮る。`--dump-dom` と `--virtual-time-budget` は時計を早送りして iframe の返事より先に打ち切りが来るので使わない
 
 ## 今の状態
 
@@ -22,6 +22,7 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 - 2026-11-23 JavaScript に 07 待つ処理(async / await)と 08 fetch と API を追加。練習場で await と、練習用のにせ API(`https://shop.example`)への fetch が使える(仕組みは README の「課題の判定」)
 - 2026-11-23 HTML/CSS に 07 フォームを追加(label、input の type、radio、select、textarea、required、action / method)
 - 2026-11-23 ネットワーク図を 320〜1280px で確認して直した。図の枠の幅(コンテナクエリ)で、狭いときは箱を小さく・名前を短く(ネット、サーバー)する。PC 幅では線のラベル「ケーブル / Wi-Fi」を2行にして箱の間に収めた
+- 2026-11-23 `scripts/browser-check.mjs` を追加し、Actions に組み込んだ。全課題の模範解答をブラウザで解いて正解になるか、starter のままで正解にならないか、全ページがスマホ幅ではみ出さないかを確かめる(約20秒)
 
 ## 次にやること
 

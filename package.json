@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "check:tasks": "node scripts/check-tasks.mjs",
+    "check:browser": "node scripts/browser-check.mjs"
   },
   "dependencies": {
     "astro": "^7.4.8",

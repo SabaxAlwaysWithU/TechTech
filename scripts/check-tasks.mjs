@@ -90,7 +90,7 @@ for (const field of readdirSync(root)) {
       }
     }
     if (existsSync(tasksPath) && practice === 'net') {
-      // ネットワーク: 構造だけ確かめる。模範解答の検証はブラウザのテストで行う
+      // ネットワーク: 構造だけ確かめる。模範解答の検証は browser-check.mjs で行う
       const PARTS = ['cable', 'ipconfig', 'router', 'wan', 'dns', 'server', 'port', 'cert', 'app', 'db'];
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
@@ -104,7 +104,7 @@ for (const field of readdirSync(root)) {
       }
     }
     if (existsSync(tasksPath) && practice === 'shell') {
-      // シェル(OS): 構造だけ確かめる。模範解答の検証はブラウザのテストで行う
+      // シェル(OS): 構造だけ確かめる。模範解答の検証は browser-check.mjs で行う
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
         if (!Array.isArray(t.shellChecks) || t.shellChecks.length === 0) { console.log(`  !! 課題 ${t.id}: shellChecks がありません`); failures++; }
@@ -114,7 +114,7 @@ for (const field of readdirSync(root)) {
       }
     }
     if (existsSync(tasksPath) && practice === 'html') {
-      // HTML: 構造だけ確かめる。模範解答の検証はブラウザのテストで行う
+      // HTML: 構造だけ確かめる。模範解答の検証は browser-check.mjs で行う
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
         if (!Array.isArray(t.checks) || t.checks.length === 0) { console.log(`  !! 課題 ${t.id}: checks がありません`); failures++; }

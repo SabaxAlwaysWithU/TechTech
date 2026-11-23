@@ -9,7 +9,8 @@ npm install
 npm run dev                   # http://localhost:4321
 npm run build                 # dist/ に静的HTMLを出力
 npm run preview               # dist/ を確認
-node scripts/check-tasks.mjs  # 全課題の模範解答を実行して確かめる
+node scripts/check-tasks.mjs  # 全課題の模範解答を実行して確かめる(SQL と JavaScript)、ほかは形を確かめる
+node scripts/browser-check.mjs # ビルド後に、全課題をブラウザで解いて確かめる、全ページのスマホ幅も見る
 ```
 
 ## 構成
@@ -71,7 +72,7 @@ HTML(プレビューにできたページを `checks` で調べる。すべて�
 - `selector`: 調べる要素。`count` を指定しなければ1つ以上あればよい
 - `text` / `textIncludes`: 文字の一致、`attr`: 属性の値、`css`: `getComputedStyle` の値(色は `rgb(255, 0, 0)` 形式)
 - `message`: 満たさないときに出す1行
-- `answer` は「模範解答を見る」用。模範解答が実際に正解になるかはブラウザのテストで確かめる
+- `answer` は「模範解答を見る」用。模範解答が実際に正解になるかは `browser-check.mjs` が確かめる
 
 JavaScript(利用者のコードを隔離された iframe で実行し、[jsrunner.ts](src/lib/jsrunner.ts) で判定):
 
@@ -89,7 +90,7 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 - `git: {...}`: `initialized`、`commits`(以上)、`lastMessageIncludes`、`branch`、`branchExists`、`staged`、`notStaged`、`tracked`、`notTracked`、`clean`、`remote`、`pushed`、`upstream`、`merged`
 - `starter`: 課題を開いたときに黙って実行するコマンド(改行区切り)。`cd project` や `git init` 済みの状態を作る
 - 使えるコマンドは `shell.ts` の `commands`(`help` で一覧)。仮想ファイルの初期状態は `initialFs()`、プロセスは `initialProcesses()`
-- `answer` は改行区切りで複数行可。ブラウザのテストで1行ずつ打って検証する
+- `answer` は改行区切りで複数行可。`browser-check.mjs` が1行ずつ打って検証する
 
 構成(Webアプリの道具。`catalog.json` の層ごとに選択肢を選び、`picks` に含まれていれば正解):
 
@@ -97,6 +98,21 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 - `why`: 層id → 考え方(正解でも不正解でも表示)
 - `rejects`: 層id → 選択肢id → その選択肢が合わない理由(省略時は汎用メッセージ)
 - `check-tasks.mjs` が id の存在と全層の正解の有無を検証する
+
+### ブラウザでの確認([browser-check.mjs](scripts/browser-check.mjs))
+
+`npm run build` のあと `node scripts/browser-check.mjs`。`dist/` を自前のサーバーで配り、ヘッドレスの Chrome / Edge を DevTools プロトコルで操作して、次を確かめる。PR と main への push のたびに GitHub Actions でも動き、失敗すると公開しない。
+
+- 全課題の `answer` を練習場に入れて実行し、「正解」になる(SQL / HTML / JavaScript / シェル / ネットワーク / 構成のすべて。構成は `picks` の先頭を選ぶ)
+- HTML と JavaScript の課題は、`starter` のままでは正解にならない
+- `dist/` の全ページをスマホ幅(375px)で開き、横にはみ出さない
+
+環境変数: `BASE`(ビルドと同じ base)、`CHROME`(ブラウザの場所)、`ONLY`(名前に含む課題・ページだけ。例: `ONLY=js/08`)、`WORKERS`(同時に開くタブ数、既定 4)。
+
+ネットワークの `answer` には、コマンドの行のほかに括弧書きの手順を1行に1つ書ける。読み取れない括弧書きは失敗になる。
+
+- `(図でケーブルを壊す)`、`(… なので DNS を直す)`: 部品の一覧から、名前が文中に出てくる部品を押す(「DNSサーバー」は「DNS」、「ケーブル / Wi-Fi」は「ケーブル」でも当たる)
+- `(設定画面: 手動 ip=192.168.1.10 mask=255.255.255.0 gateway=192.168.1.1 dns=8.8.8.8)`: 設定画面に入れて適用する
 
 ## 公開(GitHub Pages)
 
