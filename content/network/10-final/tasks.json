@@ -1,0 +1,72 @@
+[
+  {
+    "id": "nothing-opens",
+    "title": "依頼1 何も開けない",
+    "text": "<p>「何も開けない」という連絡です。図は「?」で、どこが壊れているかは見えません。<code>ip addr</code> や <code>ping 192.168.1.1</code> で、近いところから調べて直してください。直したら <code>curl http://example.com/</code> で確かめます。</p>",
+    "faults": ["cable"],
+    "hideStatus": true,
+    "answer": "ip addr\nping 192.168.1.1\n(Network is unreachable なのでケーブルを直す)\ncurl http://example.com/",
+    "hints": [
+      "ip addr の設定は正しそうです。では ping 192.168.1.1 でルーターまで届くか試します。",
+      "Network is unreachable は、外へ出る道そのものがない状態です。PC とルーターの間(ケーブル / Wi-Fi)を直します。"
+    ],
+    "netChecks": [
+      { "usedCommand": "ping", "message": "まず ping 192.168.1.1 で、ルーターまで届くか確かめてください。" },
+      { "healthy": true, "message": "まだ壊れている部品があります。ping の結果の文言を手がかりにしてください。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "直せたら curl http://example.com/ で確かめてください。" }
+    ]
+  },
+  {
+    "id": "dns-and-app",
+    "title": "依頼2 開けないうえに商品一覧がエラー",
+    "text": "<p>「サイトが開けないし、開けても商品一覧がエラーになる」という連絡です。壊れているところは2か所あります。<code>curl http://example.com/api/products</code> から始めて、エラーの文言が変わるのを手がかりに、両方直してください。</p>",
+    "faults": ["dns", "app"],
+    "hideStatus": true,
+    "answer": "curl http://example.com/api/products\nnslookup example.com\n(名前が引けないので DNS を直す)\ncurl http://example.com/api/products\n(502 Bad Gateway なのでアプリを直す)\ncurl http://example.com/api/products",
+    "hints": [
+      "Could not resolve host は名前が引けない状態です。nslookup example.com で確かめ、timed out なら DNS を直します。",
+      "DNS を直すと、今度は 502 Bad Gateway。nginx の後ろのアプリが止まっています。アプリを直して、もう一度 curl します。"
+    ],
+    "netChecks": [
+      { "usedCommand": "nslookup", "message": "nslookup example.com で、名前が引けるか確かめてください。" },
+      { "healthy": true, "message": "まだ壊れている部品があります。エラーの文言が変わったら、次の段に進んだ証拠です。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "products", "message": "両方直せたら curl http://example.com/api/products で、商品一覧が返ることを確かめてください。" }
+    ]
+  },
+  {
+    "id": "https-and-db",
+    "title": "依頼3 HTTPS の警告と商品一覧",
+    "text": "<p>「HTTPS のページで警告が出る。無視して進んでも商品一覧が出ない」という連絡です。<code>curl https://example.com/api/products</code> で調べてください。2か所壊れています。</p>",
+    "faults": ["cert", "db"],
+    "hideStatus": true,
+    "answer": "curl https://example.com/api/products\n(certificate has expired なので証明書を直す)\ncurl https://example.com/api/products\ncurl https://example.com/\n(トップは出るのに API が 5432 につながらないのでデータベースを直す)\ncurl https://example.com/api/products",
+    "hints": [
+      "certificate has expired は証明書の期限切れです。証明書を直してから、もう一度 curl します。",
+      "ECONNREFUSED 127.0.0.1:5432 は、アプリがデータベース(PostgreSQL は 5432 番)につながれない状態です。データベースを直します。"
+    ],
+    "netChecks": [
+      { "usedCommand": "curl", "message": "curl https://example.com/api/products で、何が起きているか確かめてください。" },
+      { "healthy": true, "message": "まだ壊れている部品があります。" },
+      { "lastCommandIncludes": "https://example.com/api/products", "lastOutputIncludes": "products", "message": "両方直せたら curl https://example.com/api/products で、商品一覧が返ることを確かめてください。" }
+    ]
+  },
+  {
+    "id": "config-and-wan",
+    "title": "依頼4 設定をいじってから",
+    "text": "<p>「設定を自分でいじってから、つながらなくなった」という連絡です。設定の誤りのほかに、もう1か所、部品も壊れています。設定画面と、<code>ping</code>・<code>traceroute</code> を使って、両方直してください。</p>",
+    "faults": ["wan"],
+    "hideStatus": true,
+    "netConfig": { "dhcp": false, "ip": "192.168.1.10", "mask": "255.255.255.0", "gateway": "192.168.1.254", "dns": "8.8.8.8" },
+    "answer": "ip addr\nping 192.168.1.1\n(設定画面: 手動 ip=192.168.1.10 mask=255.255.255.0 gateway=192.168.1.1 dns=8.8.8.8)\nping 8.8.8.8\ntraceroute 8.8.8.8\n(ルーターの先に進めないのでインターネット回線を直す)\ncurl http://example.com/",
+    "hints": [
+      "ip addr で設定を見ると、ゲートウェイが 192.168.1.254 です。ping 192.168.1.1 は通るので、ルーターは 192.168.1.1 にいます。設定画面でゲートウェイを直します。",
+      "設定を直しても ping 8.8.8.8 が通りません。traceroute 8.8.8.8 で、ルーターの先で止まっていればインターネット回線です。"
+    ],
+    "netChecks": [
+      { "usedCommand": "traceroute", "message": "外へ出られない場所を traceroute 8.8.8.8 で確かめてください。" },
+      { "config": { "gateway": "192.168.1.1" }, "message": "設定のゲートウェイが、ルーターの番号(192.168.1.1)になっていません。" },
+      { "healthy": true, "message": "まだ壊れている部品があります。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Example Domain", "message": "両方直せたら curl http://example.com/ で確かめてください。" }
+    ]
+  }
+]
