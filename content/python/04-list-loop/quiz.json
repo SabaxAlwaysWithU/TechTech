@@ -1,0 +1,32 @@
+[
+  {
+    "question": "for i in range(3): print(i) で表示される数はどれですか？",
+    "options": ["0, 1, 2", "1, 2, 3", "0, 1, 2, 3", "3"],
+    "explanation": "range(3) は 0 から始まり、3 の手前までです。1 から 3 にしたいときは range(1, 4) と書きます。"
+  },
+  {
+    "question": "items = [\"a\", \"b\"] のあとに items.append(\"c\") を実行しました。items はどれですか？",
+    "options": ["[\"a\", \"b\", \"c\"]", "[\"c\", \"a\", \"b\"]", "[\"a\", \"b\"]", "[\"c\"]"],
+    "explanation": "append はリストの最後に1つ足します。文字列のメソッドと違い、リストそのものが変わります。"
+  },
+  {
+    "question": "次のうち、for の中で合計を数える書き方として正しいのはどれですか？",
+    "options": [
+      "total = 0 を for の前に書き、for の中で total += price",
+      "for の中で total = 0 と total += price を両方書く",
+      "for の中で total = price",
+      "for のあとに total += price を字下げせずに書く"
+    ],
+    "explanation": "合計を入れる変数は、くり返しの前に1回だけ 0 で用意します。for の中で 0 に戻すと、毎回やり直しになってしまいます。"
+  },
+  {
+    "question": "while を使うときに気をつけることはどれですか？",
+    "options": [
+      "条件がいつか False になるようにしないと、終わらなくなる",
+      "while の中では if が使えない",
+      "while はリストにしか使えない",
+      "while の行の終わりには : を付けない"
+    ],
+    "explanation": "while は条件が True のあいだくり返します。中で条件に関わる変数を変えないと、無限ループになります。"
+  }
+]

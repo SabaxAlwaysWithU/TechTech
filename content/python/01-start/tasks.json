@@ -1,0 +1,38 @@
+[
+  {
+    "id": "hello",
+    "title": "はじめての出力",
+    "text": "<p><code>print</code> を使って、次の2行をこの順番で出力してください。</p><pre>こんにちは\nPython です</pre>",
+    "starter": "",
+    "answer": "print(\"こんにちは\")\nprint(\"Python です\")",
+    "hints": [
+      "print(\"文字\") を2回書きます。1回で1行出力されます。",
+      "print(\"こんにちは\") と print(\"Python です\") を2行に分けて書きます。"
+    ],
+    "expectOutput": ["こんにちは", "Python です"]
+  },
+  {
+    "id": "calc",
+    "title": "割り算の3種類",
+    "text": "<p>17 を 5 で割った「普通の割り算の結果」「整数の部分」「余り」を、この順に1行ずつ出力してください。計算式を書いて、Python に計算させます。</p><pre>3.4\n3\n2</pre>",
+    "starter": "",
+    "answer": "print(17 / 5)\nprint(17 // 5)\nprint(17 % 5)",
+    "hints": [
+      "普通の割り算は /、整数の部分は //、余りは % です。",
+      "print(17 / 5)、print(17 // 5)、print(17 % 5) の3行です。"
+    ],
+    "expectOutput": ["3.4", "3", "2"]
+  },
+  {
+    "id": "variables",
+    "title": "お会計を計算する",
+    "text": "<p>1個 <code>price</code> 円の商品を <code>count</code> 個買います。変数 <code>total</code> に合計金額を入れ、「<code>合計 3600 円</code>」の形で出力してください。</p><p>文字列と数はそのまま <code>+</code> でつなげません。<code>str(total)</code> を使うか、<code>print</code> にカンマで区切って渡します。</p>",
+    "starter": "price = 1200\ncount = 3\n",
+    "answer": "price = 1200\ncount = 3\ntotal = price * count\nprint(\"合計\", total, \"円\")",
+    "hints": [
+      "total = price * count で合計を変数に入れます。",
+      "print(\"合計\", total, \"円\") と書くと、間にスペースが入って「合計 3600 円」になります。"
+    ],
+    "expectOutput": ["合計 3600 円"]
+  }
+]

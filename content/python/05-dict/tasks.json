@@ -1,0 +1,58 @@
+[
+  {
+    "id": "access",
+    "title": "値下げする",
+    "text": "<p>辞書 <code>product</code> の名前と値段を「<code>マウス: 2500円</code>」の形で出力し、次に値段を 2000 に変えてから、同じ形でもう一度出力してください。</p><pre>マウス: 2500円\nマウス: 2000円</pre>",
+    "starter": "product = {\"name\": \"マウス\", \"price\": 2500}\n",
+    "answer": "product = {\"name\": \"マウス\", \"price\": 2500}\nprint(f\"{product['name']}: {product['price']}円\")\nproduct[\"price\"] = 2000\nprint(f\"{product['name']}: {product['price']}円\")",
+    "hints": [
+      "名前は product[\"name\"]、値段は product[\"price\"] です。値段を変えるのは product[\"price\"] = 2000 です。",
+      "f文字列の中で辞書を引くときは、外側の \" とぶつからないように中を ' にします。print(f\"{product['name']}: {product['price']}円\")"
+    ],
+    "expectOutput": ["マウス: 2500円", "マウス: 2000円"]
+  },
+  {
+    "id": "items",
+    "title": "成績を一覧にする",
+    "text": "<p>辞書 <code>scores</code> を <code>items()</code> で回して教科ごとに1行ずつ出力し、最後に合計を出力してください。</p><pre>国語: 80点\n数学: 92点\n英語: 78点\n合計: 250点</pre>",
+    "starter": "scores = {\"国語\": 80, \"数学\": 92, \"英語\": 78}\n",
+    "answer": "scores = {\"国語\": 80, \"数学\": 92, \"英語\": 78}\nfor subject, score in scores.items():\n    print(f\"{subject}: {score}点\")\nprint(f\"合計: {sum(scores.values())}点\")",
+    "hints": [
+      "for subject, score in scores.items(): で、教科名と点数を1組ずつ受け取れます。",
+      "合計は sum(scores.values()) です。for の外(字下げなし)で print(f\"合計: {sum(scores.values())}点\")"
+    ],
+    "expectOutput": ["国語: 80点", "数学: 92点", "英語: 78点", "合計: 250点"]
+  },
+  {
+    "id": "get",
+    "title": "値段を調べる",
+    "text": "<p>関数 <code>price_of(name)</code> を完成させてください。辞書 <code>prices</code> から商品の値段を返します。辞書にない商品なら、エラーにせず <code>0</code> を返します。</p>",
+    "starter": "prices = {\"マウス\": 2500, \"キーボード\": 6800, \"モニター\": 32000}\n\ndef price_of(name):\n    return prices[name]\n\nprint(price_of(\"マウス\"))\n",
+    "answer": "prices = {\"マウス\": 2500, \"キーボード\": 6800, \"モニター\": 32000}\n\ndef price_of(name):\n    return prices.get(name, 0)\n\nprint(price_of(\"マウス\"))",
+    "hints": [
+      "今の prices[name] は、ない商品だと KeyError になります。ないときの代わりの値を決められるメソッドがあります。",
+      "return prices.get(name, 0)"
+    ],
+    "calls": [
+      { "call": "price_of(\"マウス\")", "expect": 2500 },
+      { "call": "price_of(\"モニター\")", "expect": 32000 },
+      { "call": "price_of(\"プリンター\")", "expect": 0 }
+    ]
+  },
+  {
+    "id": "count",
+    "title": "カテゴリごとに数える",
+    "text": "<p>関数 <code>count_by_category(products)</code> を完成させてください。商品の辞書のリストを受け取り、カテゴリごとの商品数を辞書で返します。</p><p>下の <code>products</code> なら <code>{\"周辺機器\": 3, \"パソコン\": 2}</code> です。</p>",
+    "starter": "products = [\n    {\"name\": \"マウス\", \"category\": \"周辺機器\"},\n    {\"name\": \"ノートパソコン\", \"category\": \"パソコン\"},\n    {\"name\": \"キーボード\", \"category\": \"周辺機器\"},\n    {\"name\": \"デスクトップパソコン\", \"category\": \"パソコン\"},\n    {\"name\": \"モニター\", \"category\": \"周辺機器\"},\n]\n\ndef count_by_category(products):\n    counts = {}\n\n    return counts\n\nprint(count_by_category(products))\n",
+    "answer": "products = [\n    {\"name\": \"マウス\", \"category\": \"周辺機器\"},\n    {\"name\": \"ノートパソコン\", \"category\": \"パソコン\"},\n    {\"name\": \"キーボード\", \"category\": \"周辺機器\"},\n    {\"name\": \"デスクトップパソコン\", \"category\": \"パソコン\"},\n    {\"name\": \"モニター\", \"category\": \"周辺機器\"},\n]\n\ndef count_by_category(products):\n    counts = {}\n    for p in products:\n        c = p[\"category\"]\n        counts[c] = counts.get(c, 0) + 1\n    return counts\n\nprint(count_by_category(products))",
+    "hints": [
+      "for p in products: で1つずつ取り出し、p[\"category\"] でカテゴリを見ます。",
+      "for の中で c = p[\"category\"] とし、counts[c] = counts.get(c, 0) + 1 で数えます。"
+    ],
+    "calls": [
+      { "call": "count_by_category(products)", "expect": { "周辺機器": 3, "パソコン": 2 } },
+      { "call": "count_by_category([{\"name\": \"冷蔵庫\", \"category\": \"家電\"}])", "expect": { "家電": 1 } },
+      { "call": "count_by_category([])", "expect": {} }
+    ]
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "if-else",
+    "title": "偶数か奇数か",
+    "text": "<p>変数 <code>n</code> が偶数なら「<code>偶数</code>」、そうでなければ「<code>奇数</code>」と出力してください。<code>n % 2</code> は <code>n</code> を 2 で割った余りです(偶数なら 0)。</p><p>書けたら、<code>n</code> を 8 などに変えて「偶数」と出ることも確かめてみましょう。</p>",
+    "starter": "n = 7\n",
+    "answer": "n = 7\nif n % 2 == 0:\n    print(\"偶数\")\nelse:\n    print(\"奇数\")",
+    "hints": [
+      "if n % 2 == 0: の次の行を字下げして print(\"偶数\")、else: の次の行を字下げして print(\"奇数\") です。",
+      "if と else の行の終わりの : と、print の行の頭のスペース4つを忘れないようにしてください。"
+    ],
+    "expectOutput": ["奇数"]
+  },
+  {
+    "id": "elif",
+    "title": "成績を付ける",
+    "text": "<p>関数 <code>grade(score)</code> を完成させてください。<code>score</code> が 80 以上なら <code>\"A\"</code>、60 以上なら <code>\"B\"</code>、それ以外は <code>\"C\"</code> を返します。</p><p>関数の作り方はレッスン6で学びます。ここでは、<code>def</code> の中で <code>return 値</code> と書くとその値が結果になる、とだけ覚えてください。<code>def</code> の中なので、<code>if</code> はさらに1段深く字下げします。</p>",
+    "starter": "def grade(score):\n    # ここに if を書く\n    return \"?\"\n\nprint(grade(75))\n",
+    "answer": "def grade(score):\n    if score >= 80:\n        return \"A\"\n    elif score >= 60:\n        return \"B\"\n    else:\n        return \"C\"\n\nprint(grade(75))",
+    "hints": [
+      "if score >= 80: → return \"A\"、elif score >= 60: → return \"B\"、else: → return \"C\" の順に書きます。return の行はスペース8つの字下げです。",
+      "80 以上の判定を先に書くのがポイントです。60 以上を先に書くと、90点でも B になってしまいます。"
+    ],
+    "calls": [
+      { "call": "grade(95)", "expect": "A" },
+      { "call": "grade(80)", "expect": "A" },
+      { "call": "grade(75)", "expect": "B" },
+      { "call": "grade(60)", "expect": "B" },
+      { "call": "grade(59)", "expect": "C" },
+      { "call": "grade(0)", "expect": "C" }
+    ]
+  },
+  {
+    "id": "and",
+    "title": "入場できるか",
+    "text": "<p>関数 <code>can_enter(age, has_ticket)</code> を完成させてください。<code>age</code> が 18 以上で、かつ <code>has_ticket</code> が <code>True</code> のときだけ <code>True</code> を返し、それ以外は <code>False</code> を返します。</p>",
+    "starter": "def can_enter(age, has_ticket):\n    return False\n\nprint(can_enter(20, True))\n",
+    "answer": "def can_enter(age, has_ticket):\n    if age >= 18 and has_ticket:\n        return True\n    else:\n        return False\n\nprint(can_enter(20, True))",
+    "hints": [
+      "「かつ」は and です。if age >= 18 and has_ticket: のときに return True、else: で return False。",
+      "条件そのものが True / False なので、return age >= 18 and has_ticket と1行でも書けます。"
+    ],
+    "calls": [
+      { "call": "can_enter(20, True)", "expect": true },
+      { "call": "can_enter(18, True)", "expect": true },
+      { "call": "can_enter(17, True)", "expect": false },
+      { "call": "can_enter(30, False)", "expect": false }
+    ]
+  },
+  {
+    "id": "leap-year",
+    "title": "うるう年",
+    "text": "<p>関数 <code>is_leap(year)</code> を完成させてください。うるう年なら <code>True</code>、そうでなければ <code>False</code> を返します。うるう年の決まりは次のとおりです。</p><ul><li>4 で割り切れる年はうるう年</li><li>ただし、100 で割り切れる年はうるう年ではない</li><li>ただし、400 で割り切れる年はうるう年</li></ul><p>2024年と2000年はうるう年、2023年と1900年はうるう年ではありません。</p>",
+    "starter": "def is_leap(year):\n    return False\n\nprint(is_leap(2024))\n",
+    "answer": "def is_leap(year):\n    if year % 400 == 0:\n        return True\n    elif year % 100 == 0:\n        return False\n    elif year % 4 == 0:\n        return True\n    else:\n        return False\n\nprint(is_leap(2024))",
+    "hints": [
+      "「割り切れる」は year % 4 == 0 のように、余りが 0 かどうかで調べます。例外の多い決まりは、いちばん強い例外(400)から順に if / elif で調べると書きやすくなります。",
+      "400 で割り切れる → True、100 で割り切れる → False、4 で割り切れる → True、それ以外 → False の順です。1行なら return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)"
+    ],
+    "calls": [
+      { "call": "is_leap(2024)", "expect": true },
+      { "call": "is_leap(2023)", "expect": false },
+      { "call": "is_leap(1900)", "expect": false },
+      { "call": "is_leap(2000)", "expect": true },
+      { "call": "is_leap(2100)", "expect": false }
+    ]
+  }
+]
