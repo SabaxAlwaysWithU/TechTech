@@ -1,0 +1,57 @@
+[
+  {
+    "id": "category-summary",
+    "title": "付箋1 カテゴリごとの商品数と最高価格",
+    "text": "<p>「商品のカテゴリごとに、何種類あって、一番高いのはいくらか知りたい」</p><p><code>products</code> を、カテゴリ、商品の数、一番高い価格 の3列で出してください。行の順番は問いません。</p>",
+    "answer": "SELECT category, COUNT(*), MAX(price)\nFROM products\nGROUP BY category;",
+    "hints": [
+      "「カテゴリごとに」なので GROUP BY category。数は COUNT(*)、一番高い値は MAX(price) です。",
+      "SELECT category, COUNT(*), MAX(price) FROM products GROUP BY category;"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "having",
+    "title": "付箋2 お客さんが2人以上いる都道府県",
+    "text": "<p>「お客さんが2人以上いる都道府県はどこ?」</p><p><code>customers</code> を都道府県ごとにまとめ、顧客が2人以上いる都道府県と、その人数の2列を出してください。行の順番は問いません。</p>",
+    "answer": "SELECT prefecture, COUNT(*)\nFROM customers\nGROUP BY prefecture\nHAVING COUNT(*) >= 2;",
+    "hints": [
+      "まとめたあとの人数で絞るので、WHERE ではなく HAVING を使います。HAVING は GROUP BY のあとに書きます。",
+      "SELECT prefecture, COUNT(*) FROM customers GROUP BY prefecture HAVING COUNT(*) >= 2;"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "best-sellers",
+    "title": "付箋3 よく売れている商品トップ3",
+    "text": "<p>「よく売れている商品トップ3を教えて。キャンセルされた注文は数えないでね」</p><p>売れた個数(<code>order_items.quantity</code> の合計)が多い商品を3つ、商品名と個数の2列で出してください。状態(<code>orders.status</code>)が「キャンセル」の注文は除きます。3つの中の順番は問いません。</p>",
+    "answer": "SELECT p.name, SUM(oi.quantity) AS sold\nFROM order_items oi\nJOIN orders o ON o.id = oi.order_id\nJOIN products p ON p.id = oi.product_id\nWHERE o.status <> 'キャンセル'\nGROUP BY p.id\nORDER BY sold DESC\nLIMIT 3;",
+    "hints": [
+      "order_items に products(商品名)と orders(状態)の2つをつなぎます。キャンセルを外すのは、まとめる前なので WHERE o.status <> 'キャンセル' です。",
+      "GROUP BY p.id でまとめて SUM(oi.quantity) を求め、ORDER BY その合計 DESC と LIMIT 3 で上位3つに絞ります。"
+    ],
+    "ordered": false
+  },
+  {
+    "id": "top-customers",
+    "title": "付箋4 たくさん買ってくれたお客さん",
+    "text": "<p>「たくさん買ってくれたお客さんトップ3に、お礼の手紙を書きたい」</p><p>状態が「発送済」の注文だけを対象に、顧客ごとの購入金額(価格 × 個数 の合計)を求め、多い順に3人、顧客名と金額の2列で出してください。今回は順番も判定します。</p>",
+    "answer": "SELECT c.name, SUM(p.price * oi.quantity) AS total\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nJOIN order_items oi ON oi.order_id = o.id\nJOIN products p ON p.id = oi.product_id\nWHERE o.status = '発送済'\nGROUP BY c.id\nORDER BY total DESC\nLIMIT 3;",
+    "hints": [
+      "customers → orders → order_items → products と4つの表をつなぎます。金額は SUM(p.price * oi.quantity) です。",
+      "WHERE o.status = '発送済' で絞り、GROUP BY c.id でまとめて、ORDER BY 金額 DESC と LIMIT 3 にします。"
+    ],
+    "ordered": true
+  },
+  {
+    "id": "ship",
+    "title": "付箋5 発送済みに直す",
+    "text": "<p>「10月15日までの準備中の注文、さっき全部発送したから、記録を直しておいて」</p><p><code>orders</code> のうち、状態が「準備中」で、注文日(<code>ordered_at</code>)が <code>2024-10-15</code> 以前のものを、状態「発送済」に変えてください。</p><p>先に同じ条件で <code>SELECT</code> して、変わる行を確かめてから実行するのがおすすめです。</p>",
+    "answer": "UPDATE orders\nSET status = '発送済'\nWHERE status = '準備中' AND ordered_at <= '2024-10-15';",
+    "hints": [
+      "UPDATE orders SET status = '発送済' WHERE ... の形です。条件は「準備中」と「2024-10-15 以前」の2つを AND でつなぎます。",
+      "日付は文字なので '2024-10-15' のように引用符で囲みます。以前(その日を含む)は <= です。"
+    ],
+    "mutation": true
+  }
+]

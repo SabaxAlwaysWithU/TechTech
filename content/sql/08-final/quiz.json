@@ -1,0 +1,37 @@
+[
+  {
+    "question": "「注文が3件以上ある顧客だけ」を出したいとき、COUNT(*) >= 3 の条件はどこに書きますか?",
+    "options": ["GROUP BY のあとの HAVING", "FROM の前", "GROUP BY の前の WHERE", "ORDER BY のあと"],
+    "explanation": "COUNT(*) はまとめたあとに決まる値なので、まとめた結果を絞る HAVING に書きます。WHERE はまとめる前の1行ずつを絞ります。"
+  },
+  {
+    "question": "注文の明細(order_items)に商品名を付けたいとき、正しいつなぎ方はどれですか?",
+    "options": [
+      "JOIN products ON products.id = order_items.product_id",
+      "JOIN products ON products.id = order_items.id",
+      "JOIN products ON products.name = order_items.product_id",
+      "JOIN products ON products.price = order_items.quantity"
+    ],
+    "explanation": "order_items.product_id は「どの商品か」を products.id で指しています(外部キー)。この2つの列でつなぎます。"
+  },
+  {
+    "question": "売上の金額を商品ごとに合計するときの書き方として正しいものはどれですか?",
+    "options": [
+      "SUM(products.price * order_items.quantity)",
+      "COUNT(products.price)",
+      "SUM(products.price) * COUNT(*)",
+      "MAX(products.price * order_items.quantity)"
+    ],
+    "explanation": "1行ごとに「価格 × 個数」を計算し、それを SUM で足し合わせます。COUNT は行の数、MAX は一番大きい値です。"
+  },
+  {
+    "question": "UPDATE を実行する前にやっておくと安全なことはどれですか?",
+    "options": [
+      "同じ WHERE で SELECT して、変わる行を確かめる",
+      "WHERE を外して全部の行に効くか試す",
+      "表を DROP TABLE で作り直す",
+      "ORDER BY を付けて順番を決める"
+    ],
+    "explanation": "UPDATE の WHERE を間違えると、意図しない行まで変わります。先に同じ条件で SELECT すれば、対象の行を目で確かめられます。"
+  }
+]
