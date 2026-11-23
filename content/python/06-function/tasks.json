@@ -1,0 +1,68 @@
+[
+  {
+    "id": "return",
+    "title": "あいさつを返す",
+    "text": "<p>名前を受け取り、「<code>こんにちは、さばさん</code>」のような文字列を<strong>返す</strong>関数 <code>greet(name)</code> を作ってください。表示(<code>print</code>)ではなく、<code>return</code> で返します。</p>",
+    "starter": "def greet(name):\n    print(f\"こんにちは、{name}さん\")\n\nprint(greet(\"さば\"))\n",
+    "answer": "def greet(name):\n    return f\"こんにちは、{name}さん\"\n\nprint(greet(\"さば\"))",
+    "hints": [
+      "今のコードを実行すると、あいさつのあとに None が表示されます。関数が何も返していないからです。",
+      "関数の中の print(...) を return に書き換えます。return f\"こんにちは、{name}さん\""
+    ],
+    "calls": [
+      { "call": "greet(\"さば\")", "expect": "こんにちは、さばさん" },
+      { "call": "greet(\"たら\")", "expect": "こんにちは、たらさん" }
+    ]
+  },
+  {
+    "id": "default",
+    "title": "税込み価格",
+    "text": "<p>関数 <code>with_tax(price, rate=10)</code> を作ってください。<code>price</code> 円に <code>rate</code> パーセントの税を足した金額を、整数で返します。<code>rate</code> を省略したら 10 パーセントです。</p><p>計算は <code>price * (100 + rate) // 100</code> です(<code>//</code> で小数を切り捨てます)。</p>",
+    "starter": "",
+    "answer": "def with_tax(price, rate=10):\n    return price * (100 + rate) // 100\n\nprint(with_tax(1000))\nprint(with_tax(1000, 8))",
+    "hints": [
+      "def with_tax(price, rate=10): と書くと、rate を省略したときに 10 になります。",
+      "中身は return price * (100 + rate) // 100 の1行です。"
+    ],
+    "calls": [
+      { "call": "with_tax(1000)", "expect": 1100 },
+      { "call": "with_tax(1000, 8)", "expect": 1080 },
+      { "call": "with_tax(980)", "expect": 1078 },
+      { "call": "with_tax(2500, rate=0)", "expect": 2500 }
+    ]
+  },
+  {
+    "id": "average",
+    "title": "平均点",
+    "text": "<p>点数のリストを受け取り、平均点を返す関数 <code>average(scores)</code> を作ってください。リストが空なら <code>0</code> を返します(空のまま割り算すると、0 で割るエラーになります)。</p>",
+    "starter": "def average(scores):\n    return sum(scores) / len(scores)\n\nprint(average([80, 90, 70]))\n",
+    "answer": "def average(scores):\n    if len(scores) == 0:\n        return 0\n    return sum(scores) / len(scores)\n\nprint(average([80, 90, 70]))",
+    "hints": [
+      "今のコードでも計算はできますが、空のリストだと len(scores) が 0 になり ZeroDivisionError になります。",
+      "先に if len(scores) == 0: のときに return 0 して、関数を終わらせます。そのあとに今の return を残します。"
+    ],
+    "calls": [
+      { "call": "average([80, 90, 70])", "expect": 80 },
+      { "call": "average([3, 4])", "expect": 3.5 },
+      { "call": "average([])", "expect": 0 }
+    ]
+  },
+  {
+    "id": "fizzbuzz",
+    "title": "FizzBuzz",
+    "text": "<p>プログラミングの練習で有名な問題です。関数 <code>fizzbuzz(n)</code> を作ってください。</p><ul><li>3 でも 5 でも割り切れるなら <code>\"FizzBuzz\"</code></li><li>3 で割り切れるなら <code>\"Fizz\"</code></li><li>5 で割り切れるなら <code>\"Buzz\"</code></li><li>どれでもなければ、数を文字列にしたもの(<code>7</code> なら <code>\"7\"</code>)</li></ul><p>できたら、<code>for</code> で 1 から 15 まで表示してみましょう。</p>",
+    "starter": "def fizzbuzz(n):\n    return str(n)\n\nfor i in range(1, 16):\n    print(fizzbuzz(i))\n",
+    "answer": "def fizzbuzz(n):\n    if n % 15 == 0:\n        return \"FizzBuzz\"\n    if n % 3 == 0:\n        return \"Fizz\"\n    if n % 5 == 0:\n        return \"Buzz\"\n    return str(n)\n\nfor i in range(1, 16):\n    print(fizzbuzz(i))",
+    "hints": [
+      "「3 でも 5 でも割り切れる」(15 で割り切れる)を最初に調べるのがポイントです。3 を先に調べると、15 が Fizz になってしまいます。",
+      "if n % 15 == 0: return \"FizzBuzz\"、if n % 3 == 0: return \"Fizz\"、if n % 5 == 0: return \"Buzz\"、最後に return str(n)"
+    ],
+    "calls": [
+      { "call": "fizzbuzz(3)", "expect": "Fizz" },
+      { "call": "fizzbuzz(10)", "expect": "Buzz" },
+      { "call": "fizzbuzz(15)", "expect": "FizzBuzz" },
+      { "call": "fizzbuzz(30)", "expect": "FizzBuzz" },
+      { "call": "fizzbuzz(7)", "expect": "7" }
+    ]
+  }
+]

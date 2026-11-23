@@ -3,6 +3,7 @@ import Base from '../../../layouts/Base.astro';
 import Practice from '../../../components/Practice.astro';
 import HtmlPractice from '../../../components/HtmlPractice.astro';
 import JsPractice from '../../../components/JsPractice.astro';
+import PyPractice from '../../../components/PyPractice.astro';
 import ShellPractice from '../../../components/ShellPractice.astro';
 import StackPractice from '../../../components/StackPractice.astro';
 import NetPractice from '../../../components/NetPractice.astro';
@@ -34,6 +35,7 @@ const props = {
   />
   {field.practice === 'html' && <HtmlPractice {...props} />}
   {field.practice === 'js' && <JsPractice {...props} />}
+  {field.practice === 'python' && <PyPractice {...props} />}
   {field.practice === 'shell' && <ShellPractice {...props} />}
   {field.practice === 'stack' && <StackPractice catalog={getCatalog(field.id)!} {...props} />}
   {field.practice === 'net' && <NetPractice {...props} />}

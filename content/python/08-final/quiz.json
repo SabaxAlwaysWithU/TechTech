@@ -1,0 +1,32 @@
+[
+  {
+    "question": "\"80,92,78\".split(\",\") の結果はどれですか？",
+    "options": ["[\"80\", \"92\", \"78\"]", "[80, 92, 78]", "250", "\"80 92 78\""],
+    "explanation": "split は文字列を区切って、文字列のリストにします。中身はまだ文字列なので、計算するには int() で1つずつ数にします。"
+  },
+  {
+    "question": "s = {\"scores\": {\"国語\": 80, \"数学\": 92}} のとき、数学の点数を取り出す書き方はどれですか？",
+    "options": ["s[\"scores\"][\"数学\"]", "s[\"数学\"]", "s.scores.数学", "s[\"scores\", \"数学\"]"],
+    "explanation": "s[\"scores\"] で中の辞書を取り出し、続けて [\"数学\"] で点数を引きます。辞書の中の辞書は、[ ] を続けて書きます。"
+  },
+  {
+    "question": "合格者の名前を集める関数で、名前を入れるリスト names = [] を書く場所として正しいのはどれですか？",
+    "options": [
+      "for の前(関数の中の最初のほう)",
+      "for の中の最初の行",
+      "if の中",
+      "return のあと"
+    ],
+    "explanation": "集めるためのリストは、くり返しの前に1回だけ空で用意します。for の中で作ると、毎回空に戻ってしまいます。return のあとの行は実行されません。"
+  },
+  {
+    "question": "辞書のリスト students を、関数 total_score の結果が大きい順に並べる書き方はどれですか？",
+    "options": [
+      "sorted(students, key=total_score, reverse=True)",
+      "sorted(students, key=total_score())",
+      "sorted(total_score(students))",
+      "students.sorted(total_score)"
+    ],
+    "explanation": "key= には、比べる値を返す関数を「カッコなし」で渡します。reverse=True で大きい順です。total_score() とカッコを付けると、その場で呼び出してしまいます。"
+  }
+]

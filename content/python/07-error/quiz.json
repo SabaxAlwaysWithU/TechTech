@@ -1,0 +1,37 @@
+[
+  {
+    "question": "Python のエラーメッセージ(Traceback)で、最初に読むとよいのはどこですか？",
+    "options": [
+      "いちばん下の行(エラーの種類と理由)",
+      "いちばん上の Traceback の行",
+      "File と書いてある行のファイル名",
+      "どこでもよい"
+    ],
+    "explanation": "いちばん下の行に、エラーの種類(TypeError など)と理由が書いてあります。その上に、止まった行と行番号があります。"
+  },
+  {
+    "question": "int(\"abc\") を実行すると、どのエラーになりますか？",
+    "options": ["ValueError", "TypeError", "NameError", "SyntaxError"],
+    "explanation": "int() に文字列を渡すこと自体はできますが、\"abc\" は数にできない値なので ValueError です。"
+  },
+  {
+    "question": "try の中の1行目でエラーが起き、except で受け止めました。try の中の2行目はどうなりますか？",
+    "options": [
+      "実行されない(except に飛ぶ)",
+      "実行される",
+      "except のあとに実行される",
+      "プログラム全体が止まる"
+    ],
+    "explanation": "エラーが起きた時点で except に飛びます。try の残りの行は実行されません。except のあとは、try / except の外の行に進みます。"
+  },
+  {
+    "question": "except のあとにエラーの種類(ValueError など)を書くのがよいとされる理由はどれですか？",
+    "options": [
+      "想定していないエラー(つづり間違いなど)まで隠してしまわないため",
+      "書かないと文法エラーになるから",
+      "書くと処理が速くなるから",
+      "種類を書かないと try が使えないから"
+    ],
+    "explanation": "種類を書かない except: はすべてのエラーを受け止めます。つづり間違いの NameError まで黙って受け止めると、間違いに気づけません。"
+  }
+]

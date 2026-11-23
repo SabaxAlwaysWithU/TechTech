@@ -1,0 +1,7 @@
+{
+  "title": "Python",
+  "description": "全7レッスンと総合演習。読みやすさで人気のプログラミング言語。計算、文字列、条件、リスト、辞書、関数、エラーの読み方まで。",
+  "order": 9,
+  "practice": "python",
+  "languages": ["python", "py"]
+}

@@ -5,12 +5,31 @@ import { join } from 'node:path';
 import vm from 'node:vm';
 import initSqlJs from 'sql.js';
 import { runUserCode } from '../src/lib/jsrun-core.js';
+import { runPython } from '../src/lib/pyrun-core.js';
+import { loadPyodide } from 'pyodide';
 
 /** 練習場と同じ jsrun-core.js の関数を、vm の別環境で動かす(await、setTimeout、練習用の fetch が使える) */
 function runJsInVm(code, calls) {
   const run = vm.runInNewContext(`(${runUserCode.toString()})`, { setTimeout, clearTimeout });
   const timeout = new Promise((resolve) => setTimeout(() => resolve({ ok: false, logs: [], error: '5秒たっても終わりませんでした' }), 5000).unref());
   return Promise.race([run(code, calls), timeout]);
+}
+
+/** 練習場と同じ pyrun-core.js を、Node の Pyodide で動かす(初めて使うときに読み込む) */
+let pyodide = null;
+async function runPy(code, calls) {
+  pyodide ??= await loadPyodide();
+  return runPython(pyodide, code, calls);
+}
+
+/** Python の判定と同じく、辞書のキーの順番は問わずに比べる(pyrunner.ts の samePy と同じ) */
+function samePy(a, b) {
+  if (Array.isArray(a) || Array.isArray(b)) return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((x, i) => samePy(x, b[i]));
+  if (a && b && typeof a === 'object' && typeof b === 'object') {
+    const ka = Object.keys(a), kb = Object.keys(b);
+    return ka.length === kb.length && ka.every((k) => k in b && samePy(a[k], b[k]));
+  }
+  return a === b;
 }
 
 const SQL = await initSqlJs();
@@ -43,15 +62,15 @@ for (const field of readdirSync(root)) {
       }
       console.log(`  クイズ: ${quiz.length}問`);
     }
-    if (existsSync(tasksPath) && practice === 'js') {
-      // JavaScript: 模範解答を vm で実行し、期待する出力・戻り値と一致するか確かめる
+    if (existsSync(tasksPath) && (practice === 'js' || practice === 'python')) {
+      // JavaScript / Python: 模範解答を実行し、期待する出力・戻り値と一致するか確かめる
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
         if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); failures++; }
         if (!t.expectOutput && !t.calls) { console.log(`  !! 課題 ${t.id}: expectOutput か calls が必要です`); failures++; continue; }
         const calls = (t.calls ?? []).map((c) => c.call);
         try {
-          const out = await runJsInVm(t.answer, calls);
+          const out = practice === 'python' ? await runPy(t.answer, calls) : await runJsInVm(t.answer, calls);
           if (!out.ok) throw new Error(out.error);
           const logs = out.logs;
           const results = out.results;
@@ -63,7 +82,8 @@ for (const field of readdirSync(root)) {
           }
           (t.calls ?? []).forEach((c, i) => {
             const r = results[i];
-            if (!r || 'e' in r || JSON.stringify(r.v) !== JSON.stringify(c.expect)) { ok = false; console.log(`  !! 課題 ${t.id}: ${c.call} → ${JSON.stringify(r)}(期待 ${JSON.stringify(c.expect)})`); }
+            const same = practice === 'python' ? r && 'v' in r && samePy(r.v, c.expect) : r && !('e' in r) && JSON.stringify(r.v) === JSON.stringify(c.expect);
+            if (!same) { ok = false; console.log(`  !! 課題 ${t.id}: ${c.call} → ${JSON.stringify(r)}(期待 ${JSON.stringify(c.expect)})`); }
           });
           if (ok) console.log(`  課題 ${t.id}: OK(出力${logs.length}行、呼び出し${calls.length}件)`); else failures++;
         } catch (e) {

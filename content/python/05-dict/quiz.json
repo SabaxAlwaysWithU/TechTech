@@ -1,0 +1,32 @@
+[
+  {
+    "question": "p = {\"name\": \"マウス\", \"price\": 2500} のとき、値段を取り出す書き方はどれですか？",
+    "options": ["p[\"price\"]", "p.price", "p[1]", "p(\"price\")"],
+    "explanation": "辞書は 辞書[キー] で取り出します。JavaScript のような p.price は Python の辞書では使えません。"
+  },
+  {
+    "question": "p = {\"name\": \"マウス\"} のとき、p.get(\"stock\", 0) の結果はどれですか？",
+    "options": ["0", "None", "KeyError になる", "\"stock\""],
+    "explanation": "get は、キーがないときにエラーにせず、2つ目に渡した代わりの値を返します。p[\"stock\"] と書くと KeyError になります。"
+  },
+  {
+    "question": "p = {\"name\": \"マウス\"} のあとに p[\"price\"] = 2500 を実行すると、どうなりますか？",
+    "options": [
+      "price というキーが新しく足される",
+      "KeyError になる",
+      "name の値が 2500 に変わる",
+      "何も起きない"
+    ],
+    "explanation": "ないキーに代入すると、新しく足されます。あるキーに代入すると、値が入れ替わります。"
+  },
+  {
+    "question": "辞書 scores のキーと値を1組ずつ取り出す for の書き方はどれですか？",
+    "options": [
+      "for k, v in scores.items():",
+      "for k, v in scores:",
+      "for k in scores.values():",
+      "for k, v in range(scores):"
+    ],
+    "explanation": "items() はキーと値の組を返すので、for k, v in scores.items(): で2つの変数に受け取れます。辞書をそのまま回すとキーだけが出てきます。"
+  }
+]

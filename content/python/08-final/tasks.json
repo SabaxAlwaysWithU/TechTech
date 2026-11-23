@@ -1,0 +1,156 @@
+[
+  {
+    "id": "parse",
+    "title": "1 点数のメモを読む",
+    "text": "<p>先生のメモには、国語・数学・英語の点数がカンマ区切りで書いてあります。休んだ教科は「欠席」です。</p><p>関数 <code>parse_scores(line)</code> を完成させてください。メモの1行を受け取り、点数を整数のリストにして返します。数にできないもの(欠席など)は <code>0</code> にします。</p><pre>parse_scores(\"80,92,78\")   → [80, 92, 78]\nparse_scores(\"80,欠席,95\") → [80, 0, 95]</pre>",
+    "starter": "def parse_scores(line):\n    result = []\n    for part in line.split(\",\"):\n        result.append(int(part))\n    return result\n\nprint(parse_scores(\"80,92,78\"))\nprint(parse_scores(\"80,欠席,95\"))\n",
+    "answer": "def parse_scores(line):\n    result = []\n    for part in line.split(\",\"):\n        try:\n            result.append(int(part))\n        except ValueError:\n            result.append(0)\n    return result\n\nprint(parse_scores(\"80,92,78\"))\nprint(parse_scores(\"80,欠席,95\"))",
+    "hints": [
+      "今のコードは「欠席」で ValueError になって止まります。int(part) のところを try: の中に入れます。",
+      "try: の中で result.append(int(part))、except ValueError: の中で result.append(0) です。"
+    ],
+    "calls": [
+      {
+        "call": "parse_scores(\"80,92,78\")",
+        "expect": [
+          80,
+          92,
+          78
+        ]
+      },
+      {
+        "call": "parse_scores(\"80,欠席,95\")",
+        "expect": [
+          80,
+          0,
+          95
+        ]
+      },
+      {
+        "call": "parse_scores(\"欠席,欠席,100\")",
+        "expect": [
+          0,
+          0,
+          100
+        ]
+      },
+      {
+        "call": "parse_scores(\"70\")",
+        "expect": [
+          70
+        ]
+      }
+    ]
+  },
+  {
+    "id": "total",
+    "title": "2 合計点",
+    "text": "<p>関数 <code>total_score(student)</code> を作ってください。生徒1人の辞書を受け取り、<code>scores</code> の中の点数の合計を返します。山田さん(<code>students[0]</code>)なら 80 + 92 + 78 = 250 です。</p>",
+    "starter": "students = [\n    {\"name\": \"山田\", \"class\": \"A\", \"scores\": {\"国語\": 80, \"数学\": 92, \"英語\": 78}},\n    {\"name\": \"佐藤\", \"class\": \"B\", \"scores\": {\"国語\": 65, \"数学\": 70, \"英語\": 88}},\n    {\"name\": \"鈴木\", \"class\": \"A\", \"scores\": {\"国語\": 90, \"数学\": 85, \"英語\": 95}},\n    {\"name\": \"高橋\", \"class\": \"A\", \"scores\": {\"国語\": 55, \"数学\": 60, \"英語\": 58}},\n    {\"name\": \"田中\", \"class\": \"A\", \"scores\": {\"国語\": 72, \"数学\": 95, \"英語\": 80}},\n    {\"name\": \"伊藤\", \"class\": \"B\", \"scores\": {\"国語\": 88, \"数学\": 76, \"英語\": 91}},\n]\n\ndef total_score(student):\n    return 0\n\nprint(total_score(students[0]))\n",
+    "answer": "students = [\n    {\"name\": \"山田\", \"class\": \"A\", \"scores\": {\"国語\": 80, \"数学\": 92, \"英語\": 78}},\n    {\"name\": \"佐藤\", \"class\": \"B\", \"scores\": {\"国語\": 65, \"数学\": 70, \"英語\": 88}},\n    {\"name\": \"鈴木\", \"class\": \"A\", \"scores\": {\"国語\": 90, \"数学\": 85, \"英語\": 95}},\n    {\"name\": \"高橋\", \"class\": \"A\", \"scores\": {\"国語\": 55, \"数学\": 60, \"英語\": 58}},\n    {\"name\": \"田中\", \"class\": \"A\", \"scores\": {\"国語\": 72, \"数学\": 95, \"英語\": 80}},\n    {\"name\": \"伊藤\", \"class\": \"B\", \"scores\": {\"国語\": 88, \"数学\": 76, \"英語\": 91}},\n]\n\ndef total_score(student):\n    return sum(student[\"scores\"].values())\n\nprint(total_score(students[0]))",
+    "hints": [
+      "student[\"scores\"] が点数の辞書です。辞書の値だけを取り出すのは .values() です。",
+      "return sum(student[\"scores\"].values())。for subject, score in student[\"scores\"].items(): で足し込んでもかまいません。"
+    ],
+    "calls": [
+      {
+        "call": "total_score(students[0])",
+        "expect": 250
+      },
+      {
+        "call": "total_score(students[2])",
+        "expect": 270
+      },
+      {
+        "call": "total_score({\"name\": \"テスト\", \"class\": \"C\", \"scores\": {\"国語\": 10, \"数学\": 20}})",
+        "expect": 30
+      }
+    ]
+  },
+  {
+    "id": "passed",
+    "title": "3 合格者",
+    "text": "<p>関数 <code>passed_names(students, line)</code> を完成させてください。合計点が <code>line</code> 点以上の生徒の名前を、<code>students</code> の並び順のままリストにして返します。</p><p>合格ラインが 240 点なら <code>[\"山田\", \"鈴木\", \"田中\", \"伊藤\"]</code> です。</p>",
+    "starter": "students = [\n    {\"name\": \"山田\", \"class\": \"A\", \"scores\": {\"国語\": 80, \"数学\": 92, \"英語\": 78}},\n    {\"name\": \"佐藤\", \"class\": \"B\", \"scores\": {\"国語\": 65, \"数学\": 70, \"英語\": 88}},\n    {\"name\": \"鈴木\", \"class\": \"A\", \"scores\": {\"国語\": 90, \"数学\": 85, \"英語\": 95}},\n    {\"name\": \"高橋\", \"class\": \"A\", \"scores\": {\"国語\": 55, \"数学\": 60, \"英語\": 58}},\n    {\"name\": \"田中\", \"class\": \"A\", \"scores\": {\"国語\": 72, \"数学\": 95, \"英語\": 80}},\n    {\"name\": \"伊藤\", \"class\": \"B\", \"scores\": {\"国語\": 88, \"数学\": 76, \"英語\": 91}},\n]\n\n# 課題2の関数(自分で書いたものに置き換えてもかまいません)\ndef total_score(student):\n    return sum(student[\"scores\"].values())\n\ndef passed_names(students, line):\n    names = []\n\n    return names\n\nprint(passed_names(students, 240))\n",
+    "answer": "students = [\n    {\"name\": \"山田\", \"class\": \"A\", \"scores\": {\"国語\": 80, \"数学\": 92, \"英語\": 78}},\n    {\"name\": \"佐藤\", \"class\": \"B\", \"scores\": {\"国語\": 65, \"数学\": 70, \"英語\": 88}},\n    {\"name\": \"鈴木\", \"class\": \"A\", \"scores\": {\"国語\": 90, \"数学\": 85, \"英語\": 95}},\n    {\"name\": \"高橋\", \"class\": \"A\", \"scores\": {\"国語\": 55, \"数学\": 60, \"英語\": 58}},\n    {\"name\": \"田中\", \"class\": \"A\", \"scores\": {\"国語\": 72, \"数学\": 95, \"英語\": 80}},\n    {\"name\": \"伊藤\", \"class\": \"B\", \"scores\": {\"国語\": 88, \"数学\": 76, \"英語\": 91}},\n]\n\n# 課題2の関数(自分で書いたものに置き換えてもかまいません)\ndef total_score(student):\n    return sum(student[\"scores\"].values())\n\ndef passed_names(students, line):\n    names = []\n    for s in students:\n        if total_score(s) >= line:\n            names.append(s[\"name\"])\n    return names\n\nprint(passed_names(students, 240))",
+    "hints": [
+      "for s in students: で1人ずつ取り出し、total_score(s) で合計点を出して line と比べます。",
+      "if total_score(s) >= line: のときに names.append(s[\"name\"]) します。"
+    ],
+    "calls": [
+      {
+        "call": "passed_names(students, 240)",
+        "expect": [
+          "山田",
+          "鈴木",
+          "田中",
+          "伊藤"
+        ]
+      },
+      {
+        "call": "passed_names(students, 260)",
+        "expect": [
+          "鈴木"
+        ]
+      },
+      {
+        "call": "passed_names(students, 250)",
+        "expect": [
+          "山田",
+          "鈴木",
+          "伊藤"
+        ]
+      },
+      {
+        "call": "passed_names(students, 300)",
+        "expect": []
+      }
+    ]
+  },
+  {
+    "id": "class-average",
+    "title": "4 クラスの平均",
+    "text": "<p>関数 <code>average_by_class(students)</code> を作ってください。クラスごとに合計点の平均を出し、<code>{\"A\": 235.0, \"B\": 239.0}</code> のような辞書で返します。</p><p>A組は山田・鈴木・高橋・田中の4人で、(250 + 270 + 173 + 247) ÷ 4 = 235.0 です。</p>",
+    "starter": "students = [\n    {\"name\": \"山田\", \"class\": \"A\", \"scores\": {\"国語\": 80, \"数学\": 92, \"英語\": 78}},\n    {\"name\": \"佐藤\", \"class\": \"B\", \"scores\": {\"国語\": 65, \"数学\": 70, \"英語\": 88}},\n    {\"name\": \"鈴木\", \"class\": \"A\", \"scores\": {\"国語\": 90, \"数学\": 85, \"英語\": 95}},\n    {\"name\": \"高橋\", \"class\": \"A\", \"scores\": {\"国語\": 55, \"数学\": 60, \"英語\": 58}},\n    {\"name\": \"田中\", \"class\": \"A\", \"scores\": {\"国語\": 72, \"数学\": 95, \"英語\": 80}},\n    {\"name\": \"伊藤\", \"class\": \"B\", \"scores\": {\"国語\": 88, \"数学\": 76, \"英語\": 91}},\n]\n\n# 課題2の関数(自分で書いたものに置き換えてもかまいません)\ndef total_score(student):\n    return sum(student[\"scores\"].values())\n\ndef average_by_class(students):\n    return {}\n\nprint(average_by_class(students))\n",
+    "answer": "students = [\n    {\"name\": \"山田\", \"class\": \"A\", \"scores\": {\"国語\": 80, \"数学\": 92, \"英語\": 78}},\n    {\"name\": \"佐藤\", \"class\": \"B\", \"scores\": {\"国語\": 65, \"数学\": 70, \"英語\": 88}},\n    {\"name\": \"鈴木\", \"class\": \"A\", \"scores\": {\"国語\": 90, \"数学\": 85, \"英語\": 95}},\n    {\"name\": \"高橋\", \"class\": \"A\", \"scores\": {\"国語\": 55, \"数学\": 60, \"英語\": 58}},\n    {\"name\": \"田中\", \"class\": \"A\", \"scores\": {\"国語\": 72, \"数学\": 95, \"英語\": 80}},\n    {\"name\": \"伊藤\", \"class\": \"B\", \"scores\": {\"国語\": 88, \"数学\": 76, \"英語\": 91}},\n]\n\n# 課題2の関数(自分で書いたものに置き換えてもかまいません)\ndef total_score(student):\n    return sum(student[\"scores\"].values())\n\ndef average_by_class(students):\n    sums = {}\n    counts = {}\n    for s in students:\n        c = s[\"class\"]\n        sums[c] = sums.get(c, 0) + total_score(s)\n        counts[c] = counts.get(c, 0) + 1\n    result = {}\n    for c in sums:\n        result[c] = sums[c] / counts[c]\n    return result\n\nprint(average_by_class(students))",
+    "hints": [
+      "平均は「合計 ÷ 人数」なので、クラスごとの合計点の辞書 sums と、人数の辞書 counts を作ります。数え方はレッスン「辞書」の counts[c] = counts.get(c, 0) + 1 と同じです。",
+      "1つ目の for で sums[c] = sums.get(c, 0) + total_score(s) と counts[c] = counts.get(c, 0) + 1。2つ目の for c in sums: で result[c] = sums[c] / counts[c] を入れて返します。"
+    ],
+    "calls": [
+      {
+        "call": "average_by_class(students)",
+        "expect": {
+          "A": 235,
+          "B": 239
+        }
+      },
+      {
+        "call": "average_by_class([{\"name\": \"x\", \"class\": \"C\", \"scores\": {\"国語\": 1}}, {\"name\": \"y\", \"class\": \"C\", \"scores\": {\"国語\": 2}}])",
+        "expect": {
+          "C": 1.5
+        }
+      },
+      {
+        "call": "average_by_class([])",
+        "expect": {}
+      }
+    ]
+  },
+  {
+    "id": "ranking",
+    "title": "5 上位3人",
+    "text": "<p>合計点の高い順に上位3人を、次の形で表示してください。</p><pre>1位 鈴木 270点\n2位 伊藤 255点\n3位 山田 250点</pre><p>並べ替えは <code>sorted(students, key=total_score, reverse=True)</code> です(記事の「sorted の key」)。</p>",
+    "starter": "students = [\n    {\"name\": \"山田\", \"class\": \"A\", \"scores\": {\"国語\": 80, \"数学\": 92, \"英語\": 78}},\n    {\"name\": \"佐藤\", \"class\": \"B\", \"scores\": {\"国語\": 65, \"数学\": 70, \"英語\": 88}},\n    {\"name\": \"鈴木\", \"class\": \"A\", \"scores\": {\"国語\": 90, \"数学\": 85, \"英語\": 95}},\n    {\"name\": \"高橋\", \"class\": \"A\", \"scores\": {\"国語\": 55, \"数学\": 60, \"英語\": 58}},\n    {\"name\": \"田中\", \"class\": \"A\", \"scores\": {\"国語\": 72, \"数学\": 95, \"英語\": 80}},\n    {\"name\": \"伊藤\", \"class\": \"B\", \"scores\": {\"国語\": 88, \"数学\": 76, \"英語\": 91}},\n]\n\n# 課題2の関数(自分で書いたものに置き換えてもかまいません)\ndef total_score(student):\n    return sum(student[\"scores\"].values())\n\nranked = students\n\n",
+    "answer": "students = [\n    {\"name\": \"山田\", \"class\": \"A\", \"scores\": {\"国語\": 80, \"数学\": 92, \"英語\": 78}},\n    {\"name\": \"佐藤\", \"class\": \"B\", \"scores\": {\"国語\": 65, \"数学\": 70, \"英語\": 88}},\n    {\"name\": \"鈴木\", \"class\": \"A\", \"scores\": {\"国語\": 90, \"数学\": 85, \"英語\": 95}},\n    {\"name\": \"高橋\", \"class\": \"A\", \"scores\": {\"国語\": 55, \"数学\": 60, \"英語\": 58}},\n    {\"name\": \"田中\", \"class\": \"A\", \"scores\": {\"国語\": 72, \"数学\": 95, \"英語\": 80}},\n    {\"name\": \"伊藤\", \"class\": \"B\", \"scores\": {\"国語\": 88, \"数学\": 76, \"英語\": 91}},\n]\n\n# 課題2の関数(自分で書いたものに置き換えてもかまいません)\ndef total_score(student):\n    return sum(student[\"scores\"].values())\n\nranked = sorted(students, key=total_score, reverse=True)\nfor i in range(3):\n    s = ranked[i]\n    print(f\"{i + 1}位 {s['name']} {total_score(s)}点\")",
+    "hints": [
+      "ranked = sorted(students, key=total_score, reverse=True) で、合計点の高い順のリストになります。上位3人は ranked[0]、ranked[1]、ranked[2] です。",
+      "for i in range(3): の中で s = ranked[i] とし、順位は i + 1 です。print(f\"{i + 1}位 {s['name']} {total_score(s)}点\")"
+    ],
+    "expectOutput": [
+      "1位 鈴木 270点",
+      "2位 伊藤 255点",
+      "3位 山田 250点"
+    ]
+  }
+]

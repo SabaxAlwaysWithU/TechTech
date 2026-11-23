@@ -1,0 +1,59 @@
+[
+  {
+    "id": "for",
+    "title": "全員にあいさつ",
+    "text": "<p>リスト <code>members</code> を <code>for</code> で回し、1人ずつ次の形で出力してください。</p><pre>佐藤さん、ようこそ\n鈴木さん、ようこそ\n高橋さん、ようこそ</pre>",
+    "starter": "members = [\"佐藤\", \"鈴木\", \"高橋\"]\n",
+    "answer": "members = [\"佐藤\", \"鈴木\", \"高橋\"]\nfor name in members:\n    print(f\"{name}さん、ようこそ\")",
+    "hints": [
+      "for name in members: と書くと、name に1人ずつ名前が入ります。",
+      "for の次の行を字下げして print(f\"{name}さん、ようこそ\")"
+    ],
+    "expectOutput": ["佐藤さん、ようこそ", "鈴木さん、ようこそ", "高橋さん、ようこそ"]
+  },
+  {
+    "id": "range",
+    "title": "2乗の表",
+    "text": "<p><code>range</code> を使って、1 から 5 までの数とその2乗を、次の形で出力してください。</p><pre>1の2乗は1\n2の2乗は4\n3の2乗は9\n4の2乗は16\n5の2乗は25</pre>",
+    "starter": "",
+    "answer": "for i in range(1, 6):\n    print(f\"{i}の2乗は{i ** 2}\")",
+    "hints": [
+      "1 から 5 までは range(1, 6) です(終わりの数は含みません)。2乗は i ** 2 か i * i です。",
+      "for i in range(1, 6): の次の行で print(f\"{i}の2乗は{i ** 2}\")"
+    ],
+    "expectOutput": ["1の2乗は1", "2の2乗は4", "3の2乗は9", "4の2乗は16", "5の2乗は25"]
+  },
+  {
+    "id": "count",
+    "title": "合格者を数える",
+    "text": "<p>関数 <code>count_passed(scores, line)</code> を完成させてください。点数のリスト <code>scores</code> のうち、<code>line</code> 点以上の人数を返します。</p>",
+    "starter": "def count_passed(scores, line):\n    count = 0\n    # ここに for を書く\n    return count\n\nprint(count_passed([45, 80, 62, 90, 30], 60))\n",
+    "answer": "def count_passed(scores, line):\n    count = 0\n    for s in scores:\n        if s >= line:\n            count += 1\n    return count\n\nprint(count_passed([45, 80, 62, 90, 30], 60))",
+    "hints": [
+      "for s in scores: で1人ずつ点数を取り出し、if s >= line: のときに count += 1 します。",
+      "if は for の中なので、count += 1 の行はスペース12個の字下げになります。return count は for の外(スペース4つ)です。"
+    ],
+    "calls": [
+      { "call": "count_passed([45, 80, 62, 90, 30], 60)", "expect": 3 },
+      { "call": "count_passed([45, 80, 62, 90, 30], 85)", "expect": 1 },
+      { "call": "count_passed([60, 60], 60)", "expect": 2 },
+      { "call": "count_passed([], 60)", "expect": 0 }
+    ]
+  },
+  {
+    "id": "append",
+    "title": "偶数だけ集める",
+    "text": "<p>関数 <code>evens(n)</code> を完成させてください。1 から <code>n</code> までのうち、偶数だけを小さい順に入れたリストを返します。<code>evens(10)</code> なら <code>[2, 4, 6, 8, 10]</code> です。</p>",
+    "starter": "def evens(n):\n    result = []\n\n    return result\n\nprint(evens(10))\n",
+    "answer": "def evens(n):\n    result = []\n    for i in range(1, n + 1):\n        if i % 2 == 0:\n            result.append(i)\n    return result\n\nprint(evens(10))",
+    "hints": [
+      "1 から n までは range(1, n + 1) です。偶数かどうかは i % 2 == 0 で調べます。",
+      "for i in range(1, n + 1): の中で、if i % 2 == 0: なら result.append(i)。range(2, n + 1, 2) と2つ飛ばしで回す方法もあります。"
+    ],
+    "calls": [
+      { "call": "evens(10)", "expect": [2, 4, 6, 8, 10] },
+      { "call": "evens(7)", "expect": [2, 4, 6] },
+      { "call": "evens(1)", "expect": [] }
+    ]
+  }
+]

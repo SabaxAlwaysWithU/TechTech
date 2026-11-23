@@ -1,0 +1,59 @@
+[
+  {
+    "id": "fix-syntax",
+    "title": "エラーを直す(1)",
+    "text": "<p>このコードは、文房具を1つずつ表示するはずですが、エラーで動きません。まず実行してエラーを読み、直してください。</p><pre>ペン\nノート\n消しゴム</pre>",
+    "starter": "items = [\"ペン\", \"ノート\", \"消しゴム\"]\nfor item in items\n    print(item)\n",
+    "answer": "items = [\"ペン\", \"ノート\", \"消しゴム\"]\nfor item in items:\n    print(item)",
+    "hints": [
+      "エラーは SyntaxError で、2行目を指しています。for の行の終わりに、何か足りないものがあります。",
+      "for item in items: のように、行の終わりに : を付けます。"
+    ],
+    "expectOutput": ["ペン", "ノート", "消しゴム"]
+  },
+  {
+    "id": "fix-type",
+    "title": "エラーを直す(2)",
+    "text": "<p>このコードには間違いが2つあります。1つ直すたびに実行して、次のエラーを読みながら直してください。</p><pre>合計は1200円</pre>",
+    "starter": "price = 300\ncount = 4\ntotal = price * cuont\nprint(\"合計は\" + total + \"円\")\n",
+    "answer": "price = 300\ncount = 4\ntotal = price * count\nprint(f\"合計は{total}円\")",
+    "hints": [
+      "1つ目は NameError です。3行目の変数名のつづりを、2行目と見比べてください。",
+      "2つ目は TypeError です。文字列と数は + でつなげません。print(f\"合計は{total}円\") か print(\"合計は\" + str(total) + \"円\") にします。"
+    ],
+    "expectOutput": ["合計は1200円"]
+  },
+  {
+    "id": "try",
+    "title": "数にできなければ 0",
+    "text": "<p>関数 <code>to_int(text)</code> を完成させてください。<code>text</code> を整数にして返します。数にできない文字列(<code>\"abc\"</code> や空の文字列)なら、エラーで止まらずに <code>0</code> を返します。</p>",
+    "starter": "def to_int(text):\n    return int(text)\n\nprint(to_int(\"12\"))\nprint(to_int(\"abc\"))\n",
+    "answer": "def to_int(text):\n    try:\n        return int(text)\n    except ValueError:\n        return 0\n\nprint(to_int(\"12\"))\nprint(to_int(\"abc\"))",
+    "hints": [
+      "int(\"abc\") は ValueError になります。int(text) を try: の中に入れます。",
+      "try: の中で return int(text)、except ValueError: の中で return 0 です。"
+    ],
+    "calls": [
+      { "call": "to_int(\"12\")", "expect": 12 },
+      { "call": "to_int(\"-5\")", "expect": -5 },
+      { "call": "to_int(\"abc\")", "expect": 0 },
+      { "call": "to_int(\"\")", "expect": 0 }
+    ]
+  },
+  {
+    "id": "zero",
+    "title": "0 で割らない割り算",
+    "text": "<p>関数 <code>safe_divide(a, b)</code> を完成させてください。<code>a / b</code> の結果を返します。<code>b</code> が 0 のときは、エラーで止まらずに <code>None</code> を返します。<code>try</code> / <code>except</code> を使って書いてください。</p>",
+    "starter": "def safe_divide(a, b):\n    return a / b\n\nprint(safe_divide(10, 4))\nprint(safe_divide(1, 0))\n",
+    "answer": "def safe_divide(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return None\n\nprint(safe_divide(10, 4))\nprint(safe_divide(1, 0))",
+    "hints": [
+      "0 で割ったときのエラーの名前は、実行すると出力欄に出ます(ZeroDivisionError)。",
+      "try: の中で return a / b、except ZeroDivisionError: の中で return None です。"
+    ],
+    "calls": [
+      { "call": "safe_divide(10, 4)", "expect": 2.5 },
+      { "call": "safe_divide(9, 3)", "expect": 3 },
+      { "call": "safe_divide(1, 0)", "expect": null }
+    ]
+  }
+]

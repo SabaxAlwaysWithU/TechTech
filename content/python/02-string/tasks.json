@@ -1,0 +1,50 @@
+[
+  {
+    "id": "fstring",
+    "title": "f文字列で自己紹介",
+    "text": "<p>変数 <code>name</code> と <code>age</code> を f文字列 に埋め込んで、次の1行を出力してください。</p><pre>さばさんは20歳です</pre><p>書けたら、<code>name</code> や <code>age</code> を変えて表示が変わることも確かめてみましょう。</p>",
+    "starter": "name = \"さば\"\nage = 20\n",
+    "answer": "name = \"さば\"\nage = 20\nprint(f\"{name}さんは{age}歳です\")",
+    "hints": [
+      "引用符の前に f を付け、変数を入れたい場所に {name} や {age} と書きます。",
+      "print(f\"{name}さんは{age}歳です\")"
+    ],
+    "expectOutput": ["さばさんは20歳です"]
+  },
+  {
+    "id": "receipt",
+    "title": "レシートの1行",
+    "text": "<p>商品名 <code>item</code>、1個の値段 <code>price</code>、個数 <code>count</code> から、次の形の1行を出力してください。金額は 3桁区切り にします。</p><pre>ノートパソコン x 2 = 256,000円</pre>",
+    "starter": "item = \"ノートパソコン\"\nprice = 128000\ncount = 2\n",
+    "answer": "item = \"ノートパソコン\"\nprice = 128000\ncount = 2\nprint(f\"{item} x {count} = {price * count:,}円\")",
+    "hints": [
+      "合計は price * count です。f文字列の { } の中に計算をそのまま書けます。",
+      "3桁区切りは { } の中で :, を付けます。print(f\"{item} x {count} = {price * count:,}円\")"
+    ],
+    "expectOutput": ["ノートパソコン x 2 = 256,000円"]
+  },
+  {
+    "id": "split",
+    "title": "日付を分ける",
+    "text": "<p>文字列 <code>date</code> は「年-月-日」の形です。<code>split</code> で分けて、次の3行を出力してください。</p><pre>年: 2025\n月: 04\n日: 01</pre>",
+    "starter": "date = \"2025-04-01\"\n",
+    "answer": "date = \"2025-04-01\"\nparts = date.split(\"-\")\nprint(f\"年: {parts[0]}\")\nprint(f\"月: {parts[1]}\")\nprint(f\"日: {parts[2]}\")",
+    "hints": [
+      "parts = date.split(\"-\") で [\"2025\", \"04\", \"01\"] になります。番号は 0 から始まります。",
+      "parts[0] が年、parts[1] が月、parts[2] が日です。print(f\"年: {parts[0]}\") のように3行書きます。"
+    ],
+    "expectOutput": ["年: 2025", "月: 04", "日: 01"]
+  },
+  {
+    "id": "to-int",
+    "title": "入力された数を計算する",
+    "text": "<p>フォームから届いた値は文字列です。<code>price_text</code> と <code>count_text</code> を数にして、合計金額を出力してください。</p><pre>3600</pre><p>そのままかけると、文字列のくり返しになってしまいます。</p>",
+    "starter": "price_text = \"1200\"\ncount_text = \"3\"\nprint(price_text * 2)\n",
+    "answer": "price_text = \"1200\"\ncount_text = \"3\"\nprint(int(price_text) * int(count_text))",
+    "hints": [
+      "int(\"1200\") で、文字列の \"1200\" が数の 1200 になります。",
+      "最後の行を print(int(price_text) * int(count_text)) に書き換えます。"
+    ],
+    "expectOutput": ["3600"]
+  }
+]

@@ -1,6 +1,6 @@
 // 本物のブラウザ(ヘッドレスの Chrome / Edge)で、サイトを確かめる。
 //   1. 全課題の模範解答(tasks.json の answer)を練習場に入れて実行し、「正解です」になるか
-//   2. HTML と JavaScript の課題は、初期状態(starter)のままでは正解にならないか
+//   2. HTML、JavaScript、Python の課題は、初期状態(starter)のままでは正解にならないか
 //   3. 全ページをスマホ幅(375px)で開き、横にはみ出していないか
 //
 // 使い方: npm run build のあと node scripts/browser-check.mjs
@@ -32,7 +32,7 @@ if (!existsSync(join(dist, 'index.html'))) {
 }
 
 // ---- dist を配る小さなサーバー ----
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.wasm': 'application/wasm', '.woff2': 'font/woff2', '.txt': 'text/plain', '.xml': 'application/xml' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.zip': 'application/zip', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.wasm': 'application/wasm', '.woff2': 'font/woff2', '.txt': 'text/plain', '.xml': 'application/xml' };
 const server = createServer((req, res) => {
   let path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (base) {
@@ -212,6 +212,12 @@ async function runTask(tab, job) {
       await tab.eval(setValue('code-input', code));
       await tab.eval(`document.getElementById('run').click()`);
       break;
+    case 'python':
+      // Pyodide の読み込みが終わると「実行」が押せるようになる
+      await waitFor(() => tab.eval(`!document.getElementById('run').disabled`), 30000, 'Python の準備');
+      await tab.eval(setValue('code-input', code));
+      await tab.eval(`document.getElementById('run').click()`);
+      break;
     case 'stack':
       for (const [layer, ids] of Object.entries(task.picks)) {
         await tab.eval(`(() => { const s = document.getElementById(${js('sel-' + layer)}); s.value = ${js(ids[0])}; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
@@ -241,7 +247,7 @@ for (const field of readdirSync(content).sort()) {
       const name = `${field}/${lesson} 課題${i + 1}(${task.id})`;
       const url = `${origin}/${field}/${lesson}/practice/?task=${i + 1}`;
       jobs.push({ kind: 'answer', name, url, practice, task, code: task.answer ?? '' });
-      if ((practice === 'html' || practice === 'js') && task.starter?.trim()) {
+      if (['html', 'js', 'python'].includes(practice) && task.starter?.trim()) {
         jobs.push({ kind: 'starter', name: `${name} の初期状態`, url, practice, task, code: task.starter });
       }
     });
