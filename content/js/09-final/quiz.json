@@ -1,0 +1,37 @@
+[
+  {
+    "question": "const items = [{ price: 100, qty: 2 }, { price: 50, qty: 1 }]; の合計金額(250)を求めるとき、繰り返しの中に書く式はどれですか?(let total = 0; for (const item of items) { ここ })",
+    "options": ["total += item.price * item.qty;", "total = item.price * item.qty;", "total += items.price * items.qty;", "return item.price * item.qty;"],
+    "explanation": "1つずつ「価格 × 個数」を足し込むので +=。= だと最後の1つで上書きされ、return だと1回目で終わってしまいます。"
+  },
+  {
+    "question": "「合計が 5000 円以上なら送料 0 円、それ未満なら 500 円」を正しく書いているのはどれですか?",
+    "options": [
+      "if (total >= 5000) { return 0; } else { return 500; }",
+      "if (total > 5000) { return 0; } else { return 500; }",
+      "if (total >= 5000) { return 500; } else { return 0; }",
+      "if (total = 5000) { return 0; } else { return 500; }"
+    ],
+    "explanation": "「以上」はその値を含むので >= です。> だとちょうど 5000 円のときに送料がかかってしまいます。= は比較ではなく代入です。"
+  },
+  {
+    "question": "async 関数の中で、API の返事の中身(JSON)をオブジェクトとして受け取る正しい書き方はどれですか?",
+    "options": [
+      "const data = await (await fetch(url)).json();",
+      "const data = fetch(url).json();",
+      "const data = await fetch(url).data;",
+      "const data = JSON.parse(fetch(url));"
+    ],
+    "explanation": "fetch の返事を await で待ち、その json() もまた await で待ちます。2つに分けて const response = await fetch(url); const data = await response.json(); と書いても同じです。"
+  },
+  {
+    "question": "注文 API が「在庫が足りません」で 400 を返したとき、fetch はどうなりますか?",
+    "options": [
+      "エラーにはならず、response.ok が false になる",
+      "エラーを投げて catch に移る",
+      "自動で在庫のある数に減らして注文する",
+      "response.json() が null を返す"
+    ],
+    "explanation": "返事は届いているので fetch はエラーになりません。response.ok で確かめ、false なら返事の error を読んで理由を伝えます。"
+  }
+]

@@ -1,6 +1,6 @@
 {
   "title": "JavaScript",
-  "description": "全8レッスン。プログラムを書いて動かす。変数、条件、繰り返し、関数、そして fetch で API からデータを取ってくる。",
+  "description": "全8レッスンと総合演習。プログラムを書いて動かす。変数、条件、繰り返し、関数、そして fetch で API からデータを取ってくる。",
   "order": 3,
   "practice": "js",
   "languages": ["js", "javascript"]

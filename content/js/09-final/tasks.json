@@ -1,0 +1,84 @@
+[
+  {
+    "id": "cart-total",
+    "title": "1 カートの合計",
+    "text": "<p>カート(<code>{ name, price, qty }</code> の配列)を受け取り、合計金額(価格 × 個数 の合計)を返す関数 <code>cartTotal(items)</code> を作ってください。空のカートなら <code>0</code> です。</p>",
+    "starter": "function cartTotal(items) {\n\n}\n\nconst cart = [\n  { name: \"マウス\", price: 2500, qty: 2 },\n  { name: \"USBメモリ\", price: 1800, qty: 1 },\n];\nconsole.log(cartTotal(cart));\n",
+    "answer": "function cartTotal(items) {\n  let total = 0;\n  for (const item of items) {\n    total += item.price * item.qty;\n  }\n  return total;\n}\n\nconst cart = [\n  { name: \"マウス\", price: 2500, qty: 2 },\n  { name: \"USBメモリ\", price: 1800, qty: 1 },\n];\nconsole.log(cartTotal(cart));",
+    "hints": [
+      "let total = 0; を用意して、for (const item of items) で1つずつ item.price * item.qty を足していきます。",
+      "繰り返しが終わったあと(} の外)で return total; します。"
+    ],
+    "calls": [
+      { "call": "cartTotal([{ name: \"マウス\", price: 2500, qty: 2 }, { name: \"USBメモリ\", price: 1800, qty: 1 }])", "expect": 6800 },
+      { "call": "cartTotal([{ name: \"LANケーブル\", price: 800, qty: 3 }])", "expect": 2400 },
+      { "call": "cartTotal([])", "expect": 0 }
+    ]
+  },
+  {
+    "id": "shipping",
+    "title": "2 送料を足す",
+    "text": "<p>カートを受け取り、送料を足した支払い金額を返す関数 <code>payment(items)</code> を作ってください。</p><ul><li>商品の合計が 5000 円以上なら、送料は 0 円</li><li>5000 円未満なら、送料は 500 円</li></ul><p>課題1の <code>cartTotal</code> を中で使えるように、最初から入れてあります。</p>",
+    "starter": "function cartTotal(items) {\n  let total = 0;\n  for (const item of items) {\n    total += item.price * item.qty;\n  }\n  return total;\n}\n\nfunction payment(items) {\n\n}\n\nconsole.log(payment([{ name: \"マウス\", price: 2500, qty: 2 }]));\nconsole.log(payment([{ name: \"USBメモリ\", price: 1800, qty: 1 }]));\n",
+    "answer": "function cartTotal(items) {\n  let total = 0;\n  for (const item of items) {\n    total += item.price * item.qty;\n  }\n  return total;\n}\n\nfunction payment(items) {\n  const total = cartTotal(items);\n  if (total >= 5000) {\n    return total;\n  } else {\n    return total + 500;\n  }\n}\n\nconsole.log(payment([{ name: \"マウス\", price: 2500, qty: 2 }]));\nconsole.log(payment([{ name: \"USBメモリ\", price: 1800, qty: 1 }]));",
+    "hints": [
+      "const total = cartTotal(items); で合計を出してから、if (total >= 5000) で分けます。「以上」は >= です。",
+      "5000 円以上なら return total;、そうでなければ return total + 500; です。"
+    ],
+    "calls": [
+      { "call": "payment([{ name: \"マウス\", price: 2500, qty: 2 }])", "expect": 5000 },
+      { "call": "payment([{ name: \"USBメモリ\", price: 1800, qty: 1 }])", "expect": 2300 },
+      { "call": "payment([{ name: \"モニター\", price: 32000, qty: 1 }])", "expect": 32000 },
+      { "call": "payment([{ name: \"LANケーブル\", price: 800, qty: 6 }])", "expect": 5300 }
+    ]
+  },
+  {
+    "id": "in-stock",
+    "title": "3 在庫のある商品",
+    "text": "<p>商品(<code>{ name, stock }</code> の配列)を受け取り、在庫(<code>stock</code>)が 1 以上の商品の名前だけを、元の順番で配列にして返す関数 <code>inStockNames(products)</code> を作ってください。</p>",
+    "starter": "function inStockNames(products) {\n\n}\n\nconsole.log(inStockNames([\n  { name: \"マウス\", stock: 3 },\n  { name: \"モニター\", stock: 0 },\n  { name: \"キーボード\", stock: 1 },\n]));\n",
+    "answer": "function inStockNames(products) {\n  const names = [];\n  for (const p of products) {\n    if (p.stock >= 1) {\n      names.push(p.name);\n    }\n  }\n  return names;\n}\n\nconsole.log(inStockNames([\n  { name: \"マウス\", stock: 3 },\n  { name: \"モニター\", stock: 0 },\n  { name: \"キーボード\", stock: 1 },\n]));",
+    "hints": [
+      "空の配列 const names = []; を用意し、for...of で1つずつ見て、在庫があれば names.push(p.name) で足します。",
+      "if (p.stock >= 1) { names.push(p.name); } を繰り返しの中に書き、最後に return names; します。"
+    ],
+    "calls": [
+      { "call": "inStockNames([{ name: \"マウス\", stock: 3 }, { name: \"モニター\", stock: 0 }, { name: \"キーボード\", stock: 1 }])", "expect": ["マウス", "キーボード"] },
+      { "call": "inStockNames([{ name: \"タブレット\", stock: 0 }])", "expect": [] },
+      { "call": "inStockNames([])", "expect": [] }
+    ]
+  },
+  {
+    "id": "category-count",
+    "title": "4 カテゴリの商品数を API で数える",
+    "text": "<p>カテゴリ名を受け取り、<code>https://shop.example/api/products</code> の商品一覧から、そのカテゴリの商品がいくつあるかを返す関数 <code>categoryCount(category)</code> を作ってください。1つもなければ <code>0</code> です。</p>",
+    "starter": "async function categoryCount(category) {\n  const response = await fetch(\"https://shop.example/api/products\");\n\n}\n\nconsole.log(await categoryCount(\"周辺機器\"));\n",
+    "answer": "async function categoryCount(category) {\n  const response = await fetch(\"https://shop.example/api/products\");\n  const products = await response.json();\n  let count = 0;\n  for (const p of products) {\n    if (p.category === category) {\n      count++;\n    }\n  }\n  return count;\n}\n\nconsole.log(await categoryCount(\"周辺機器\"));",
+    "hints": [
+      "const products = await response.json(); で一覧を取り出し、for...of で p.category === category の商品を数えます。",
+      "let count = 0; を用意して、条件に合えば count++;。最後に return count; です。"
+    ],
+    "calls": [
+      { "call": "categoryCount(\"周辺機器\")", "expect": 5 },
+      { "call": "categoryCount(\"パソコン\")", "expect": 3 },
+      { "call": "categoryCount(\"家電\")", "expect": 0 }
+    ]
+  },
+  {
+    "id": "buy",
+    "title": "5 注文して結果を伝える",
+    "text": "<p>商品の番号と個数を受け取り、<code>https://shop.example/api/orders</code> に POST で注文して、結果を文章で返す関数 <code>buy(productId, quantity)</code> を作ってください。</p><ul><li>成功したら「<code>マウスを2個注文しました(5000円)</code>」の形。商品名・個数・合計は返事の <code>name</code>、<code>quantity</code>、<code>total</code> を使う</li><li>失敗したら「<code>注文できません: </code>」のあとに返事の <code>error</code> を続ける</li></ul>",
+    "starter": "async function buy(productId, quantity) {\n\n}\n\nconsole.log(await buy(4, 2));\nconsole.log(await buy(2, 10));\n",
+    "answer": "async function buy(productId, quantity) {\n  const response = await fetch(\"https://shop.example/api/orders\", {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify({ productId: productId, quantity: quantity }),\n  });\n  const data = await response.json();\n  if (!response.ok) {\n    return \"注文できません: \" + data.error;\n  }\n  return `${data.name}を${data.quantity}個注文しました(${data.total}円)`;\n}\n\nconsole.log(await buy(4, 2));\nconsole.log(await buy(2, 10));",
+    "hints": [
+      "fetch(URL, { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: JSON.stringify({ productId: productId, quantity: quantity }) }) で送り、const data = await response.json(); で返事を取り出します。",
+      "if (!response.ok) なら \"注文できません: \" + data.error を返し、そうでなければ `${data.name}を${data.quantity}個注文しました(${data.total}円)` を返します。"
+    ],
+    "calls": [
+      { "call": "buy(4, 2)", "expect": "マウスを2個注文しました(5000円)" },
+      { "call": "buy(9, 3)", "expect": "USBメモリを3個注文しました(5400円)" },
+      { "call": "buy(2, 10)", "expect": "注文できません: 在庫が足りません(在庫 3個)" },
+      { "call": "buy(99, 1)", "expect": "注文できません: 商品が見つかりません" }
+    ]
+  }
+]
