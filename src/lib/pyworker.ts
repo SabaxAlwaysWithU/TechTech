@@ -18,7 +18,7 @@ self.onmessage = async (ev: MessageEvent) => {
   } else if (d.type === 'run') {
     try {
       const py = await ready;
-      postMessage({ type: 'result', id: d.id, ...runPython(py, String(d.code), d.calls || []) });
+      postMessage({ type: 'result', id: d.id, ...runPython(py, String(d.code), d.calls || [], d.files || {}) });
     } catch (e) {
       postMessage({ type: 'result', id: d.id, ok: false, logs: [], error: String(e) });
     }

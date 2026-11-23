@@ -1,0 +1,63 @@
+[
+  {
+    "id": "product",
+    "title": "商品のクラス",
+    "text": "<p>クラス <code>Product</code> を完成させてください。</p><ul><li><code>Product(\"マウス\", 2500)</code> のように、名前と値段を渡して作る</li><li>属性 <code>name</code> と <code>price</code> を持つ</li><li>メソッド <code>with_tax()</code> は、税込み価格(<code>price * 110 // 100</code>)を返す</li></ul>",
+    "starter": "class Product:\n    def __init__(self, name, price):\n        pass\n\nmouse = Product(\"マウス\", 2500)\nprint(mouse.name, mouse.with_tax())\n",
+    "answer": "class Product:\n    def __init__(self, name, price):\n        self.name = name\n        self.price = price\n\n    def with_tax(self):\n        return self.price * 110 // 100\n\nmouse = Product(\"マウス\", 2500)\nprint(mouse.name, mouse.with_tax())",
+    "hints": [
+      "__init__ の中で self.name = name と self.price = price を書きます(pass は消します)。",
+      "with_tax は __init__ と同じ深さに def with_tax(self): と書き、中で return self.price * 110 // 100"
+    ],
+    "calls": [
+      { "call": "Product(\"マウス\", 2500).name", "expect": "マウス" },
+      { "call": "Product(\"マウス\", 2500).price", "expect": 2500 },
+      { "call": "Product(\"マウス\", 2500).with_tax()", "expect": 2750 },
+      { "call": "Product(\"モニター\", 32000).with_tax()", "expect": 35200 }
+    ]
+  },
+  {
+    "id": "counter",
+    "title": "数を覚えるクラス",
+    "text": "<p>クラス <code>Counter</code> を作ってください。</p><ul><li>作ったときの属性 <code>count</code> は <code>0</code></li><li>メソッド <code>up()</code> で <code>count</code> が 1 増える</li><li>メソッド <code>reset()</code> で <code>count</code> が <code>0</code> に戻る</li></ul><p>下の確かめるコードは消さずに残し、その上にクラスを書きます。</p><pre>3\n0</pre>",
+    "starter": "# ここに class Counter: を書く\n\n\n# 確かめるコード(消さない)\nc = Counter()\nc.up()\nc.up()\nc.up()\nprint(c.count)\nc.reset()\nprint(c.count)\n",
+    "answer": "class Counter:\n    def __init__(self):\n        self.count = 0\n\n    def up(self):\n        self.count += 1\n\n    def reset(self):\n        self.count = 0\n\n\n# 確かめるコード(消さない)\nc = Counter()\nc.up()\nc.up()\nc.up()\nprint(c.count)\nc.reset()\nprint(c.count)",
+    "hints": [
+      "__init__(self) の中で self.count = 0。引数は self だけです。",
+      "def up(self): の中で self.count += 1、def reset(self): の中で self.count = 0"
+    ],
+    "expectOutput": ["3", "0"]
+  },
+  {
+    "id": "wallet",
+    "title": "財布",
+    "text": "<p>クラス <code>Wallet</code> を作ってください。</p><ul><li><code>Wallet(1000)</code> のように、最初の金額を渡して作る。属性 <code>money</code> に入れる</li><li>メソッド <code>pay(amount)</code>: お金が足りれば <code>money</code> から引いて <code>True</code> を返す。足りなければ何も変えずに <code>False</code> を返す</li></ul><pre>True 700\nFalse 700</pre>",
+    "starter": "# ここに class Wallet: を書く\n\n\n# 確かめるコード(消さない)\nw = Wallet(1000)\nprint(w.pay(300), w.money)\nprint(w.pay(5000), w.money)\n",
+    "answer": "class Wallet:\n    def __init__(self, money):\n        self.money = money\n\n    def pay(self, amount):\n        if amount > self.money:\n            return False\n        self.money -= amount\n        return True\n\n\n# 確かめるコード(消さない)\nw = Wallet(1000)\nprint(w.pay(300), w.money)\nprint(w.pay(5000), w.money)",
+    "hints": [
+      "__init__(self, money) で self.money = money。pay は def pay(self, amount): です。",
+      "pay の中で、if amount > self.money: なら return False。そうでなければ self.money -= amount して return True"
+    ],
+    "expectOutput": ["True 700", "False 700"],
+    "calls": [
+      { "call": "Wallet(500).pay(500)", "expect": true },
+      { "call": "Wallet(500).pay(501)", "expect": false }
+    ]
+  },
+  {
+    "id": "cart",
+    "title": "カートのクラス",
+    "text": "<p>クラス <code>Cart</code> を完成させてください。<code>Product</code> はできています。</p><ul><li>作ったときは空(属性 <code>items</code> が空のリスト)</li><li><code>add(product)</code> で商品を足す</li><li><code>total()</code> で値段の合計を返す</li><li><code>count()</code> で商品の数を返す</li></ul><pre>2 9300</pre>",
+    "starter": "class Product:\n    def __init__(self, name, price):\n        self.name = name\n        self.price = price\n\nclass Cart:\n    def __init__(self):\n        self.items = []\n\n\n# 確かめるコード(消さない)\ncart = Cart()\ncart.add(Product(\"マウス\", 2500))\ncart.add(Product(\"キーボード\", 6800))\nprint(cart.count(), cart.total())\n",
+    "answer": "class Product:\n    def __init__(self, name, price):\n        self.name = name\n        self.price = price\n\nclass Cart:\n    def __init__(self):\n        self.items = []\n\n    def add(self, product):\n        self.items.append(product)\n\n    def total(self):\n        total = 0\n        for p in self.items:\n            total += p.price\n        return total\n\n    def count(self):\n        return len(self.items)\n\n\n# 確かめるコード(消さない)\ncart = Cart()\ncart.add(Product(\"マウス\", 2500))\ncart.add(Product(\"キーボード\", 6800))\nprint(cart.count(), cart.total())",
+    "hints": [
+      "add の中は self.items.append(product)、count は return len(self.items) です。",
+      "total は for p in self.items: で p.price を足していき、最後に返します。sum(p.price for p in self.items) でも書けます。"
+    ],
+    "expectOutput": ["2 9300"],
+    "calls": [
+      { "call": "Cart().total()", "expect": 0 },
+      { "call": "Cart().count()", "expect": 0 }
+    ]
+  }
+]
