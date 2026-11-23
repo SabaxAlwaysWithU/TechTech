@@ -1,0 +1,37 @@
+[
+  {
+    "question": "ログの中で app を含む行が何行あるかを数えるコマンドはどれですか?",
+    "options": [
+      "grep app /var/log/system.log | wc -l",
+      "wc -l app /var/log/system.log",
+      "grep /var/log/system.log | app",
+      "tail app | wc -l"
+    ],
+    "explanation": "grep で app を含む行だけに絞り、その結果をパイプ(|)で wc -l に渡して行数を数えます。"
+  },
+  {
+    "question": "サーバーを再起動したあとも nginx が自動で立ち上がるようにするコマンドはどれですか?",
+    "options": ["sudo systemctl enable nginx", "sudo systemctl start nginx", "sudo systemctl status nginx", "sudo apt install nginx"],
+    "explanation": "enable は「起動時に自動で動かす」設定です。start は今すぐ動かすだけで、再起動後のことは決めません。"
+  },
+  {
+    "question": "df -h で使用率が 100% のとき、まずやるべきことはどれですか?",
+    "options": [
+      "du で大きいものを探し、消してよいものか確かめてから消す",
+      "目についたファイルから順に rm で消す",
+      "sudo systemctl restart nginx を何度も試す",
+      "apt install でディスクを増やす"
+    ],
+    "explanation": "まず du で何が場所を取っているかを調べます。必要なログ(app.log など)を消さないよう、確かめてから消すのが大切です。"
+  },
+  {
+    "question": "鍵でサーバーに入れるようにする手順の順番として正しいものはどれですか?",
+    "options": [
+      "ssh-keygen で鍵を作る → ssh-copy-id で公開鍵を登録する → ssh で入る",
+      "ssh で入る → ssh-keygen で鍵を作る → ssh-copy-id で登録する",
+      "ssh-copy-id で登録する → ssh-keygen で鍵を作る → ssh で入る",
+      "ssh-keygen で鍵を作るだけで、どのサーバーにも入れる"
+    ],
+    "explanation": "先に手元で鍵の組を作り、公開鍵だけをサーバーに登録します。そのあとの ssh では、秘密鍵で本人だと確かめられます。"
+  }
+]

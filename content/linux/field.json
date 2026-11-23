@@ -1,6 +1,6 @@
 {
   "title": "Linux",
-  "description": "全6レッスン。サーバーで使う Linux の道具。パイプ、apt、systemctl、ログ、ディスク、SSH を疑似ターミナルで打つ。",
+  "description": "全6レッスンと総合演習。サーバーで使う Linux の道具。パイプ、apt、systemctl、ログ、ディスク、SSH を疑似ターミナルで打つ。",
   "order": 5,
   "practice": "shell",
   "languages": ["sh", "bash", "shell"]
