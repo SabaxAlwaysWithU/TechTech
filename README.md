@@ -6,10 +6,10 @@
 
 ```
 npm install
-npm run dev                   # http://localhost:4321
-npm run build                 # dist/ に静的HTMLを出力
+npm run dev                   # http://localhost:4321(先に Pyodide を public/pyodide/ にコピーする)
+npm run build                 # dist/ に静的HTMLを出力(同上)
 npm run preview               # dist/ を確認
-node scripts/check-tasks.mjs  # 全課題の模範解答を実行して確かめる(SQL と JavaScript)、ほかは形を確かめる
+node scripts/check-tasks.mjs  # 全課題の模範解答を実行して確かめる(SQL、JavaScript、Python)、ほかは形を確かめる
 node scripts/browser-check.mjs # ビルド後に、全課題をブラウザで解いて確かめる、全ページのスマホ幅も見る
 ```
 
@@ -40,6 +40,7 @@ src/
   lib/progress.ts            進捗の記録(localStorage)
   lib/content.ts             コンテンツの読み込み
 public/sql-wasm-browser.wasm sql.js 本体(node_modules/sql.js/dist/ からコピー)
+public/pyodide/              Python 本体(Pyodide)。ビルドのたびに scripts/copy-pyodide.mjs が node_modules からコピーする。git には入れない
 ```
 
 ### レッスンを足す
@@ -53,6 +54,7 @@ public/sql-wasm-browser.wasm sql.js 本体(node_modules/sql.js/dist/ からコ�
 - `"sql"`: [Practice.astro](src/components/Practice.astro)。`schema.sql` が必要
 - `"html"`: [HtmlPractice.astro](src/components/HtmlPractice.astro)。入力欄の横にプレビュー
 - `"js"`: [JsPractice.astro](src/components/JsPractice.astro)。sandbox 付き iframe でコードを実行し、出力を表示
+- `"python"`: [PyPractice.astro](src/components/PyPractice.astro)。ブラウザの中の本物の Python(Pyodide)でコードを実行し、出力を表示
 - `"shell"`: [ShellPractice.astro](src/components/ShellPractice.astro)。疑似ターミナル。仮想のファイル・プロセス・ユーザー・Gitリポジトリは [shell.ts](src/lib/shell.ts)。OS分野と Git分野で共用
 - `"stack"`: [StackPractice.astro](src/components/StackPractice.astro)。要件に合わせて層ごとに道具を選ぶ。選択肢は `content/<分野>/catalog.json`
 - `"net"`: [NetPractice.astro](src/components/NetPractice.astro)。ネットワーク図の部品をクリックで壊す/直し、`ping` `curl` `nslookup` `traceroute` `ip addr` で確かめる。シミュレータは [netsim.ts](src/lib/netsim.ts)。課題は `netChecks`(`parts`、`healthy`、`usedCommand`、`lastCommandIncludes`、`lastOutputIncludes`)、`faults`(開始時に壊す部品)、`hideStatus`(図に状態を出さない診断型)
@@ -84,6 +86,15 @@ JavaScript(利用者のコードを隔離された iframe で実行し、[jsrunn
 - `fetch` は本物のネットワークにつながず、練習用のにせ API が 0.2秒後に答える。`https://shop.example` の `GET /api/products`(SQL 分野と同じ12商品に `stock` を足したもの)、`GET /api/products/番号`(ない番号は 404)、`POST /api/orders`(`{ productId, quantity }`、成功は 201 で `total` を返す。数量や在庫の誤りは 400)、`GET /api/broken`(500)。ほかのホストは `TypeError: Failed to fetch`
 - iframe は `display:none` にしない(ブラウザがタイマーを1秒単位に間引き、待ちがのびるため)。1px・透明で置く
 
+Python(Web Worker の中の Pyodide で実行し、[pyrunner.ts](src/lib/pyrunner.ts) で判定):
+
+- `expectOutput` と `calls` は JavaScript と同じ書き方。`print` の出力と、コード実行後に評価した式の値を比べる。値は JSON にして比べるので、タプルはリスト、`None` は `null`。辞書のキーの順番は問わない。整数と小数は区別しない(`80.0` と `80` は同じ)
+- 実際に動かす部分は [pyrun-core.js](src/lib/pyrun-core.js) の1か所で、ブラウザ([pyworker.ts](src/lib/pyworker.ts))と `check-tasks.mjs`(Node 版の Pyodide)の両方が使う。毎回まっさらな名前空間で実行し、エラーは「何行目か」と最後の1行だけを返す(`translatePyError` が日本語の補足を付ける)
+- 5秒で打ち切る。Web Worker ごと止めて、次の実行の前に作り直す(1秒ほど)
+- `input()` は使えない(呼ぶとエラーで知らせる)。標準ライブラリは使えるが、numpy などの追加パッケージは読み込まない
+- Pyodide の版は package.json で固定(`pyodide`)。上げるときは `npm install --save-exact pyodide@版` のあと、check-tasks と browser-check を通す
+- 初回は約12MB を読み込む(2回目からはブラウザのキャッシュ)。読み込みが終わるまで「実行」は押せない
+
 OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellChecks` で調べる。すべて満たせば正解):
 
 - `cwd`、`exists`、`notExists`、`isDir`、`content: {path, includes|equals}`、`executable`、`notExecutable`、`processGone`、`processExists`、`lastOutputIncludes`、`lastCommandIncludes`
@@ -103,8 +114,8 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 
 `npm run build` のあと `node scripts/browser-check.mjs`。`dist/` を自前のサーバーで配り、ヘッドレスの Chrome / Edge を DevTools プロトコルで操作して、次を確かめる。PR と main への push のたびに GitHub Actions でも動き、失敗すると公開しない。
 
-- 全課題の `answer` を練習場に入れて実行し、「正解」になる(SQL / HTML / JavaScript / シェル / ネットワーク / 構成のすべて。構成は `picks` の先頭を選ぶ)
-- HTML と JavaScript の課題は、`starter` のままでは正解にならない
+- 全課題の `answer` を練習場に入れて実行し、「正解」になる(SQL / HTML / JavaScript / Python / シェル / ネットワーク / 構成のすべて。構成は `picks` の先頭を選ぶ)
+- HTML、JavaScript、Python の課題は、`starter` のままでは正解にならない
 - `dist/` の全ページをスマホ幅(375px)で開き、横にはみ出さない
 
 環境変数: `BASE`(ビルドと同じ base)、`CHROME`(ブラウザの場所)、`ONLY`(名前に含む課題・ページだけ。例: `ONLY=js/08`)、`WORKERS`(同時に開くタブ数、既定 4)。
@@ -137,6 +148,7 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 12. Linux分野 — 疑似ターミナルにパイプ(`|`)、grep/head/tail/wc/sort、apt、systemctl/journalctl/ss、df/du(ファイルの大きさが実際に増減)、ssh-keygen/ssh-copy-id/ssh を追加。6レッスン(Linuxとは、パイプ、apt、サービス、ログとトラブル、SSH)。課題の `starter` に `__scenario 名前`(nginx-stopped / port-conflict / disk-full / ssh-badperm)を書くと開始状態を作れる。判定は `shellChecks` の `linux`(active / inactive / enabled / installed / diskBelow / sshRegistered)と `mode`
 11. ネットワーク分野 — 部品を壊してエラーを見る練習場と9レッスン(全体像、IPとルーター、DNS、TCPとポート、HTTP、故障診断、Webサーバーの裏側(nginx・リバースプロキシ・502)、HTTPSと証明書、設定を間違える(IP・マスク・ゲートウェイ・DNS の設定画面))。課題の `netConfig` で開始時の PC 設定を、`netChecks` の `config` で設定の状態を判定できる
 13. 総合演習 — 8分野すべての最後に1レッスンずつ(`<番号>-final`)。依頼の設定を説明する短い記事、振り返りクイズ、習ったことを組み合わせる課題(SQL 5、HTML/CSS 5、JavaScript 5、OS 5、Linux 4、ネットワーク 4、Git 4、Webアプリの道具 4)。課題の `starter` で `__scenario` を2つ重ねたり(Linux)、`faults` と `netConfig` を組み合わせたり(ネットワーク)している(2026-11-23)
+14. Python分野 — 練習場(Pyodide を Web Worker で実行、出力・戻り値の判定、エラーの行と日本語の補足、Tab と Enter の字下げの手助け)と7レッスン(Python を動かす、文字列、条件分岐、リストと繰り返し、辞書、関数、エラーと例外)+ 総合演習「成績表を作る」(課題5)。課題は計32(2026-11-23)
 
 ## 未決事項
 
