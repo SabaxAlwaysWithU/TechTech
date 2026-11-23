@@ -1,0 +1,32 @@
+[
+  {
+    "question": "ページの「いちばん上の、サイト名やメニューが入る部分」を囲むのに向いているタグはどれですか?",
+    "options": ["header", "footer", "section", "span"],
+    "explanation": "header はページや区切りの先頭部分です。footer は末尾、section は内容のまとまり、span は文中の一部に使います。"
+  },
+  {
+    "question": "店名(左)とリンクのまとまり(右)を、ヘッダーの両端に分けて置く CSS はどれですか?",
+    "options": [
+      "header { display: flex; justify-content: space-between; }",
+      "header { display: flex; justify-content: center; }",
+      "header { text-align: right; }",
+      "header { display: block; gap: 16px; }"
+    ],
+    "explanation": "親の header に display: flex を付けて子を横に並べ、justify-content: space-between で両端に寄せます。"
+  },
+  {
+    "question": "枠線の内側に余白を空けたいときに使うのはどれですか?",
+    "options": ["padding", "margin", "gap", "border-radius"],
+    "explanation": "padding は枠線の内側の余白、margin は枠線の外側の余白です。gap は flex で並べた子どうしの間を空けます。"
+  },
+  {
+    "question": "予約フォームの人数の欄を「1〜8 の数」だけにしたいときの書き方はどれですか?",
+    "options": [
+      "<input type=\"number\" min=\"1\" max=\"8\">",
+      "<input type=\"text\" min=\"1\" max=\"8\">",
+      "<input type=\"number\" range=\"1-8\">",
+      "<input type=\"date\" min=\"1\" max=\"8\">"
+    ],
+    "explanation": "type=\"number\" は数の欄で、min と max で入れられる範囲を決められます。範囲外の数は、送るときにブラウザが止めます。"
+  }
+]

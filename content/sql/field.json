@@ -1,6 +1,6 @@
 {
   "title": "SQL(データベース)",
-  "description": "全7レッスン。表からデータを取り出し、集計し、つなぎ、変更する。",
+  "description": "全7レッスンと総合演習。表からデータを取り出し、集計し、つなぎ、変更する。",
   "order": 1,
   "practice": "sql",
   "languages": ["sql"]

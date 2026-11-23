@@ -1,0 +1,73 @@
+[
+  {
+    "id": "start",
+    "title": "1 始める",
+    "text": "<p><code>project</code> を Git で管理し始めて、最初のコミットをしてください。</p><ul><li><code>.gitignore</code> を作り、<code>node_modules/</code> を入れないようにする</li><li>それ以外は全部ステージして、コミットする(メッセージは自由)</li></ul>",
+    "answer": "cd project\ngit init\necho \"node_modules/\" > .gitignore\ngit add .\ngit status\ngit commit -m \"最初のページを作る\"",
+    "hints": [
+      "cd project して git init。echo \"node_modules/\" > .gitignore で、入れないものを書きます。",
+      "git add . でまとめてステージ(.gitignore に書いたものは入りません)。git status で確かめてから git commit -m \"最初のページを作る\"。"
+    ],
+    "shellChecks": [
+      { "git": { "initialized": true }, "message": "project で git init をしてください。" },
+      { "content": { "path": "/home/saba/project/.gitignore", "includes": "node_modules" }, "message": ".gitignore に node_modules/ が書かれていません。" },
+      { "git": { "commits": 1 }, "message": "まだコミットがありません。" },
+      { "git": { "tracked": "index.html" }, "message": "index.html がコミットに入っていません。git add . で全部ステージしてください。" },
+      { "git": { "tracked": ".gitignore" }, "message": ".gitignore もコミットに入れてください。" },
+      { "git": { "notTracked": "node_modules/some-lib/index.js" }, "message": "node_modules がコミットに入っています。先に .gitignore を作ってから git add してください。" }
+    ]
+  },
+  {
+    "id": "undo-one",
+    "title": "2 間違いだけ取り消す",
+    "text": "<p><code>index.html</code> と <code>memo.txt</code> が変更されています。</p><ul><li><code>index.html</code> の変更は、試しに書いた間違いです。取り消して、最後のコミットの状態に戻す</li><li><code>memo.txt</code> の変更は正しいので、コミットする(メッセージは自由)</li></ul><p>まず <code>git status</code> と <code>git diff</code> で、何が変わっているか見てください。</p>",
+    "starter": "cd project\ngit init\necho \"node_modules/\" > .gitignore\ngit add .\ngit commit -m \"最初のページを作る\"\necho \"<p>テスト</p>\" >> index.html\necho \"写真を足す: 済み\" >> memo.txt",
+    "answer": "git status\ngit diff\ngit restore index.html\ngit add memo.txt\ngit commit -m \"メモを更新\"\ngit status",
+    "hints": [
+      "git restore index.html で、index.html の変更だけを取り消せます。",
+      "git add memo.txt で memo.txt だけをステージして git commit -m \"メモを更新\"。最後に git status で、何も残っていないことを確かめます。"
+    ],
+    "shellChecks": [
+      { "content": { "path": "/home/saba/project/index.html", "equals": "<!DOCTYPE html>\n<html lang=\"ja\">\n<head><meta charset=\"UTF-8\"><title>my-app</title></head>\n<body>\n  <h1>自己紹介</h1>\n</body>\n</html>\n" }, "message": "index.html の間違いが残っています。git restore index.html で取り消してください(コミットしてしまったら「初期状態に戻す」でやり直せます)。" },
+      { "content": { "path": "/home/saba/project/memo.txt", "includes": "済み" }, "message": "memo.txt の正しい変更が消えています。memo.txt は取り消さずにコミットします。" },
+      { "git": { "commits": 2 }, "message": "memo.txt の変更をコミットしてください。" },
+      { "git": { "clean": true }, "message": "まだコミットしていない変更があります。git status で確かめてください。" }
+    ]
+  },
+  {
+    "id": "branch-merge",
+    "title": "3 ブランチで作って取り込む",
+    "text": "<p>見出しの色を変える作業を、ブランチで行ってください。</p><ul><li><code>change-color</code> というブランチを作って移る</li><li><code>style.css</code> に <code>h1 { color: green; }</code> を書き足して、コミットする</li><li><code>main</code> に戻り、<code>change-color</code> を取り込む</li></ul>",
+    "starter": "cd project\ngit init\necho \"node_modules/\" > .gitignore\ngit add .\ngit commit -m \"最初のページを作る\"",
+    "answer": "git switch -c change-color\necho \"h1 { color: green; }\" >> style.css\ngit add style.css\ngit commit -m \"見出しを緑に\"\ngit switch main\ngit merge change-color\ngit log --oneline",
+    "hints": [
+      "git switch -c change-color で作って移ります。echo \"h1 { color: green; }\" >> style.css で書き足し、git add と git commit。",
+      "git switch main で戻ってから git merge change-color。取り込む側(main)に移ってから merge するのがポイントです。"
+    ],
+    "shellChecks": [
+      { "git": { "branchExists": "change-color" }, "message": "change-color ブランチがありません。git switch -c change-color です。" },
+      { "content": { "path": "/home/saba/project/style.css", "includes": "color: green" }, "message": "style.css に h1 { color: green; } が書かれていません。" },
+      { "git": { "branch": "main" }, "message": "最後は main ブランチに戻ってください。" },
+      { "git": { "merged": "change-color", "commits": 2 }, "message": "main に change-color の変更が取り込まれていません。git merge change-color です。" },
+      { "git": { "clean": true }, "message": "まだコミットしていない変更があります。" }
+    ]
+  },
+  {
+    "id": "publish",
+    "title": "4 公開する",
+    "text": "<p>GitHub に公開して、そのあとの更新も送ってください。</p><ul><li>リモート <code>origin</code> として <code>https://github.com/saba/my-app.git</code> を登録する</li><li><code>main</code> を push する(次から <code>git push</code> だけで送れるように)</li><li><code>README.md</code> に1行書き足してコミットし、もう一度 push する</li></ul>",
+    "starter": "cd project\ngit init\necho \"node_modules/\" > .gitignore\ngit add .\ngit commit -m \"最初のページを作る\"",
+    "answer": "git remote add origin https://github.com/saba/my-app.git\ngit push -u origin main\necho \"公開しました\" >> README.md\ngit add README.md\ngit commit -m \"README を更新\"\ngit push",
+    "hints": [
+      "git remote add origin https://github.com/saba/my-app.git で登録し、git push -u origin main で送ります。",
+      "echo \"公開しました\" >> README.md、git add README.md、git commit -m \"README を更新\" のあと、今度は git push だけで送れます。"
+    ],
+    "shellChecks": [
+      { "git": { "remote": true }, "message": "リモート origin が登録されていません。" },
+      { "git": { "upstream": true }, "message": "最初の push は git push -u origin main にして、送り先を覚えさせてください。" },
+      { "git": { "commits": 2 }, "message": "README.md の更新をコミットしてください。" },
+      { "git": { "clean": true }, "message": "まだコミットしていない変更があります。" },
+      { "git": { "pushed": true }, "message": "最新のコミットが GitHub に送られていません。git push です。" }
+    ]
+  }
+]

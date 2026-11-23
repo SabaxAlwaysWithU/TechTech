@@ -1,0 +1,95 @@
+[
+  {
+    "id": "skeleton",
+    "title": "1 ページの骨組み",
+    "text": "<p>ページを3つに区切ってください。</p><ul><li><code>header</code> の中に、店名「さばカフェ」の <code>h1</code> と、<code>nav</code>。<code>nav</code> の中にリンク(<code>a</code>)を3つ:「メニュー」「アクセス」「予約」</li><li><code>main</code> を1つ(中身は空でよい)</li><li><code>footer</code> の中に <code>p</code> を1つ</li></ul>",
+    "starter": "<header>\n\n</header>\n",
+    "answer": "<header>\n  <h1>さばカフェ</h1>\n  <nav>\n    <a href=\"#menu\">メニュー</a>\n    <a href=\"#access\">アクセス</a>\n    <a href=\"#reserve\">予約</a>\n  </nav>\n</header>\n<main>\n</main>\n<footer>\n  <p>© 2026 さばカフェ</p>\n</footer>",
+    "hints": [
+      "header の中に <h1>さばカフェ</h1> と <nav>…</nav> を書きます。nav の中は <a href=\"#menu\">メニュー</a> のようなリンクを3つ。",
+      "header のあとに <main></main> と <footer><p>© 2026 さばカフェ</p></footer> を書きます。"
+    ],
+    "checks": [
+      { "selector": "header h1", "text": "さばカフェ", "message": "header の中に、文字が「さばカフェ」の h1 がありません。" },
+      { "selector": "header nav a", "count": 3, "message": "header の nav の中に、リンク(a)がちょうど3つ必要です。" },
+      { "selector": "header nav a", "text": "メニュー", "message": "「メニュー」のリンクがありません。" },
+      { "selector": "header nav a", "text": "アクセス", "message": "「アクセス」のリンクがありません。" },
+      { "selector": "header nav a", "text": "予約", "message": "「予約」のリンクがありません。" },
+      { "selector": "main", "count": 1, "message": "main がちょうど1つ必要です。" },
+      { "selector": "footer p", "message": "footer の中に p がありません。" }
+    ]
+  },
+  {
+    "id": "menu-list",
+    "title": "2 おすすめメニューの一覧",
+    "text": "<p><code>main</code> の中に、<code>id=\"menu\"</code> の <code>section</code> を作ってください。</p><ul><li>見出しは「おすすめメニュー」の <code>h2</code></li><li>その下に、メニューを3つ並べた箇条書き(<code>ul</code> と <code>li</code>)。品名は自由です</li></ul>",
+    "starter": "<main>\n\n</main>\n",
+    "answer": "<main>\n  <section id=\"menu\">\n    <h2>おすすめメニュー</h2>\n    <ul>\n      <li>さばサンド</li>\n      <li>本日のコーヒー</li>\n      <li>チーズケーキ</li>\n    </ul>\n  </section>\n</main>",
+    "hints": [
+      "<section id=\"menu\"> … </section> を main の中に書き、その中に <h2>おすすめメニュー</h2> を置きます。",
+      "箇条書きは <ul><li>さばサンド</li><li>…</li><li>…</li></ul> です。li をちょうど3つにします。"
+    ],
+    "checks": [
+      { "selector": "main section#menu", "message": "main の中に id=\"menu\" の section がありません。" },
+      { "selector": "section#menu h2", "text": "おすすめメニュー", "message": "section の中に、文字が「おすすめメニュー」の h2 がありません。" },
+      { "selector": "section#menu ul > li", "count": 3, "message": "section の中の ul に、li がちょうど3つ必要です。" }
+    ]
+  },
+  {
+    "id": "header-flex",
+    "title": "3 ヘッダーを横一列に",
+    "text": "<p>ヘッダーの見た目を整えてください。</p><ul><li><code>header</code>: 横に並べ(<code>display: flex</code>)、店名を左・<code>nav</code> を右の両端に寄せ(<code>justify-content: space-between</code>)、上下は中央そろえ(<code>align-items: center</code>)</li><li><code>nav</code>: リンクを横に並べ、間を <code>16px</code> 空ける(<code>gap</code>)</li></ul>",
+    "starter": "<style>\n  header {\n\n  }\n  nav {\n\n  }\n</style>\n<header>\n  <h1>さばカフェ</h1>\n  <nav>\n    <a href=\"#menu\">メニュー</a>\n    <a href=\"#access\">アクセス</a>\n    <a href=\"#reserve\">予約</a>\n  </nav>\n</header>\n",
+    "answer": "<style>\n  header {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n  }\n  nav {\n    display: flex;\n    gap: 16px;\n  }\n</style>\n<header>\n  <h1>さばカフェ</h1>\n  <nav>\n    <a href=\"#menu\">メニュー</a>\n    <a href=\"#access\">アクセス</a>\n    <a href=\"#reserve\">予約</a>\n  </nav>\n</header>",
+    "hints": [
+      "header { display: flex; justify-content: space-between; align-items: center; } で、店名と nav が両端に分かれます。",
+      "リンクどうしを並べるのは、リンクを包む nav です。nav { display: flex; gap: 16px; }"
+    ],
+    "checks": [
+      { "selector": "header", "css": { "display": "flex" }, "message": "header に display: flex が付いていません。" },
+      { "selector": "header", "css": { "justify-content": "space-between" }, "message": "header が両端寄せ(justify-content: space-between)になっていません。" },
+      { "selector": "header", "css": { "align-items": "center" }, "message": "header の上下が中央そろえ(align-items: center)になっていません。" },
+      { "selector": "nav", "css": { "display": "flex" }, "message": "nav に display: flex が付いていません。" },
+      { "selector": "nav", "css": { "column-gap": "16px" }, "message": "nav の gap が 16px になっていません。" },
+      { "selector": "header nav a", "count": 3, "message": "リンクは3つのまま残してください。" }
+    ]
+  },
+  {
+    "id": "cards",
+    "title": "4 メニューをカードにする",
+    "text": "<p>3つの <code>.card</code> を、枠で囲んだカードにして横に並べてください。</p><ul><li><code>.cards</code>(3つを包む親): 横に並べ、間を <code>16px</code></li><li><code>.card</code>: <code>2px</code> の実線の枠線(色は <code>#1f7a5c</code>)、内側の余白 <code>16px</code></li></ul>",
+    "starter": "<style>\n  .cards {\n\n  }\n  .card {\n\n  }\n</style>\n<div class=\"cards\">\n  <div class=\"card\">さばサンド 650円</div>\n  <div class=\"card\">本日のコーヒー 450円</div>\n  <div class=\"card\">チーズケーキ 500円</div>\n</div>\n",
+    "answer": "<style>\n  .cards {\n    display: flex;\n    gap: 16px;\n  }\n  .card {\n    border: 2px solid #1f7a5c;\n    padding: 16px;\n  }\n</style>\n<div class=\"cards\">\n  <div class=\"card\">さばサンド 650円</div>\n  <div class=\"card\">本日のコーヒー 450円</div>\n  <div class=\"card\">チーズケーキ 500円</div>\n</div>",
+    "hints": [
+      "並べるのは親の .cards です。.cards { display: flex; gap: 16px; }",
+      ".card { border: 2px solid #1f7a5c; padding: 16px; } 枠線は「太さ 種類 色」の順に書きます。"
+    ],
+    "checks": [
+      { "selector": ".cards", "css": { "display": "flex" }, "message": ".cards に display: flex が付いていません。" },
+      { "selector": ".cards", "css": { "column-gap": "16px" }, "message": ".cards の gap が 16px になっていません。" },
+      { "selector": ".cards > .card", "count": 3, "message": ".cards の中に .card が3つ必要です。" },
+      { "selector": ".card", "css": { "border-top-width": "2px", "border-top-style": "solid", "border-top-color": "rgb(31, 122, 92)" }, "message": ".card の枠線が 2px solid #1f7a5c になっていません。" },
+      { "selector": ".card", "css": { "padding-top": "16px", "padding-left": "16px" }, "message": ".card の padding が 16px になっていません。" }
+    ]
+  },
+  {
+    "id": "reserve-form",
+    "title": "5 予約フォーム",
+    "text": "<p>席の予約フォームを作ってください。</p><ul><li><code>form</code> の送り先は <code>/api/reserve</code>、送り方は <code>post</code></li><li>文字が「日にち」の <code>label</code> と、結び付いた日付の欄(<code>id=\"date\"</code>、<code>name=\"date\"</code>、必須)</li><li>文字が「人数」の <code>label</code> と、結び付いた数の欄(<code>id=\"people\"</code>、<code>name=\"people\"</code>、1〜8 だけ)</li><li>文字が「予約する」の送信ボタン</li></ul>",
+    "starter": "<section id=\"reserve\">\n  <h2>予約</h2>\n\n</section>\n",
+    "answer": "<section id=\"reserve\">\n  <h2>予約</h2>\n  <form action=\"/api/reserve\" method=\"post\">\n    <label for=\"date\">日にち</label>\n    <input type=\"date\" id=\"date\" name=\"date\" required>\n    <label for=\"people\">人数</label>\n    <input type=\"number\" id=\"people\" name=\"people\" min=\"1\" max=\"8\">\n    <button type=\"submit\">予約する</button>\n  </form>\n</section>",
+    "hints": [
+      "<form action=\"/api/reserve\" method=\"post\"> の中に書きます。日付の欄は type=\"date\"、数の欄は type=\"number\" です。label の for と input の id をそろえます。",
+      "人数の欄は <input type=\"number\" id=\"people\" name=\"people\" min=\"1\" max=\"8\">、日にちの欄には required を付けます。"
+    ],
+    "checks": [
+      { "selector": "form[action=\"/api/reserve\"][method=\"post\" i]", "message": "form に action=\"/api/reserve\" と method=\"post\" が付いていません。" },
+      { "selector": "form label[for=\"date\"]", "text": "日にち", "message": "文字が「日にち」で for=\"date\" の label がありません。" },
+      { "selector": "form input#date", "attr": { "type": "date", "name": "date" }, "message": "id=\"date\" の input に type=\"date\" と name=\"date\" を付けてください。" },
+      { "selector": "form input#date[required]", "message": "日にちの欄に required が付いていません。" },
+      { "selector": "form label[for=\"people\"]", "text": "人数", "message": "文字が「人数」で for=\"people\" の label がありません。" },
+      { "selector": "form input#people", "attr": { "type": "number", "name": "people", "min": "1", "max": "8" }, "message": "id=\"people\" の input を type=\"number\"、name=\"people\"、min=\"1\"、max=\"8\" にしてください。" },
+      { "selector": "form button[type=\"submit\"]", "text": "予約する", "message": "文字が「予約する」の button type=\"submit\" がありません。" }
+    ]
+  }
+]

@@ -1,6 +1,6 @@
 {
   "title": "HTMLとCSS",
-  "description": "全7レッスン。Webページの骨組みを書き、見た目を整え、入力フォームを作る。",
+  "description": "全7レッスンと総合演習。Webページの骨組みを書き、見た目を整え、入力フォームを作る。",
   "order": 2,
   "practice": "html",
   "languages": ["html", "css"]

@@ -136,6 +136,7 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 10. GitとGitHub分野 — 疑似ターミナルに git(init/status/add/commit/log/diff/restore/branch/switch/merge/remote/push)を追加、6レッスン完了
 12. Linux分野 — 疑似ターミナルにパイプ(`|`)、grep/head/tail/wc/sort、apt、systemctl/journalctl/ss、df/du(ファイルの大きさが実際に増減)、ssh-keygen/ssh-copy-id/ssh を追加。6レッスン(Linuxとは、パイプ、apt、サービス、ログとトラブル、SSH)。課題の `starter` に `__scenario 名前`(nginx-stopped / port-conflict / disk-full / ssh-badperm)を書くと開始状態を作れる。判定は `shellChecks` の `linux`(active / inactive / enabled / installed / diskBelow / sshRegistered)と `mode`
 11. ネットワーク分野 — 部品を壊してエラーを見る練習場と9レッスン(全体像、IPとルーター、DNS、TCPとポート、HTTP、故障診断、Webサーバーの裏側(nginx・リバースプロキシ・502)、HTTPSと証明書、設定を間違える(IP・マスク・ゲートウェイ・DNS の設定画面))。課題の `netConfig` で開始時の PC 設定を、`netChecks` の `config` で設定の状態を判定できる
+13. 総合演習 — 8分野すべての最後に1レッスンずつ(`<番号>-final`)。依頼の設定を説明する短い記事、振り返りクイズ、習ったことを組み合わせる課題(SQL 5、HTML/CSS 5、JavaScript 5、OS 5、Linux 4、ネットワーク 4、Git 4、Webアプリの道具 4)。課題の `starter` で `__scenario` を2つ重ねたり(Linux)、`faults` と `netConfig` を組み合わせたり(ネットワーク)している(2026-11-23)
 
 ## 未決事項
 

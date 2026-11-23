@@ -1,0 +1,77 @@
+[
+  {
+    "id": "find-heavy",
+    "title": "1 重さの原因を止める",
+    "text": "<p>パソコンが重い原因を突き止めて止めてください。</p><ul><li>記録(<code>/var/log/system.log</code>)に、CPU を使い切っているプロセスの警告が出ています</li><li><code>ps</code> でも確かめてから、そのプロセスを <code>kill</code> で止めます</li><li>ほかのプロセス(firefox や music-player)は止めないでください</li></ul>",
+    "answer": "cat /var/log/system.log\nps\nkill 777",
+    "hints": [
+      "cat /var/log/system.log の warning の行に、プロセスの番号が書いてあります。ps の CPU の列でも、99% のものが見つかります。",
+      "番号は 777(runaway-script)です。kill 777 で止めます。"
+    ],
+    "shellChecks": [
+      { "processGone": 777, "message": "CPU を使い切っているプロセスがまだ動いています。system.log の warning の行と ps で番号を確かめてください。" },
+      { "processExists": 318, "message": "firefox(318)は止めないでください。「初期状態に戻す」でやり直せます。" },
+      { "processExists": 522, "message": "music-player(522)は止めないでください。「初期状態に戻す」でやり直せます。" }
+    ]
+  },
+  {
+    "id": "archive",
+    "title": "2 古いメモをしまう",
+    "text": "<p><code>docs</code> の中に <code>archive</code> というディレクトリを作り、もう使わない <code>docs/old.txt</code> をその中へ移してください(コピーではなく移動)。</p><p>移動は <code>mv 元 先</code> です。</p>",
+    "answer": "ls docs\nmkdir docs/archive\nmv docs/old.txt docs/archive/\nls docs/archive",
+    "hints": [
+      "まず mkdir docs/archive でディレクトリを作ります。",
+      "mv docs/old.txt docs/archive/ で移します。ls docs で、docs から old.txt が消えたかも確かめましょう。"
+    ],
+    "shellChecks": [
+      { "isDir": "/home/saba/docs/archive", "message": "docs の中に archive ディレクトリがありません。" },
+      { "exists": "/home/saba/docs/archive/old.txt", "message": "docs/archive の中に old.txt がありません。" },
+      { "notExists": "/home/saba/docs/old.txt", "message": "docs に old.txt が残っています。cp ではなく mv で移してください。" },
+      { "exists": "/home/saba/docs/report.txt", "message": "report.txt は動かさないでください。" }
+    ]
+  },
+  {
+    "id": "backup",
+    "title": "3 バックアップを取る",
+    "text": "<p>ホーム(<code>/home/saba</code>)に <code>backup</code> ディレクトリを作り、<code>docs</code> の <code>report.txt</code> と <code>memo.txt</code> を、その中にコピーしてください。元のファイルは残します。</p>",
+    "answer": "mkdir backup\ncp docs/report.txt backup/\ncp docs/memo.txt backup/\nls backup",
+    "hints": [
+      "mkdir backup で作り、cp docs/report.txt backup/ のようにコピーします。",
+      "2つとも cp します。移動(mv)にすると元が消えてしまうので、cp を使います。"
+    ],
+    "shellChecks": [
+      { "exists": "/home/saba/backup/report.txt", "message": "backup の中に report.txt がありません。" },
+      { "exists": "/home/saba/backup/memo.txt", "message": "backup の中に memo.txt がありません。" },
+      { "exists": "/home/saba/docs/report.txt", "message": "docs の report.txt がなくなっています。mv ではなく cp でコピーしてください。" },
+      { "exists": "/home/saba/docs/memo.txt", "message": "docs の memo.txt がなくなっています。mv ではなく cp でコピーしてください。" }
+    ]
+  },
+  {
+    "id": "worklog",
+    "title": "4 作業の記録を書く",
+    "text": "<p><code>notes/log.txt</code> に、やったことを2行で書いてください。</p><ul><li>1行目: <code>重いプロセスを止めた</code></li><li>2行目: <code>バックアップを取った</code></li></ul><p>1行目は <code>&gt;</code> で新しく書き、2行目は <code>&gt;&gt;</code> で書き足します。</p>",
+    "answer": "echo 重いプロセスを止めた > notes/log.txt\necho バックアップを取った >> notes/log.txt\ncat notes/log.txt",
+    "hints": [
+      "echo 重いプロセスを止めた > notes/log.txt で1行目を書きます。",
+      "2行目は >> にします。> にすると1行目が消えて上書きされます。cat notes/log.txt で2行あるか確かめましょう。"
+    ],
+    "shellChecks": [
+      { "content": { "path": "/home/saba/notes/log.txt", "includes": "重いプロセスを止めた" }, "message": "notes/log.txt に「重いプロセスを止めた」がありません。2行目を > で書いて上書きしていませんか?" },
+      { "content": { "path": "/home/saba/notes/log.txt", "includes": "バックアップを取った" }, "message": "notes/log.txt に「バックアップを取った」がありません。" }
+    ]
+  },
+  {
+    "id": "make-runnable",
+    "title": "5 スクリプトを動かせるようにする",
+    "text": "<p>ホームの <code>script.sh</code> は、実行の権限がないため動きません。</p><ul><li><code>ls -l</code> で今の権限を確かめる</li><li>実行できるようにする</li><li>もう一度 <code>ls -l script.sh</code> で、権限が変わったことを確かめる</li></ul>",
+    "answer": "ls -l script.sh\nchmod +x script.sh\nls -l script.sh",
+    "hints": [
+      "ls -l script.sh の左端が -rw-r--r-- なら、x(実行)がありません。chmod +x script.sh で付けます。",
+      "最後に ls -l script.sh をもう一度打ち、-rwxr-xr-x になったのを確かめます。"
+    ],
+    "shellChecks": [
+      { "executable": "/home/saba/script.sh", "message": "script.sh に実行の権限がありません。chmod +x script.sh です。" },
+      { "lastCommandIncludes": "ls -l", "lastOutputIncludes": "rwx", "message": "最後に ls -l script.sh で、権限が rwx になったことを確かめてください。" }
+    ]
+  }
+]

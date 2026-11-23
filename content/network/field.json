@@ -1,6 +1,6 @@
 {
   "title": "ネットワーク",
-  "description": "全9レッスン。IP、ルーター、DNS、TCP、HTTP、nginx、証明書。部品を壊し、設定を書き換えてエラーを出し、直して役割を覚える。",
+  "description": "全9レッスンと総合演習。IP、ルーター、DNS、TCP、HTTP、nginx、証明書。部品を壊し、設定を書き換えてエラーを出し、直して役割を覚える。",
   "order": 6,
   "practice": "net",
   "languages": ["sh", "bash", "shell"]

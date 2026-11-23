@@ -1,0 +1,156 @@
+[
+  {
+    "id": "festival",
+    "title": "相談1 お祭りの告知ページ",
+    "text": "<p>地域のお祭りの告知ページを作りたい、という相談です。</p><ul><li>日時、場所、出店の一覧を載せるだけ。1日だけのイベント</li><li>参加の申し込みは、すでにある外部のフォーム(Googleフォーム)へのリンクで済ませる</li><li>予算はゼロ。作るのは町内会のボランティア1人</li></ul>",
+    "hints": [
+      "保存もログインもこのページではしません(申し込みは外部のフォーム)。ということは、バックエンドもデータベースもいりません。",
+      "素のHTML か Astro、バックエンド・DB は「なし」、公開先は GitHub Pages か Netlify / Vercel で無料です。"
+    ],
+    "picks": {
+      "frontend": ["plain", "astro"],
+      "backend": ["none"],
+      "database": ["none"],
+      "hosting": ["github-pages", "static-host"]
+    },
+    "why": {
+      "frontend": "数ページを読むだけのページなので、素のHTML か、読むサイト向けの Astro で十分です。",
+      "backend": "申し込みは外部のフォームに任せるので、このページにはサーバー側の処理がいりません。",
+      "database": "保存するものがないので、データベースはいりません。",
+      "hosting": "静的なページは、GitHub Pages や Netlify / Vercel に無料で置けます。"
+    },
+    "rejects": {
+      "frontend": {
+        "nextjs": "ログインやデータ更新のないページに Next.js は大がかりです。",
+        "react": "動きの少ない告知ページに UI ライブラリはいりません。"
+      },
+      "backend": {
+        "baas": "保存もログインもないので、借りるものもありません。"
+      },
+      "hosting": {
+        "cloud": "クラウドは設定も料金も複雑です。静的なページなら無料のホスティングで足ります。",
+        "vps": "サーバー1台の運用は、1日だけの告知ページには重すぎます。"
+      }
+    }
+  },
+  {
+    "id": "salon",
+    "title": "相談2 美容室の予約システム",
+    "text": "<p>美容室の予約システムを作りたい、という相談です。</p><ul><li>お客さんがログインして予約し、店員は管理画面で予約を確認・変更する</li><li>同じ時間に予約が重ならないようにしたい。予約や会員の情報は何年も大事に保管する</li><li>作るのは Python が得意な2人。サーバーの細かい設定はあまりしたくない</li></ul>",
+    "hints": [
+      "Python が得意で、ログインと管理画面がほしい。Python の「全部入り」の枠組みがあります。",
+      "Django + PostgreSQL(か MySQL)。公開先は、設定が少なくサーバー側も動かせる PaaS が第一候補です。"
+    ],
+    "picks": {
+      "frontend": ["plain", "react", "vue", "svelte", "nextjs", "nuxt"],
+      "backend": ["django"],
+      "database": ["postgres", "mysql"],
+      "hosting": ["paas", "cloud", "vps"]
+    },
+    "why": {
+      "frontend": "予約画面は、Django の画面(素のHTML)でも、React などで作ってもかまいません。",
+      "backend": "Python が得意で、ログインと管理画面が最初からほしいなら Django です。",
+      "database": "予約と会員は表で管理する大事なデータで、重なりを防ぐ仕組み(トランザクション)も必要なので RDB です。",
+      "hosting": "サーバー側の Python と DB を動かすので、PaaS が手軽です。クラウドや VPS でも動かせます。"
+    },
+    "rejects": {
+      "backend": {
+        "none": "ログインと予約の保存があるので、バックエンドが必要です。",
+        "fastapi": "FastAPI は API を速く書く枠組みで、ログインや管理画面は自分で作ることになります。",
+        "baas": "予約の重なりを防ぐような業務の決まりは、自分のバックエンドで書くほうが確実です。",
+        "spring": "チームが得意なのは Python です。Java の Spring Boot だと学び直しになります。",
+        "rails": "チームが得意なのは Python です。",
+        "laravel": "チームが得意なのは Python です。"
+      },
+      "database": {
+        "none": "予約と会員を保存する場所が必要です。",
+        "sqlite": "SQLite は同時にたくさん書き込む用途に向きません。お客さんと店員が同時に使う予約には RDB サーバーを使います。",
+        "redis": "Redis は一時データ向けで、何年も保管する予約の保存先にはしません。",
+        "mongodb": "予約と会員は項目の決まった表のデータなので、RDB が向いています。"
+      },
+      "hosting": {
+        "github-pages": "GitHub Pages では Python のサーバーが動きません。",
+        "static-host": "静的なホスティングでは、Django のサーバーと DB は動きません。"
+      }
+    }
+  },
+  {
+    "id": "ranking",
+    "title": "相談3 ゲームのランキング",
+    "text": "<p>スマホゲームのランキング API を作りたい、という相談です。</p><ul><li>遊び終わるたびにスコアが送られてくる。書き込みがとても多い</li><li>上位 100 人を、とにかく速く返したい</li><li>ランキングは毎月リセットする。消えても困らない一時的なデータ</li><li>作るのは JavaScript が得意な人。画面はゲームアプリ側にあるので、ここでは API だけ(フロントは管理用の簡単なもの)</li></ul>",
+    "hints": [
+      "毎月消えてもよく、速さが一番大事。データベースの選択肢の説明に「ランキング」と書いてあるものがあります。",
+      "JavaScript が得意なので Express / Hono / NestJS、データベースは Redis、公開先は PaaS かクラウドです。"
+    ],
+    "picks": {
+      "frontend": ["plain", "react", "vue", "svelte"],
+      "backend": ["express", "hono", "nestjs"],
+      "database": ["redis"],
+      "hosting": ["paas", "cloud"]
+    },
+    "why": {
+      "frontend": "画面はゲーム側にあり、ここは管理用の簡単なものです。素のHTML か、慣れた UI ライブラリで十分です。",
+      "backend": "JavaScript が得意なので、Node.js の枠組みで API を書きます。",
+      "database": "メモリ上で動く Redis は、ランキングのような「速さが大事で、消えても作り直せる」データにぴったりです。",
+      "hosting": "書き込みの多い API を動かすので、PaaS かクラウドです。"
+    },
+    "rejects": {
+      "database": {
+        "postgres": "PostgreSQL でも作れますが、書き込みが多く速さが一番大事な一時データなら、Redis のほうが向いています。",
+        "mysql": "MySQL でも作れますが、毎月消える一時データで速さが一番なら Redis です。",
+        "sqlite": "SQLite は同時にたくさん書き込む用途に向きません。",
+        "none": "スコアをどこかに覚えておく必要があります。"
+      },
+      "backend": {
+        "none": "スコアを受け取って返す API が必要です。",
+        "django": "作る人が得意なのは JavaScript です。"
+      },
+      "hosting": {
+        "github-pages": "GitHub Pages では API のサーバーが動きません。",
+        "static-host": "静的なホスティングでは、常に動く API サーバーと Redis は置けません。"
+      }
+    }
+  },
+  {
+    "id": "inventory",
+    "title": "相談4 会社の在庫管理",
+    "text": "<p>会社の在庫管理システムを作りたい、という相談です。</p><ul><li>社員 100 人が使う。商品・倉庫・入出庫の記録を正確に管理する</li><li>作るのは Java が得意な社内チーム。10 年は使う予定</li><li>会社の決まりで、サーバーは AWS に置く</li></ul>",
+    "hints": [
+      "Java が得意で、堅く大きな企業システム。バックエンドの選択肢に「企業システムの定番」があります。",
+      "Spring Boot + PostgreSQL(か MySQL)、公開先は会社の決まりどおりクラウド(AWS)です。"
+    ],
+    "picks": {
+      "frontend": ["plain", "react", "vue", "svelte", "nextjs", "nuxt"],
+      "backend": ["spring"],
+      "database": ["postgres", "mysql"],
+      "hosting": ["cloud"]
+    },
+    "why": {
+      "frontend": "社内向けの業務画面は、チームが作りやすいもので構いません。",
+      "backend": "Java が得意なチームで、長く使う堅いシステムなら Spring Boot です。",
+      "database": "商品・倉庫・入出庫は表どうしがつながったデータで、正確さが大事なので RDB です。",
+      "hosting": "会社の決まりで AWS なので、クラウドです。"
+    },
+    "rejects": {
+      "backend": {
+        "none": "在庫の記録を保存・更新するので、バックエンドが必要です。",
+        "baas": "10 年使う社内の業務システムを外部サービスに頼ると、決まりや将来の変更で困ることがあります。",
+        "django": "チームが得意なのは Java です。",
+        "laravel": "チームが得意なのは Java です。",
+        "rails": "チームが得意なのは Java です。"
+      },
+      "database": {
+        "none": "在庫の記録を保存する場所が必要です。",
+        "redis": "Redis は一時データ向けで、正確に残す在庫の記録の保存先にはしません。",
+        "mongodb": "表どうしがつながった業務データは、RDB のほうが扱いやすく正確です。",
+        "sqlite": "100 人が同時に使うシステムには、RDB サーバーを使います。"
+      },
+      "hosting": {
+        "paas": "技術的には動きますが、会社の決まりは AWS です。",
+        "vps": "会社の決まりは AWS です。",
+        "rental": "会社の決まりは AWS です。",
+        "github-pages": "GitHub Pages ではサーバー側のプログラムが動きません。"
+      }
+    }
+  }
+]

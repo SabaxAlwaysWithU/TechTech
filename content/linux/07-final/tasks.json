@@ -1,0 +1,65 @@
+[
+  {
+    "id": "count-app",
+    "title": "1 朝の点検",
+    "text": "<p>記録 <code>/var/log/system.log</code> の中で、<code>app</code> を含む行がいくつあるかを数えてください。</p><p><code>grep</code> で絞り込んだ結果を、パイプ(<code>|</code>)で <code>wc -l</code> に渡します。</p>",
+    "answer": "grep app /var/log/system.log\ngrep app /var/log/system.log | wc -l",
+    "hints": [
+      "まず grep app /var/log/system.log で、どの行が当たるか見てみます。",
+      "その後ろに | wc -l を付けると、行数だけが出ます。grep app /var/log/system.log | wc -l"
+    ],
+    "shellChecks": [
+      { "lastCommandIncludes": "grep", "message": "grep で app を含む行に絞ってください。" },
+      { "lastCommandIncludes": "wc", "lastOutputIncludes": "2", "message": "grep の結果をパイプで wc -l に渡して、行数を出してください。" }
+    ]
+  },
+  {
+    "id": "start-enable",
+    "title": "2 ページが出ない",
+    "text": "<p>「ページが出ない」と連絡がありました。調べて直してください。</p><ul><li>nginx を動かし、<code>curl http://localhost/</code> でページが出ることを確かめる</li><li>次にサーバーを再起動しても、nginx が自動で立ち上がるようにする</li></ul>",
+    "starter": "__scenario nginx-stopped\nsudo systemctl disable nginx",
+    "answer": "curl http://localhost/\nsystemctl status nginx\nsudo systemctl enable nginx\nsudo systemctl start nginx\ncurl http://localhost/",
+    "hints": [
+      "systemctl status nginx を見ると、inactive(止まっている)で、disabled(起動時に動かない設定)になっています。",
+      "sudo systemctl start nginx で今動かし、sudo systemctl enable nginx で起動時にも動くようにします。最後に curl http://localhost/ で確かめます。"
+    ],
+    "shellChecks": [
+      { "linux": { "active": "nginx" }, "message": "nginx が動いていません。sudo systemctl start nginx です。" },
+      { "linux": { "enabled": "nginx" }, "message": "再起動したときに nginx が自動で立ち上がる設定になっていません。sudo systemctl enable nginx です。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Welcome to nginx", "message": "直したら curl http://localhost/ で、ページが出ることを確かめてください。" }
+    ]
+  },
+  {
+    "id": "double-trouble",
+    "title": "3 ページもログもだめ",
+    "text": "<p>今度は「ページが出ないし、アプリのログも書けていないみたい」とのことです。原因は2つあります。</p><ul><li>ディスクの空きを作る。ただし、アプリのログ <code>/var/log/app/app.log</code> は消さない</li><li>nginx を動かして、<code>curl http://localhost/</code> でページが出ることを確かめる</li></ul>",
+    "starter": "__scenario nginx-stopped\n__scenario disk-full",
+    "answer": "curl http://localhost/\ndf -h\ndu -h -d 1 /var/log | sort -h\nls -l /var/log/app\nsudo rm /var/log/app/debug.log\ndf -h\nsudo systemctl start nginx\ncurl http://localhost/",
+    "hints": [
+      "df -h で使用率を見て、du -h -d 1 /var/log | sort -h で大きいものを探します。ls -l /var/log/app で、どのファイルが大きいか見てください。",
+      "大きいのは debug.log です(root のファイルなので sudo rm)。空きができたら sudo systemctl start nginx、最後に curl で確かめます。"
+    ],
+    "shellChecks": [
+      { "linux": { "diskBelow": 90 }, "message": "ディスクがまだいっぱいです。df -h と du で、大きいファイルを探してください。" },
+      { "exists": "/var/log/app/app.log", "message": "app.log はアプリの大事なログなので消さないでください。「初期状態に戻す」でやり直せます。" },
+      { "linux": { "active": "nginx" }, "message": "nginx が動いていません。" },
+      { "lastCommandIncludes": "curl", "lastOutputIncludes": "Welcome to nginx", "message": "最後に curl http://localhost/ で、ページが出ることを確かめてください。" }
+    ]
+  },
+  {
+    "id": "ssh-setup",
+    "title": "4 鍵で入れるようにする",
+    "text": "<p>新しく入った同僚の PC から、サーバー(<code>saba@server</code>)へ鍵で入れるようにします。</p><ul><li>鍵の組を作る</li><li>公開鍵をサーバーに登録する</li><li><code>ssh saba@server hostname</code> で、パスワードなしでサーバーの名前(web-server)が返ることを確かめる</li></ul>",
+    "answer": "ssh-keygen\nls -l ~/.ssh\nssh-copy-id saba@server\nssh saba@server hostname",
+    "hints": [
+      "ssh-keygen で ~/.ssh に鍵の組(id_ed25519 と id_ed25519.pub)ができます。",
+      "ssh-copy-id saba@server で公開鍵を登録し、ssh saba@server hostname で確かめます。"
+    ],
+    "shellChecks": [
+      { "exists": "/home/saba/.ssh/id_ed25519.pub", "message": "鍵の組がありません。ssh-keygen で作ってください。" },
+      { "mode": { "path": "/home/saba/.ssh/id_ed25519", "mode": "rw-------" }, "message": "秘密鍵の権限が rw------- ではありません。" },
+      { "linux": { "sshRegistered": true }, "message": "公開鍵がまだサーバーに登録されていません。ssh-copy-id saba@server です。" },
+      { "lastCommandIncludes": "ssh", "lastOutputIncludes": "web-server", "message": "最後に ssh saba@server hostname で、サーバーの名前が返ることを確かめてください。" }
+    ]
+  }
+]

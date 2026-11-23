@@ -1,0 +1,37 @@
+[
+  {
+    "question": "node_modules を Git に入れないようにするには、どうしますか?",
+    "options": [
+      ".gitignore に node_modules/ と書く",
+      "git add のあとに git rm を毎回打つ",
+      "node_modules の名前を変える",
+      "git commit -m に node_modules と書く"
+    ],
+    "explanation": ".gitignore に書いたファイルやフォルダは、git add . をしても Git が無視します。"
+  },
+  {
+    "question": "index.html と memo.txt を変更しました。memo.txt の変更だけをコミットしたいとき、正しい手順はどれですか?",
+    "options": [
+      "git add memo.txt してから git commit",
+      "git add . してから git commit",
+      "git commit だけを打つ",
+      "git push してから git add memo.txt"
+    ],
+    "explanation": "コミットに入るのはステージしたものだけです。git add memo.txt でその1つだけをステージします。git add . だと両方入ります。"
+  },
+  {
+    "question": "ブランチ change-color で作った変更を main に取り込む手順はどれですか?",
+    "options": [
+      "git switch main してから git merge change-color",
+      "git switch change-color してから git merge main",
+      "git merge だけを打つ",
+      "git branch -d change-color"
+    ],
+    "explanation": "取り込む側(main)に移ってから、取り込みたいブランチを merge します。逆にすると、main の内容がブランチに入ります。"
+  },
+  {
+    "question": "一度 git push -u origin main をしたあと、次からの push で打つコマンドはどれですか?",
+    "options": ["git push", "git push -u origin main を毎回", "git remote add origin URL を毎回", "git pull"],
+    "explanation": "-u で「main は origin の main に送る」と覚えさせたので、次からは git push だけで送れます。"
+  }
+]

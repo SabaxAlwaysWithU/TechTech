@@ -1,6 +1,6 @@
 {
   "title": "OSの仕組み",
-  "description": "全6レッスン。パソコンの土台であるOSが何をしているかを、疑似ターミナルで触りながら学ぶ。",
+  "description": "全6レッスンと総合演習。パソコンの土台であるOSが何をしているかを、疑似ターミナルで触りながら学ぶ。",
   "order": 4,
   "practice": "shell",
   "languages": ["sh", "bash", "shell"]
