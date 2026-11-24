@@ -87,6 +87,8 @@ main.prose p { margin: 0 0 1.2rem; }
 main.prose code { font-family: var(--mono); font-size: 0.9em; background: var(--surface); padding: 0.1em 0.4em; border-radius: 5px; }
 main.prose pre { background: var(--surface); padding: 1rem 1.2rem; overflow-x: auto; font-family: var(--mono); font-size: 0.9rem; line-height: 1.6; border-radius: var(--radius); }
 main.prose pre code { background: none; padding: 0; }
+/* 文中の長いコード(空白のない JSON や URL)がスマホ幅ではみ出さないよう、途中でも折り返す。コードブロックの中は横スクロールのまま */
+main.prose :not(pre) > code { overflow-wrap: anywhere; }
 main.prose table { border-collapse: separate; width: 100%; margin: 0 0 1.5rem; font-size: 0.95rem; }
 main.prose th, main.prose td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.6rem; text-align: left; }
 main.prose th { color: var(--muted); font-weight: 600; }

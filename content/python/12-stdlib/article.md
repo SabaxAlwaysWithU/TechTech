@@ -113,7 +113,7 @@ print(dict(groups))
 | `datetime` | `date.today()` | 日付と時刻 |
 | `csv` | `csv.reader(f)` | CSV ファイルを読み書きする |
 | `re` | `re.findall(パターン, 文字列)` | 正規表現で文字を探す |
-| `pathlib` | `Path("memo.txt").read_text()` | ファイルやフォルダの場所を扱う |
+| `pathlib` | `Path("memo.txt")` | ファイルやフォルダの場所を扱う |
 
 全部を覚える必要はありません。「こういう作業をしたい」と思ったら、「Python 標準ライブラリ ○○」で調べると、たいてい見つかります。公式の説明書(Python ドキュメント)は日本語でも読めます。
 
