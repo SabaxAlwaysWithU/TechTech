@@ -120,6 +120,7 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 - `why`: 層id → 考え方(正解でも不正解でも表示)
 - `rejects`: 層id → 選択肢id → その選択肢が合わない理由(省略時は汎用メッセージ)
 - `check-tasks.mjs` が id の存在と全層の正解の有無を検証する
+- レッスンのフォルダに `catalog.json` を置くと、そのレッスンだけ分野の選択肢の代わりにそれを使う(07 の「作り方 / 公開と運用」、08 の「入口 / 証明書 / 動かし続ける / CDN」)
 
 ### ブラウザでの確認([browser-check.mjs](scripts/browser-check.mjs))
 
@@ -164,6 +165,7 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 16. Python 08 クラス、09 ファイルとモジュール — Python の練習場でファイルを読み書きできるようにした(練習用のファイル、課題の files)。総合演習は 10-final に移した(2026-11-24)
 17. Python 10 内包表記(リスト・辞書の内包表記、enumerate、zip)、11 並べ替え(sorted の key、lambda、タプルで2つの条件、max / min の key)、12 標準ライブラリ(json、Counter、defaultdict)。課題15。総合演習は 13-final に移し、`field.json` の `renamed` で前の 08-final / 10-final の進捗を引き継ぐ(2026-11-24)
 18. JavaScript 10 データを保存する(localStorage、文字列だけ、JSON で配列を保存)、11 フォームを受け取る(submit と preventDefault、value、FormData、入力の確認、fetch で送る、二重送信)。練習場に localStorage の欄、課題ごとの画面(page)、フォームの送信を追加。総合演習は 12-final に移した(前の 09-final / 10-final の進捗を引き継ぐ)(2026-11-24)
+19. Webアプリの道具 07 コードを書かない選択肢(ノーコード、CMS、ネットショップ作成、フォーム、ノーコードのアプリ。課題6)、08 サーバーの裏側(Web サーバー、証明書、systemd / Docker、CDN、PaaS が肩代わりするもの。課題5)。どちらもレッスン専用の catalog.json を使う。総合演習は 09-final に移した(2026-11-24)
 
 ## 未決事項
 

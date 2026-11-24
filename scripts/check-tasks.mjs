@@ -113,7 +113,10 @@ for (const field of readdirSync(root)) {
     }
     if (existsSync(tasksPath) && practice === 'stack') {
       // 構成(Webアプリの道具): picks の id がカタログに存在するか、全層に正解があるかを確かめる
-      const catalog = JSON.parse(readFileSync(join(root, field, 'catalog.json'), 'utf8'));
+      // レッスンのフォルダに catalog.json があれば、分野のものの代わりにそれを使う
+      const lessonCatalog = join(dir, 'catalog.json');
+      const catalog = JSON.parse(readFileSync(existsSync(lessonCatalog) ? lessonCatalog : join(root, field, 'catalog.json'), 'utf8'));
+      if (existsSync(lessonCatalog)) console.log(`  (このレッスンだけの選択肢: ${catalog.layers.map((l) => l.label).join(' / ')})`);
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
         let ok = true;

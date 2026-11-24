@@ -108,10 +108,11 @@ export interface Catalog {
   layers: CatalogLayer[];
 }
 
-const catalogFiles = import.meta.glob<Catalog>('/content/*/catalog.json', { eager: true, import: 'default' });
+const catalogFiles = import.meta.glob<Catalog>(['/content/*/catalog.json', '/content/*/*/catalog.json'], { eager: true, import: 'default' });
 
-export function getCatalog(field: string): Catalog | undefined {
-  return catalogFiles[`/content/${field}/catalog.json`];
+/** 構成の練習場の選択肢。レッスンのフォルダに catalog.json があれば、分野のものの代わりにそれを使う */
+export function getCatalog(field: string, lesson?: string): Catalog | undefined {
+  return (lesson && catalogFiles[`/content/${field}/${lesson}/catalog.json`]) || catalogFiles[`/content/${field}/catalog.json`];
 }
 
 export interface ShellCheckLike {

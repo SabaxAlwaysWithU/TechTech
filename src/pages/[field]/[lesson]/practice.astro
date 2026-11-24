@@ -37,7 +37,7 @@ const props = {
   {field.practice === 'js' && <JsPractice {...props} />}
   {field.practice === 'python' && <PyPractice {...props} />}
   {field.practice === 'shell' && <ShellPractice {...props} />}
-  {field.practice === 'stack' && <StackPractice catalog={getCatalog(field.id)!} {...props} />}
+  {field.practice === 'stack' && <StackPractice catalog={getCatalog(field.id, lesson.slug)!} {...props} />}
   {field.practice === 'net' && <NetPractice {...props} />}
   {field.practice === 'sql' && <Practice {...props} />}
 </Base>
