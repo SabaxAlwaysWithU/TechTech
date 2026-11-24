@@ -65,6 +65,9 @@ export interface Task {
   calls?: JsCall[]; // 関数を呼んだ結果がこの通りなら正解
   dom?: boolean; // JS: 見本のページ(jsrunner.ts の SAMPLE_PAGE)の上で実行し、checks(HTML と同じ書き方)で画面を調べる
   actions?: DomAction[]; // JS の画面の課題: コードを実行したあと、判定の前に行う操作
+  page?: string; // JS の画面の課題: 見本のページ(SAMPLE_PAGE)の代わりに使う HTML
+  storage?: Record<string, string>; // JS: 実行を始めるときの localStorage の中身(課題では実行のたびにここから始める)
+  expectStorage?: Record<string, string | null>; // JS: 実行後の localStorage の中身がこの通りなら正解(null は「ない」)
   // Python: 練習用のファイル(名前 → 中身)。pyrun-core.js の SAMPLE_FILES に足して、実行のたびに作り直す
   files?: Record<string, string>;
   // シェル(OS)用。ShellCheck は lib/shell.ts

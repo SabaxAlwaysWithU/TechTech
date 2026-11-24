@@ -1,0 +1,111 @@
+[
+  {
+    "id": "save",
+    "title": "名前を保存する",
+    "text": "<p>localStorage に、キー <code>name</code> で「<code>さば</code>」を保存してください。実行すると、下の「ブラウザに保存されているデータ」の欄に出てきます。</p>",
+    "starter": "// localStorage.setItem(キー, 値) で保存する\n",
+    "answer": "localStorage.setItem(\"name\", \"さば\");",
+    "hints": [
+      "保存は localStorage.setItem(キー, 値) です。キーも値も \" \" で囲んだ文字列です。",
+      "localStorage.setItem(\"name\", \"さば\");"
+    ],
+    "storage": {},
+    "expectStorage": {
+      "name": "さば"
+    }
+  },
+  {
+    "id": "visits",
+    "title": "訪問回数を数える",
+    "text": "<p>localStorage のキー <code>visits</code> に、これまでにページを開いた回数が文字列で入っています(この課題では <code>\"3\"</code>)。</p><p>回数を 1 増やして保存し直し、「<code>4回目の訪問です</code>」と出力してください。</p>",
+    "starter": "const visits = localStorage.getItem(\"visits\");\nconsole.log(visits + 1);\n",
+    "answer": "const visits = Number(localStorage.getItem(\"visits\")) + 1;\nlocalStorage.setItem(\"visits\", visits);\nconsole.log(`${visits}回目の訪問です`);",
+    "hints": [
+      "getItem で読んだ値は文字列の \"3\" なので、+ 1 すると \"31\" になります。Number(...) で数に戻してから足します。",
+      "const visits = Number(localStorage.getItem(\"visits\")) + 1; のあと localStorage.setItem(\"visits\", visits); で保存し直します。"
+    ],
+    "storage": {
+      "visits": "3"
+    },
+    "expectStorage": {
+      "visits": "4"
+    },
+    "expectOutput": [
+      "4回目の訪問です"
+    ]
+  },
+  {
+    "id": "array",
+    "title": "TODO を保存する",
+    "text": "<p>配列 <code>todos</code> を、キー <code>todos</code> で localStorage に保存してください。あとで配列に戻せるように、JSON の文字列にして保存します。</p>",
+    "starter": "const todos = [\"牛乳を買う\", \"本を返す\"];\nlocalStorage.setItem(\"todos\", todos);\n",
+    "answer": "const todos = [\"牛乳を買う\", \"本を返す\"];\nlocalStorage.setItem(\"todos\", JSON.stringify(todos));",
+    "hints": [
+      "今のまま実行すると、保存された値が「牛乳を買う,本を返す」という、配列に戻せない文字列になっています。",
+      "localStorage.setItem(\"todos\", JSON.stringify(todos));"
+    ],
+    "storage": {},
+    "expectStorage": {
+      "todos": "[\"牛乳を買う\",\"本を返す\"]"
+    }
+  },
+  {
+    "id": "load",
+    "title": "保存した TODO を読む",
+    "text": "<p>関数 <code>loadTodos()</code> を完成させてください。キー <code>todos</code> に JSON で保存された配列を読み、配列にして返します。まだ何も保存されていない(<code>null</code> の)ときは、空の配列 <code>[]</code> を返します。</p>",
+    "starter": "function loadTodos() {\n  return localStorage.getItem(\"todos\");\n}\n\nconsole.log(loadTodos());\n",
+    "answer": "function loadTodos() {\n  return JSON.parse(localStorage.getItem(\"todos\") ?? \"[]\");\n}\n\nconsole.log(loadTodos());",
+    "hints": [
+      "getItem で読めるのは文字列です。JSON.parse(...) で配列に戻します。",
+      "ないときのために ?? \"[]\" を付けます。return JSON.parse(localStorage.getItem(\"todos\") ?? \"[]\");"
+    ],
+    "storage": {
+      "todos": "[\"牛乳を買う\",\"本を返す\"]"
+    },
+    "calls": [
+      {
+        "call": "loadTodos()",
+        "expect": [
+          "牛乳を買う",
+          "本を返す"
+        ]
+      },
+      {
+        "call": "(localStorage.removeItem(\"todos\"), loadTodos())",
+        "expect": []
+      }
+    ]
+  },
+  {
+    "id": "greet",
+    "title": "名前を覚えるページ",
+    "text": "<p>画面の入力欄(<code>#name</code>)に名前を入れて「追加」(<code>#add</code>)を押したら、その名前をキー <code>name</code> で保存し、<code>#message</code> に「<code>こんにちは、○○さん</code>」と表示してください。</p><p>判定では、入力欄に「さば」と入れて「追加」を押します。</p>",
+    "dom": true,
+    "starter": "const input = document.querySelector(\"#name\");\nconst message = document.querySelector(\"#message\");\n\ndocument.querySelector(\"#add\").addEventListener(\"click\", () => {\n  // ここで保存して、あいさつを表示する\n});\n",
+    "answer": "const input = document.querySelector(\"#name\");\nconst message = document.querySelector(\"#message\");\n\ndocument.querySelector(\"#add\").addEventListener(\"click\", () => {\n  localStorage.setItem(\"name\", input.value);\n  message.textContent = `こんにちは、${input.value}さん`;\n});",
+    "hints": [
+      "入力欄の文字は input.value です。保存は localStorage.setItem(\"name\", input.value);",
+      "表示は message.textContent = `こんにちは、${input.value}さん`; です。"
+    ],
+    "storage": {},
+    "actions": [
+      {
+        "fill": "#name",
+        "value": "さば"
+      },
+      {
+        "click": "#add"
+      }
+    ],
+    "checks": [
+      {
+        "selector": "#message",
+        "text": "こんにちは、さばさん",
+        "message": "「追加」を押したあと、#message が「こんにちは、さばさん」になっていません。"
+      }
+    ],
+    "expectStorage": {
+      "name": "さば"
+    }
+  }
+]

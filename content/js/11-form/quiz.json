@@ -1,0 +1,32 @@
+[
+  {
+    "question": "フォームの送信を JavaScript で受け取るとき、submit の処理の最初に e.preventDefault() を書くのはなぜですか？",
+    "options": [
+      "送信してページを読み込み直す、ブラウザのいつもの動きを止めるため",
+      "入力された値を空にするため",
+      "submit イベントを起こすため",
+      "二重送信を防ぐため"
+    ],
+    "explanation": "フォームのいつもの動きは「送信して、ページを読み込み直す」です。止めないと、書き換えた表示が読み込み直しで消えてしまいます。"
+  },
+  {
+    "question": "<input type=\"number\" id=\"quantity\"> に 3 と入力しました。document.querySelector(\"#quantity\").value の値はどれですか？",
+    "options": ["\"3\"(文字列)", "3(数)", "null", "undefined"],
+    "explanation": "type=\"number\" の欄でも、.value は文字列です。計算や API に数として送るときは Number(...) で数にします。"
+  },
+  {
+    "question": "Object.fromEntries(new FormData(form)) で作ったオブジェクトのキーになるのはどれですか？",
+    "options": ["各欄の name 属性", "各欄の id 属性", "各欄の label の文字", "各欄の placeholder"],
+    "explanation": "FormData は name の付いた欄の値を集めます。HTML の name が、そのままキーになります。name のない欄は入りません。"
+  },
+  {
+    "question": "ブラウザ側の JavaScript で入力を確かめていれば、サーバー側では確かめなくてよいですか？",
+    "options": [
+      "よくない。ブラウザの確認は飛ばせるので、サーバー側でも必ず確かめる",
+      "よい。ブラウザで確かめたものしか送られてこない",
+      "よい。HTML の required を付けていれば安全",
+      "よくない。ブラウザ側では確かめてはいけない"
+    ],
+    "explanation": "ブラウザでの確認は、使う人を助けるためのものです。開発者ツールなどで飛ばせるので、サーバー側でも必ず確かめます。"
+  }
+]

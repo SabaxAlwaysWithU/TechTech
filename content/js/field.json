@@ -1,7 +1,14 @@
 {
   "title": "JavaScript",
-  "description": "全9レッスンと総合演習。プログラムを書いて動かす。変数、条件、繰り返し、関数、fetch で API からデータを取ってきて、画面に表示する。",
+  "description": "全11レッスンと総合演習。プログラムを書いて動かす。変数、条件、繰り返し、関数、fetch で API からデータを取ってきて画面に表示し、ブラウザに保存し、フォームを受け取る。",
   "order": 3,
   "practice": "js",
-  "languages": ["js", "javascript"]
+  "languages": [
+    "js",
+    "javascript"
+  ],
+  "renamed": {
+    "09-final": "12-final",
+    "10-final": "12-final"
+  }
 }

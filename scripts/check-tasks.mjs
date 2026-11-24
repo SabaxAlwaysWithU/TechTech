@@ -9,10 +9,10 @@ import { runPython } from '../src/lib/pyrun-core.js';
 import { loadPyodide } from 'pyodide';
 
 /** 練習場と同じ jsrun-core.js の関数を、vm の別環境で動かす(await、setTimeout、練習用の fetch が使える) */
-function runJsInVm(code, calls) {
+function runJsInVm(code, calls, storage) {
   const run = vm.runInNewContext(`(${runUserCode.toString()})`, { setTimeout, clearTimeout });
   const timeout = new Promise((resolve) => setTimeout(() => resolve({ ok: false, logs: [], error: '5秒たっても終わりませんでした' }), 5000).unref());
-  return Promise.race([run(code, calls), timeout]);
+  return Promise.race([run(code, calls, { storage: { ...storage } }), timeout]);
 }
 
 /** 練習場と同じ pyrun-core.js を、Node の Pyodide で動かす(初めて使うときに読み込む) */
@@ -73,6 +73,7 @@ for (const field of readdirSync(root)) {
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
         if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); failures++; }
+        if (t.page && !t.dom) { console.log(`  !! 課題 ${t.id}: page は画面の課題("dom": true)でだけ使えます`); failures++; }
         if (t.dom) {
           // JavaScript の画面の課題: Node には画面がないので、形だけ確かめる(正解になるかは browser-check.mjs)
           if (!Array.isArray(t.checks) || t.checks.length === 0) { console.log(`  !! 課題 ${t.id}: 画面の課題には checks が必要です`); failures++; }
@@ -81,10 +82,10 @@ for (const field of readdirSync(root)) {
           console.log(`  課題 ${t.id}: 画面の判定 ${t.checks?.length ?? 0}件、操作 ${t.actions?.length ?? 0}件(ブラウザで確かめる)`);
           continue;
         }
-        if (!t.expectOutput && !t.calls) { console.log(`  !! 課題 ${t.id}: expectOutput か calls が必要です`); failures++; continue; }
+        if (!t.expectOutput && !t.calls && !t.expectStorage) { console.log(`  !! 課題 ${t.id}: expectOutput か calls か expectStorage が必要です`); failures++; continue; }
         const calls = (t.calls ?? []).map((c) => c.call);
         try {
-          const out = practice === 'python' ? await runPy(t.answer, calls, t.files) : await runJsInVm(t.answer, calls);
+          const out = practice === 'python' ? await runPy(t.answer, calls, t.files) : await runJsInVm(t.answer, calls, t.storage);
           if (!out.ok) throw new Error(out.error);
           const logs = out.logs;
           const results = out.results;
@@ -99,7 +100,11 @@ for (const field of readdirSync(root)) {
             const same = practice === 'python' ? r && 'v' in r && samePy(r.v, c.expect) : r && !('e' in r) && JSON.stringify(r.v) === JSON.stringify(c.expect);
             if (!same) { ok = false; console.log(`  !! 課題 ${t.id}: ${c.call} → ${JSON.stringify(r)}(期待 ${JSON.stringify(c.expect)})`); }
           });
-          if (ok) console.log(`  課題 ${t.id}: OK(出力${logs.length}行、呼び出し${calls.length}件)`); else failures++;
+          for (const [k, v] of Object.entries(t.expectStorage ?? {})) {
+            const got = out.storage?.[k] ?? null;
+            if (got !== v) { ok = false; console.log(`  !! 課題 ${t.id}: localStorage の ${k} → ${JSON.stringify(got)}(期待 ${JSON.stringify(v)})`); }
+          }
+          if (ok) console.log(`  課題 ${t.id}: OK(出力${logs.length}行、呼び出し${calls.length}件${t.expectStorage ? '、保存' + Object.keys(t.expectStorage).length + '件' : ''})`); else failures++;
         } catch (e) {
           console.log(`  !! 課題 ${t.id}: ${e.message}`);
           failures++;

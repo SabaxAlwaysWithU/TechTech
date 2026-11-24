@@ -6,15 +6,17 @@
 // - コードは async 関数として動かすので、いちばん外側でも await が使える
 // - fetch は本物のネットワークにつながず、練習用のにせ API(https://shop.example/api/...)が答える
 // - setTimeout と fetch がすべて終わるまで待ってから結果を返す(1回の待ちは最大2秒)
+// - localStorage は本物ではなく練習用の保存場所(hooks.storage)。実行後の中身を結果の storage で返す
 
 /**
  * @param {string} code 利用者のコード
  * @param {string[]} calls コードを動かしたあとに評価する式(判定用)。Promise なら結果を待つ
- * @param {{ onLog?: (line: string) => void, after?: (settle: () => Promise<void>) => Promise<void> }} [hooks]
+ * @param {{ onLog?: (line: string) => void, after?: (settle: () => Promise<void>) => Promise<void>, storage?: Record<string, string>, onStorage?: (s: Record<string, string>) => void }} [hooks]
  *   onLog: console.log のたびに呼ぶ(実行が終わったあと、ボタンの処理などから出た行を画面に足すため)
  *   after: コードと待ちが終わったあとに呼ぶ(画面の課題で、ボタンを押すなどの操作をしてから判定するため)。
  *          settle を await すると、操作で始まった setTimeout や fetch が終わるまで待てる
- * @returns {Promise<{ ok: boolean, logs: string[], error?: string, results?: ({ v: unknown } | { e: string })[] }>}
+ *   storage: localStorage の最初の中身(キー → 文字列)。onStorage: 中身が変わるたびに呼ぶ
+ * @returns {Promise<{ ok: boolean, logs: string[], error?: string, results?: ({ v: unknown } | { e: string })[], storage: Record<string, string> }>}
  */
 export function runUserCode(code, calls, hooks) {
   var logs = [];
@@ -73,6 +75,22 @@ export function runUserCode(code, calls, hooks) {
     delete timers[id];
     end();
   }
+
+  // ---- 練習用の localStorage(キーも値も文字列で持つ。本物と同じく、ないキーは null) ----
+  var store = {};
+  var initial = (hooks && hooks.storage) || {};
+  for (var sk in initial) if (Object.prototype.hasOwnProperty.call(initial, sk)) store[sk] = String(initial[sk]);
+  function has(k) { return Object.prototype.hasOwnProperty.call(store, k); }
+  function snapshot() { var o = {}; for (var k in store) if (has(k)) o[k] = store[k]; return o; }
+  function changed() { if (hooks && hooks.onStorage) hooks.onStorage(snapshot()); }
+  var fakeStorage = {
+    getItem: function (k) { k = String(k); return has(k) ? store[k] : null; },
+    setItem: function (k, v) { store[String(k)] = String(v); changed(); },
+    removeItem: function (k) { delete store[String(k)]; changed(); },
+    clear: function () { store = {}; changed(); },
+    key: function (i) { var ks = Object.keys(store); return i >= 0 && i < ks.length ? ks[i] : null; },
+  };
+  Object.defineProperty(fakeStorage, 'length', { get: function () { return Object.keys(store).length; } });
 
   // ---- 練習用のにせ API(SQL 分野のネットショップと同じ商品) ----
   var products = [
@@ -174,13 +192,13 @@ export function runUserCode(code, calls, hooks) {
   }).join(',') + '];';
   var fn;
   try {
-    fn = new AsyncFunction('console', 'alert', 'prompt', 'fetch', 'setTimeout', 'clearTimeout', code + tail);
+    fn = new AsyncFunction('console', 'alert', 'prompt', 'fetch', 'setTimeout', 'clearTimeout', 'localStorage', code + tail);
   } catch (e) {
-    return Promise.resolve({ ok: false, logs: logs, error: String(e) });
+    return Promise.resolve({ ok: false, logs: logs, error: String(e), storage: snapshot() });
   }
   var alertFn = function (m) { out('[alert] ' + fmt(m)); };
   var promptFn = function () { return null; };
-  return fn(fakeConsole, alertFn, promptFn, fakeFetch, userSetTimeout, userClearTimeout).then(
+  return fn(fakeConsole, alertFn, promptFn, fakeFetch, userSetTimeout, userClearTimeout, fakeStorage).then(
     function (results) {
       return settle().then(function () {
         if (asyncError || !hooks || !hooks.after) return;
@@ -188,11 +206,11 @@ export function runUserCode(code, calls, hooks) {
           .then(function () { return hooks.after(settle); })
           .then(settle, function (e) { if (!asyncError) asyncError = String(e); });
       }).then(function () {
-        return asyncError ? { ok: false, logs: logs, error: asyncError } : { ok: true, logs: logs, results: results };
+        return asyncError ? { ok: false, logs: logs, error: asyncError, storage: snapshot() } : { ok: true, logs: logs, results: results, storage: snapshot() };
       });
     },
     function (e) {
-      return settle().then(function () { return { ok: false, logs: logs, error: String(e) }; });
+      return settle().then(function () { return { ok: false, logs: logs, error: String(e), storage: snapshot() }; });
     }
   );
 }

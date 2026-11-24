@@ -1,0 +1,37 @@
+[
+  {
+    "question": "localStorage に保存したデータは、どうなりますか？",
+    "options": [
+      "ページを閉じても、同じブラウザで次に開いたときに残っている",
+      "ページを読み込み直すと消える",
+      "どのパソコンからでも同じデータが読める",
+      "サーバーのデータベースに送られる"
+    ],
+    "explanation": "localStorage はブラウザの中の保存場所なので、ページを閉じても残ります。ただし、そのブラウザだけのもので、別のパソコンやブラウザからは見えません。"
+  },
+  {
+    "question": "localStorage.setItem(\"n\", 5) のあと、localStorage.getItem(\"n\") + 1 の結果はどれですか？",
+    "options": ["\"51\"", "6", "null", "エラーになる"],
+    "explanation": "localStorage には文字列しか保存できないので、5 は \"5\" として戻ってきます。\"5\" + 1 は文字列の連結で \"51\" です。数として足すなら Number(...) で戻します。"
+  },
+  {
+    "question": "配列 todos を保存して、あとで配列として読み戻す正しい組み合わせはどれですか？",
+    "options": [
+      "setItem(\"todos\", JSON.stringify(todos)) と JSON.parse(getItem(\"todos\"))",
+      "setItem(\"todos\", todos) と getItem(\"todos\")",
+      "setItem(\"todos\", JSON.parse(todos)) と JSON.stringify(getItem(\"todos\"))",
+      "setItem(todos) と getItem()"
+    ],
+    "explanation": "保存するときに JSON.stringify で文字列にし、読むときに JSON.parse で配列に戻します。そのまま渡すと配列ではなく、ただの文字列になってしまいます。"
+  },
+  {
+    "question": "localStorage に保存しないほうがよいものはどれですか？",
+    "options": [
+      "ログインのパスワード",
+      "ダークモードを使うかどうかの設定",
+      "ゲームのハイスコア",
+      "自分用の TODO リスト"
+    ],
+    "explanation": "localStorage は、そのページで動く JavaScript なら読めてしまいます。パスワードのような秘密の情報は保存しません。"
+  }
+]

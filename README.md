@@ -91,6 +91,10 @@ JavaScript(利用者のコードを隔離された iframe で実行し、[jsrunn
 - ページを調べる判定と操作は [dom-core.js](src/lib/dom-core.js) の1か所で、HTML の練習場(`htmljudge.ts`)と共通。iframe には文字列で埋め込む
 - 画面の課題は Node では動かせないので、`check-tasks.mjs` は形だけ確かめ、正解になるかは `browser-check.mjs` が確かめる
 - 実行が終わったあとに出た `console.log` やエラー(画面のボタンを自分で押したときなど)も、出力に足していく
+- 画面の課題に `page`(HTML)を書くと、見本のページの代わりにそれを使う(11 フォームの注文フォーム)。記事の「練習場で試す」から開いたときも、レッスンの課題に `page` があればそれを画面に出す
+- フォーム: iframe は `allow-forms` 付き(ないと submit イベントが起きない)。`preventDefault` を忘れた送信は、練習場が止めてエラーとして知らせる(本物ならページが読み込み直される)
+- `localStorage` は練習用の保存場所([jsrun-core.js](src/lib/jsrun-core.js) の `fakeStorage`。iframe が別オリジンのため本物は使えない)。中身は練習場の「ブラウザに保存されているデータ」の欄に出る。課題では実行のたびに `storage`(最初の中身)から始め、`expectStorage`(キー → 値、`null` は「ない」)で判定する。フリーモードと記事の例では、実行をまたいで残る
+- 記事の「練習場で試す」(`?code=` があって `?task=` がない)から開いたときは、課題を選ばない「記事の例を試す」状態になり、判定しない
 
 Python(Web Worker の中の Pyodide で実行し、[pyrunner.ts](src/lib/pyrunner.ts) で判定):
 
@@ -159,6 +163,7 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 15. JavaScript 09 画面を書き換える(DOM)— JavaScript の練習場に「画面」の欄を足し、querySelector、textContent、createElement / append、addEventListener、入力欄の value、fetch したデータを並べる、innerHTML と XSS。課題5。総合演習は 10-final に移した(2026-11-24)
 16. Python 08 クラス、09 ファイルとモジュール — Python の練習場でファイルを読み書きできるようにした(練習用のファイル、課題の files)。総合演習は 10-final に移した(2026-11-24)
 17. Python 10 内包表記(リスト・辞書の内包表記、enumerate、zip)、11 並べ替え(sorted の key、lambda、タプルで2つの条件、max / min の key)、12 標準ライブラリ(json、Counter、defaultdict)。課題15。総合演習は 13-final に移し、`field.json` の `renamed` で前の 08-final / 10-final の進捗を引き継ぐ(2026-11-24)
+18. JavaScript 10 データを保存する(localStorage、文字列だけ、JSON で配列を保存)、11 フォームを受け取る(submit と preventDefault、value、FormData、入力の確認、fetch で送る、二重送信)。練習場に localStorage の欄、課題ごとの画面(page)、フォームの送信を追加。総合演習は 12-final に移した(前の 09-final / 10-final の進捗を引き継ぐ)(2026-11-24)
 
 ## 未決事項
 

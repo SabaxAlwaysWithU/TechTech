@@ -3,6 +3,8 @@
 // 実際に動かす部分は jsrun-core.js(check-tasks.mjs と共通)。await、setTimeout、練習用の fetch が使える。
 // 画面の課題(task.dom)では、iframe に見本のページ(SAMPLE_PAGE)を入れて見えるように置き、
 // コードがページを書き換えたあと、actions(ボタンを押すなど)をしてから checks でページを調べる(dom-core.js)。
+// 課題に page があれば、見本のページの代わりにそれを使う。
+// localStorage は練習用の保存場所で、中身はページ側(JsPractice)が持ち、実行のたびに渡して、結果で受け取る。
 import type { DomAction, HtmlCheck, JsCall } from './content';
 import { runUserCode } from './jsrun-core.js';
 import { judgeDom, doDomAction } from './dom-core.js';
@@ -15,6 +17,7 @@ export interface RunOutcome {
   results?: ({ v: unknown } | { e: string })[]; // tests.calls の結果
   dom?: { correct: boolean; message: string }; // checks でページを調べた結果
   timeout?: boolean;
+  storage?: Record<string, string>; // 実行後の localStorage の中身
 }
 
 /** 画面の課題と、フリーモードの「画面」に入る見本のページ。記事の例もこの要素を使う */
@@ -37,6 +40,14 @@ const RUNNER_SCRIPT = `<script>
   var unhandled = null;
   var finished = false;
   function late(line) { if (finished) parent.postMessage({ __log: line }, '*'); }
+  // フォームの送信を止め忘れると、本物のブラウザではページが読み込み直されて、入力も処理も消える。
+  // 練習場では送信を止めたうえで、エラーとして知らせる(window で最後に受け取るので、利用者の preventDefault が先に効く)
+  var SUBMIT_MSG = 'フォームが送信されて、ページが読み込み直されるところでした(練習場では止めました)。submit の処理の最初で e.preventDefault() を呼んでください。';
+  addEventListener('submit', function (ev) {
+    if (ev.defaultPrevented) return;
+    ev.preventDefault();
+    if (finished) late('エラー: ' + SUBMIT_MSG); else if (!unhandled) unhandled = SUBMIT_MSG;
+  });
   addEventListener('unhandledrejection', function (ev) {
     if (finished) late('エラー: ' + String(ev.reason)); else if (!unhandled) unhandled = String(ev.reason);
     ev.preventDefault();
@@ -70,9 +81,10 @@ const RUNNER_SCRIPT = `<script>
         }
       })();
     } : null;
-    runUserCode(String(data.code), data.calls || [], { onLog: late, after: after }).then(function (r) {
-      if (r.ok && unhandled) r = { ok: false, logs: r.logs, error: unhandled };
-      var msg = { __result: true, ok: r.ok, logs: r.logs, error: r.error, dom: dom };
+    var onStorage = function (s) { if (finished) parent.postMessage({ __storage: s }, '*'); };
+    runUserCode(String(data.code), data.calls || [], { onLog: late, after: after, storage: data.storage || {}, onStorage: onStorage }).then(function (r) {
+      if (r.ok && unhandled) r = { ok: false, logs: r.logs, error: unhandled, storage: r.storage };
+      var msg = { __result: true, ok: r.ok, logs: r.logs, error: r.error, dom: dom, storage: r.storage };
       if (r.results) {
         try { msg.results = JSON.parse(JSON.stringify(r.results)); } catch (e) { msg.results = r.results.map(function () { return { e: String(e) }; }); }
       }
@@ -90,7 +102,8 @@ function runnerHtml(page?: string): string {
 
 function makeFrame(page: string | undefined, visible: boolean): HTMLIFrameElement {
   const iframe = document.createElement('iframe');
-  iframe.setAttribute('sandbox', 'allow-scripts');
+  // allow-forms がないと、フォームの submit イベントそのものが起きない(送信は RUNNER_SCRIPT で止める)
+  iframe.setAttribute('sandbox', 'allow-scripts allow-forms');
   if (visible) {
     iframe.title = '画面';
     iframe.className = 'screen-frame';
@@ -113,6 +126,8 @@ export function showPage(container: HTMLElement, page: string) {
 /** JavaScriptのエラーメッセージに日本語の補足を付ける */
 export function translateJsError(msg: string): string {
   let m: RegExpMatchArray | null;
+  if (/フォームが送信されて/.test(msg)) return 'submit の処理で e.preventDefault() を呼んでいないか、呼ぶ前にエラーで止まっています。';
+  if (/localStorage|Storage/.test(msg) && /SecurityError|denied/i.test(msg)) return 'この練習場では window.localStorage ではなく、localStorage とだけ書いてください。';
   if (/Failed to fetch/.test(msg)) return '通信できませんでした(返事が来ませんでした)。URL のつづりを確認してください。この練習場で使えるのは https://shop.example/ の練習用 API だけです。';
   if (/await is only valid/.test(msg)) return 'await は async を付けた関数の中で使います。function の前に async を付けてください。';
   if (/\.json is not a function/.test(msg)) return 'json() は、await fetch(...) で受け取ったレスポンスにあります。fetch の前の await を忘れていないか、すでに取り出したデータに .json() を付けていないか確認してください。';
@@ -142,8 +157,13 @@ export interface ScreenOptions {
   onLateLog?: (line: string) => void; // 実行が終わったあとに出た console.log やエラー
 }
 
+export interface StorageOptions {
+  initial: Record<string, string>; // 実行を始めるときの localStorage の中身
+  onChange?: (s: Record<string, string>) => void; // 実行が終わったあとに中身が変わったとき(画面のボタンを押したときなど)
+}
+
 /** 利用者のコードを隔離された iframe で実行する。timeoutMs を超えたら打ち切る。screen を渡すと画面の欄で実行する */
-export function runJs(code: string, calls: string[] = [], timeoutMs = 3000, screen?: ScreenOptions): Promise<RunOutcome> {
+export function runJs(code: string, calls: string[] = [], timeoutMs = 3000, screen?: ScreenOptions, storage?: StorageOptions): Promise<RunOutcome> {
   return new Promise((resolve) => {
     const iframe = makeFrame(screen?.page, !!screen);
     const id = ++seq;
@@ -162,11 +182,13 @@ export function runJs(code: string, calls: string[] = [], timeoutMs = 3000, scre
       if (ev.source !== iframe.contentWindow) return;
       const d = ev.data || {};
       if (d.__ready) {
-        iframe.contentWindow!.postMessage({ __run: id, code, calls, actions: screen?.actions, checks: screen?.checks }, '*');
+        iframe.contentWindow!.postMessage({ __run: id, code, calls, actions: screen?.actions, checks: screen?.checks, storage: storage?.initial ?? {} }, '*');
       } else if (d.__result) {
-        finish({ ok: d.ok, logs: d.logs ?? [], error: d.error, hint: d.error ? translateJsError(d.error) : undefined, results: d.results, dom: d.dom ?? undefined });
+        finish({ ok: d.ok, logs: d.logs ?? [], error: d.error, hint: d.error ? translateJsError(d.error) : undefined, results: d.results, dom: d.dom ?? undefined, storage: d.storage ?? {} });
       } else if (typeof d.__log === 'string') {
         screen?.onLateLog?.(d.__log);
+      } else if (d.__storage) {
+        storage?.onChange?.(d.__storage);
       }
     };
     window.addEventListener('message', onMessage);
@@ -188,12 +210,21 @@ function show(v: unknown): string {
   return JSON.stringify(v) ?? String(v);
 }
 
-/** 実行結果を課題の期待値と比べる */
-export function judgeJs(out: RunOutcome, expectOutput?: string[], calls?: JsCall[], checks?: HtmlCheck[]): JsJudgement {
+/** 実行結果を課題の期待値と比べる。expectStorage は localStorage のキー → 値(null は「ない」) */
+export function judgeJs(out: RunOutcome, expectOutput?: string[], calls?: JsCall[], checks?: HtmlCheck[], expectStorage?: Record<string, string | null>): JsJudgement {
   if (!out.ok) return { correct: false, message: out.timeout ? out.hint! : 'エラーになりました。右の出力を確認してください。' };
   if (checks) {
     if (!out.dom) return { correct: false, message: '画面を調べられませんでした。もう一度実行してください。' };
     if (!out.dom.correct) return { correct: false, message: out.dom.message };
+  }
+  if (expectStorage) {
+    for (const [k, v] of Object.entries(expectStorage)) {
+      const got = out.storage?.[k] ?? null;
+      if (got !== v) {
+        const show = (x: string | null) => (x === null ? '(ない)' : `「${x}」`);
+        return { correct: false, message: `localStorage の「${k}」が違います(あなた: ${show(got)}、期待: ${show(v)})。` };
+      }
+    }
   }
   if (expectOutput) {
     const got = out.logs.map((l) => l.trim());
