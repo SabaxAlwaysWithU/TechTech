@@ -1,0 +1,27 @@
+[
+  {
+    "question": "1日に何万件も来る注文から、注文番号で1件を何度も探します。注文は番号の順に並んでいます。よい探し方はどれですか？",
+    "options": ["二分探索", "毎回前から線形探索", "毎回 sorted してから探す", "毎回 set に変換してから探す"],
+    "explanation": "並んでいるので、二分探索なら O(log n) で探せます。毎回 sorted や set に変換すると、その手間のほうが大きくなります。"
+  },
+  {
+    "question": "お客さんの名前の一覧を重なりなしで作るとき、names がリストのまま if name not in names: を使うと、全体の計算量はどうなりますか？",
+    "options": ["O(n²)", "O(n)", "O(log n)", "O(1)"],
+    "explanation": "リストの in は O(n) で、それを n 回くり返すので O(n²) です。「もう入れたか」を集合で調べれば O(n) になります。"
+  },
+  {
+    "question": "在庫を見ながら、来た順に注文を出荷するのに向いたデータ構造はどれですか？",
+    "options": ["キュー(deque)", "スタック", "集合", "並べ替えたリスト"],
+    "explanation": "来た順に取り出すのは、先入れ先出しのキューです。deque の popleft で先頭から取り出します。"
+  },
+  {
+    "question": "売れた数の多い順に並べ、同じなら名前の順にする sorted の key はどれですか？",
+    "options": [
+      "key=lambda name: (-totals[name], name)",
+      "key=lambda name: (totals[name], name)",
+      "key=lambda name: (name, -totals[name])",
+      "key=totals"
+    ],
+    "explanation": "タプルは1つ目で比べ、同じなら2つ目で比べます。数に - を付けると大きい順になります。"
+  }
+]

@@ -1,0 +1,126 @@
+[
+  {
+    "id": "bs",
+    "title": "二分探索を書く",
+    "text": "<p>関数 <code>binary_search(items, target)</code> を完成させてください。<code>items</code> は小さい順に並んでいます。二分探索で <code>target</code> の番号を、なければ <code>-1</code> を返します。</p>",
+    "starter": "def binary_search(items, target):\n    low = 0\n    high = len(items) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        # ここで items[mid] と target を比べて、low か high を動かす\n        return -1\n    return -1\n\nprint(binary_search([800, 1800, 2500, 4200, 6800], 4200))\n",
+    "answer": "def binary_search(items, target):\n    low = 0\n    high = len(items) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if items[mid] == target:\n            return mid\n        elif items[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1\n\nprint(binary_search([800, 1800, 2500, 4200, 6800], 4200))",
+    "hints": [
+      "items[mid] == target なら mid を返します。items[mid] < target なら、右半分だけ探すので low = mid + 1。",
+      "そうでなければ high = mid - 1 です。while の中の return -1 は消します。"
+    ],
+    "calls": [
+      {
+        "call": "binary_search([800, 1800, 2500, 4200, 6800], 4200)",
+        "expect": 3
+      },
+      {
+        "call": "binary_search([800, 1800, 2500, 4200, 6800], 800)",
+        "expect": 0
+      },
+      {
+        "call": "binary_search([800, 1800, 2500, 4200, 6800], 6800)",
+        "expect": 4
+      },
+      {
+        "call": "binary_search([800, 1800, 2500, 4200, 6800], 3000)",
+        "expect": -1
+      },
+      {
+        "call": "binary_search(list(range(0, 2000000, 2)), 1234568)",
+        "expect": 617284
+      }
+    ]
+  },
+  {
+    "id": "bs-steps",
+    "title": "何回で見つかるか",
+    "text": "<p>関数 <code>bs_steps(items, target)</code> を完成させてください。二分探索をして、<code>items[mid]</code> を見た回数を返します(見つからなくても、範囲がなくなるまでに見た回数)。100万個の中でも、20回ほどで終わることを確かめましょう。</p>",
+    "starter": "def bs_steps(items, target):\n    steps = 0\n    low = 0\n    high = len(items) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if items[mid] == target:\n            return steps\n        elif items[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return steps\n\nprint(bs_steps(list(range(1, 101)), 100))\n",
+    "answer": "def bs_steps(items, target):\n    steps = 0\n    low = 0\n    high = len(items) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        steps += 1\n        if items[mid] == target:\n            return steps\n        elif items[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return steps\n\nprint(bs_steps(list(range(1, 101)), 100))",
+    "hints": [
+      "mid を決めたすぐあとに steps += 1 を足します。今のコードは数えていません。",
+      "mid = (low + high) // 2 の次の行に steps += 1"
+    ],
+    "calls": [
+      {
+        "call": "bs_steps(list(range(1, 101)), 100)",
+        "expect": 7
+      },
+      {
+        "call": "bs_steps(list(range(1, 101)), 50)",
+        "expect": 1
+      },
+      {
+        "call": "bs_steps(list(range(1, 1000001)), 1)",
+        "expect": 19
+      },
+      {
+        "call": "bs_steps(list(range(1, 1000001)), 0)",
+        "expect": 19
+      }
+    ]
+  },
+  {
+    "id": "insert",
+    "title": "入れる場所を探す",
+    "text": "<p>関数 <code>insert_position(items, x)</code> を完成させてください。小さい順に並んだ <code>items</code> に <code>x</code> を入れるとき、並びを崩さずに入れられる番号を、二分探索で求めます。同じ値があるときは、その前の番号です。</p><pre>insert_position([10, 20, 30], 25) → 2\ninsert_position([10, 20, 30], 5)  → 0</pre>",
+    "starter": "def insert_position(items, x):\n    return len(items)\n\nprint(insert_position([10, 20, 30], 25))\n",
+    "answer": "def insert_position(items, x):\n    low = 0\n    high = len(items)\n    while low < high:\n        mid = (low + high) // 2\n        if items[mid] < x:\n            low = mid + 1\n        else:\n            high = mid\n    return low\n\nprint(insert_position([10, 20, 30], 25))",
+    "hints": [
+      "範囲を low = 0、high = len(items) とし、while low < high で回します。items[mid] < x なら low = mid + 1、そうでなければ high = mid。",
+      "最後に low を返します。low と high が重なったところが入れる場所です。"
+    ],
+    "calls": [
+      {
+        "call": "insert_position([10, 20, 30], 25)",
+        "expect": 2
+      },
+      {
+        "call": "insert_position([10, 20, 30], 5)",
+        "expect": 0
+      },
+      {
+        "call": "insert_position([10, 20, 30], 99)",
+        "expect": 3
+      },
+      {
+        "call": "insert_position([10, 20, 20, 30], 20)",
+        "expect": 1
+      },
+      {
+        "call": "insert_position([], 3)",
+        "expect": 0
+      }
+    ]
+  },
+  {
+    "id": "guess",
+    "title": "数当てゲーム",
+    "text": "<p>1〜100 の数当てゲームで、毎回「残りの範囲の真ん中」を言うとします。関数 <code>guesses(answer)</code> を完成させてください。答えが <code>answer</code> のとき、当てるまでに言った回数を返します。真ん中は <code>(low + high) // 2</code> です。</p>",
+    "starter": "def guesses(answer):\n    low = 1\n    high = 100\n    count = 0\n    return count\n\nprint(guesses(50), guesses(100))\n",
+    "answer": "def guesses(answer):\n    low = 1\n    high = 100\n    count = 0\n    while True:\n        mid = (low + high) // 2\n        count += 1\n        if mid == answer:\n            return count\n        elif mid < answer:\n            low = mid + 1\n        else:\n            high = mid - 1\n\nprint(guesses(50), guesses(100))",
+    "hints": [
+      "二分探索と同じです。while True: の中で、真ん中を言うたびに count += 1 し、当たったら count を返します。",
+      "外れて、言った数が小さければ low = mid + 1、大きければ high = mid - 1 です。"
+    ],
+    "calls": [
+      {
+        "call": "guesses(50)",
+        "expect": 1
+      },
+      {
+        "call": "guesses(100)",
+        "expect": 7
+      },
+      {
+        "call": "guesses(1)",
+        "expect": 6
+      },
+      {
+        "call": "max(guesses(n) for n in range(1, 101))",
+        "expect": 7
+      }
+    ]
+  }
+]

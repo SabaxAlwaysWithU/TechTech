@@ -1,0 +1,123 @@
+[
+  {
+    "id": "balanced",
+    "title": "括弧の対応",
+    "text": "<p>関数 <code>balanced(text)</code> を完成させてください。文字列の中の <code>( ) [ ] { }</code> が、正しく組になって閉じていれば <code>True</code>、そうでなければ <code>False</code> を返します。ほかの文字は無視します。</p>",
+    "starter": "def balanced(text):\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in text:\n        if ch in \"([{\":\n            stack.append(ch)\n    return True\n\nprint(balanced(\"print(a[0])\"), balanced(\"(]\"))\n",
+    "answer": "def balanced(text):\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in text:\n        if ch in \"([{\":\n            stack.append(ch)\n        elif ch in \")]}\":\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n    return len(stack) == 0\n\nprint(balanced(\"print(a[0])\"), balanced(\"(]\"))",
+    "hints": [
+      "閉じ括弧のときは、スタックが空なら False。空でなければ pop() して、pairs[ch] と同じかを確かめます。",
+      "最後は、スタックが空(全部閉じた)なら True です。return len(stack) == 0"
+    ],
+    "calls": [
+      {
+        "call": "balanced(\"print(a[0])\")",
+        "expect": true
+      },
+      {
+        "call": "balanced(\"(]\")",
+        "expect": false
+      },
+      {
+        "call": "balanced(\"((x)\")",
+        "expect": false
+      },
+      {
+        "call": "balanced(\"x))\")",
+        "expect": false
+      },
+      {
+        "call": "balanced(\"{[()()]}\")",
+        "expect": true
+      },
+      {
+        "call": "balanced(\"\")",
+        "expect": true
+      }
+    ]
+  },
+  {
+    "id": "undo",
+    "title": "元に戻す",
+    "text": "<p>関数 <code>edit(actions)</code> を完成させてください。<code>actions</code> は、<code>\"+文字\"</code>(その文字を末尾に足す)か <code>\"undo\"</code>(直前に足した1文字を取り消す)の並びです。最後にできた文字列を返します。取り消すものがない <code>undo</code> は何もしません。</p><pre>edit([\"+a\", \"+b\", \"undo\", \"+c\"]) → \"ac\"</pre>",
+    "starter": "def edit(actions):\n    stack = []\n    for act in actions:\n        if act == \"undo\":\n            pass\n        else:\n            stack.append(act[1:])\n    return \"\".join(stack)\n\nprint(edit([\"+a\", \"+b\", \"undo\", \"+c\"]))\n",
+    "answer": "def edit(actions):\n    stack = []\n    for act in actions:\n        if act == \"undo\":\n            if stack:\n                stack.pop()\n        else:\n            stack.append(act[1:])\n    return \"\".join(stack)\n\nprint(edit([\"+a\", \"+b\", \"undo\", \"+c\"]))",
+    "hints": [
+      "足した文字をスタックに積んでおけば、undo はいちばん上を取り除くだけです。",
+      "if act == \"undo\": のところを if stack: stack.pop() にします。"
+    ],
+    "calls": [
+      {
+        "call": "edit([\"+a\", \"+b\", \"undo\", \"+c\"])",
+        "expect": "ac"
+      },
+      {
+        "call": "edit([\"undo\", \"+x\"])",
+        "expect": "x"
+      },
+      {
+        "call": "edit([\"+h\", \"+i\", \"undo\", \"undo\", \"undo\"])",
+        "expect": ""
+      },
+      {
+        "call": "edit([\"+a\", \"+b\", \"+c\"])",
+        "expect": "abc"
+      }
+    ]
+  },
+  {
+    "id": "queue",
+    "title": "来た順に呼ぶ",
+    "text": "<p>関数 <code>serve(customers, n)</code> を完成させてください。<code>deque</code> を使い、並んだ順の <code>customers</code> から先頭の <code>n</code> 人を呼んで、呼んだ順の名前のリストを返します。並んでいる人が <code>n</code> 人より少なければ、全員です。</p>",
+    "starter": "from collections import deque\n\ndef serve(customers, n):\n    queue = deque(customers)\n    called = []\n    for _ in range(n):\n        if queue:\n            called.append(queue.pop())\n    return called\n\nprint(serve([\"山田\", \"佐藤\", \"鈴木\"], 2))\n",
+    "answer": "from collections import deque\n\ndef serve(customers, n):\n    queue = deque(customers)\n    called = []\n    for _ in range(n):\n        if queue:\n            called.append(queue.popleft())\n    return called\n\nprint(serve([\"山田\", \"佐藤\", \"鈴木\"], 2))",
+    "hints": [
+      "今は pop() で後ろから取り出しているので、最後に並んだ人から呼ばれています。",
+      "先頭から取り出すのは popleft() です。"
+    ],
+    "calls": [
+      {
+        "call": "serve([\"山田\", \"佐藤\", \"鈴木\"], 2)",
+        "expect": [
+          "山田",
+          "佐藤"
+        ]
+      },
+      {
+        "call": "serve([\"山田\"], 3)",
+        "expect": [
+          "山田"
+        ]
+      },
+      {
+        "call": "serve([], 1)",
+        "expect": []
+      }
+    ]
+  },
+  {
+    "id": "history",
+    "title": "ブラウザの戻る",
+    "text": "<p>関数 <code>browse(actions)</code> を完成させてください。<code>\"open ページ名\"</code> でそのページを開き、<code>\"back\"</code> で1つ前のページに戻ります。最後に表示しているページの名前を返します。最初は <code>\"ホーム\"</code> を表示していて、ホームより前には戻れません。</p>",
+    "starter": "def browse(actions):\n    stack = [\"ホーム\"]\n    for act in actions:\n        if act.startswith(\"open \"):\n            stack.append(act[5:])\n    return stack[-1]\n\nprint(browse([\"open A\", \"open B\", \"back\"]))\n",
+    "answer": "def browse(actions):\n    stack = [\"ホーム\"]\n    for act in actions:\n        if act.startswith(\"open \"):\n            stack.append(act[5:])\n        elif act == \"back\" and len(stack) > 1:\n            stack.pop()\n    return stack[-1]\n\nprint(browse([\"open A\", \"open B\", \"back\"]))",
+    "hints": [
+      "開いたページを積むスタックです。back のときは、いちばん上を取り除けば、1つ前が上に来ます。",
+      "elif act == \"back\" and len(stack) > 1: stack.pop()(ホームだけのときは戻らない)"
+    ],
+    "calls": [
+      {
+        "call": "browse([\"open A\", \"open B\", \"back\"])",
+        "expect": "A"
+      },
+      {
+        "call": "browse([\"back\", \"back\"])",
+        "expect": "ホーム"
+      },
+      {
+        "call": "browse([\"open A\", \"back\", \"open C\", \"open D\", \"back\"])",
+        "expect": "C"
+      }
+    ]
+  }
+]

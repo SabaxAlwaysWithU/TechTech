@@ -1,0 +1,154 @@
+[
+  {
+    "id": "merge",
+    "title": "2つの束をまとめる",
+    "text": "<p>関数 <code>merge(left, right)</code> を完成させてください。小さい順に並んだ2つのリストを、小さい順に並んだ1つのリストにして返します。<code>sorted</code> は使いません。</p>",
+    "starter": "def merge(left, right):\n    result = []\n    i = 0\n    j = 0\n    while i < len(left) and j < len(right):\n        # left[i] と right[j] の小さいほうを result に足す\n        break\n    return result + left[i:] + right[j:]\n\nprint(merge([1, 4, 9], [2, 3, 10]))\n",
+    "answer": "def merge(left, right):\n    result = []\n    i = 0\n    j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    return result + left[i:] + right[j:]\n\nprint(merge([1, 4, 9], [2, 3, 10]))",
+    "hints": [
+      "left[i] <= right[j] なら left[i] を足して i += 1、そうでなければ right[j] を足して j += 1。",
+      "break を消して、上の if / else を書きます。最後の return は、残ったほうをつなげています。"
+    ],
+    "calls": [
+      {
+        "call": "merge([1, 4, 9], [2, 3, 10])",
+        "expect": [
+          1,
+          2,
+          3,
+          4,
+          9,
+          10
+        ]
+      },
+      {
+        "call": "merge([], [1, 2])",
+        "expect": [
+          1,
+          2
+        ]
+      },
+      {
+        "call": "merge([5], [])",
+        "expect": [
+          5
+        ]
+      },
+      {
+        "call": "merge([1, 1, 3], [1, 2])",
+        "expect": [
+          1,
+          1,
+          1,
+          2,
+          3
+        ]
+      }
+    ]
+  },
+  {
+    "id": "msort",
+    "title": "マージソートを書く",
+    "text": "<p>関数 <code>merge_sort(items)</code> を完成させてください。半分に分けて、それぞれを <code>merge_sort</code> で並べ、<code>merge</code> でまとめます。<code>merge</code> は用意してあります。</p>",
+    "starter": "def merge(left, right):\n    result = []\n    i = 0\n    j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    return result + left[i:] + right[j:]\n\ndef merge_sort(items):\n    return list(items)\n\nprint(merge_sort([38, 27, 43, 3, 9, 82, 10]))\n",
+    "answer": "def merge(left, right):\n    result = []\n    i = 0\n    j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    return result + left[i:] + right[j:]\n\ndef merge_sort(items):\n    if len(items) <= 1:\n        return list(items)\n    mid = len(items) // 2\n    left = merge_sort(items[:mid])\n    right = merge_sort(items[mid:])\n    return merge(left, right)\n\nprint(merge_sort([38, 27, 43, 3, 9, 82, 10]))",
+    "hints": [
+      "終わりの条件は、長さが1以下ならそのまま返す。そうでなければ mid = len(items) // 2 で分けます。",
+      "left = merge_sort(items[:mid])、right = merge_sort(items[mid:])、return merge(left, right)"
+    ],
+    "calls": [
+      {
+        "call": "merge_sort([38, 27, 43, 3, 9, 82, 10])",
+        "expect": [
+          3,
+          9,
+          10,
+          27,
+          38,
+          43,
+          82
+        ]
+      },
+      {
+        "call": "merge_sort([])",
+        "expect": []
+      },
+      {
+        "call": "merge_sort([2, 1])",
+        "expect": [
+          1,
+          2
+        ]
+      },
+      {
+        "call": "merge_sort(list(range(500, 0, -1)))[:5]",
+        "expect": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    ]
+  },
+  {
+    "id": "price",
+    "title": "値段の安い順",
+    "text": "<p>関数 <code>sort_by_price(products)</code> を完成させてください。商品の辞書のリストを、マージソートで値段(<code>price</code>)の安い順に並べて返します。<code>merge</code> の比べ方を、辞書の <code>price</code> で比べるように変えます。値段が同じなら、元の順のままにします。</p>",
+    "starter": "def merge(left, right):\n    result = []\n    i = 0\n    j = 0\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    return result + left[i:] + right[j:]\n\ndef sort_by_price(products):\n    if len(products) <= 1:\n        return list(products)\n    mid = len(products) // 2\n    return merge(sort_by_price(products[:mid]), sort_by_price(products[mid:]))\n\nitems = [{\"name\": \"モニター\", \"price\": 32000}, {\"name\": \"マウス\", \"price\": 2500}, {\"name\": \"USBメモリ\", \"price\": 1800}]\nprint([p[\"name\"] for p in sort_by_price(items)])\n",
+    "answer": "def merge(left, right):\n    result = []\n    i = 0\n    j = 0\n    while i < len(left) and j < len(right):\n        if left[i][\"price\"] <= right[j][\"price\"]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n    return result + left[i:] + right[j:]\n\ndef sort_by_price(products):\n    if len(products) <= 1:\n        return list(products)\n    mid = len(products) // 2\n    return merge(sort_by_price(products[:mid]), sort_by_price(products[mid:]))\n\nitems = [{\"name\": \"モニター\", \"price\": 32000}, {\"name\": \"マウス\", \"price\": 2500}, {\"name\": \"USBメモリ\", \"price\": 1800}]\nprint([p[\"name\"] for p in sort_by_price(items)])",
+    "hints": [
+      "今は辞書どうしを <= で比べようとして、エラーになります。比べるのは値段だけです。",
+      "if left[i][\"price\"] <= right[j][\"price\"]:(<= なので、同じ値段なら左、つまり元の前のほうが先)"
+    ],
+    "calls": [
+      {
+        "call": "[p[\"name\"] for p in sort_by_price(items)]",
+        "expect": [
+          "USBメモリ",
+          "マウス",
+          "モニター"
+        ]
+      },
+      {
+        "call": "[p[\"name\"] for p in sort_by_price([{\"name\": \"A\", \"price\": 5}, {\"name\": \"B\", \"price\": 3}, {\"name\": \"C\", \"price\": 5}, {\"name\": \"D\", \"price\": 3}])]",
+        "expect": [
+          "B",
+          "D",
+          "A",
+          "C"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sorted-check",
+    "title": "並んでいるか確かめる",
+    "text": "<p>関数 <code>is_sorted(items)</code> を完成させてください。<code>items</code> が小さい順(同じ値が続くのはよい)に並んでいれば <code>True</code>、そうでなければ <code>False</code> を返します。隣どうしを1回ずつ比べるだけで分かります(O(n))。</p>",
+    "starter": "def is_sorted(items):\n    return True\n\nprint(is_sorted([1, 2, 2, 5]), is_sorted([3, 1]))\n",
+    "answer": "def is_sorted(items):\n    for i in range(len(items) - 1):\n        if items[i] > items[i + 1]:\n            return False\n    return True\n\nprint(is_sorted([1, 2, 2, 5]), is_sorted([3, 1]))",
+    "hints": [
+      "隣どうし items[i] と items[i + 1] を比べ、前のほうが大きいところが1つでもあれば並んでいません。",
+      "for i in range(len(items) - 1): if items[i] > items[i + 1]: return False … 最後に return True"
+    ],
+    "calls": [
+      {
+        "call": "is_sorted([1, 2, 2, 5])",
+        "expect": true
+      },
+      {
+        "call": "is_sorted([3, 1])",
+        "expect": false
+      },
+      {
+        "call": "is_sorted([])",
+        "expect": true
+      },
+      {
+        "call": "is_sorted([1, 3, 2, 4])",
+        "expect": false
+      }
+    ]
+  }
+]
