@@ -1,0 +1,110 @@
+[
+  {
+    "id": "squares",
+    "title": "必要な分だけ借りる",
+    "text": "<p>関数 <code>squares(n)</code> を完成させてください。<code>malloc</code> で <code>n</code> 個の <code>int</code> を借り、<code>0, 1, 4, 9, …</code>(番号の2乗)を入れて、その住所を返します。<code>free</code> は呼んだ側がします。</p><p>判定では、2回呼んで、2つの配列が別々のメモリになっているかも確かめます。</p>",
+    "starter": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint *squares(int n) {\n    int *a = NULL;\n    for (int i = 0; i < n; i++) {\n        a[i] = i * i;\n    }\n    return a;\n}\n\nint main() {\n    int *a = squares(5);\n    for (int i = 0; i < 5; i++) {\n        printf(\"%d \", a[i]);\n    }\n    printf(\"\\n\");\n    free(a);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint *squares(int n) {\n    int *a = malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        a[i] = i * i;\n    }\n    return a;\n}\n\nint main() {\n    int *a = squares(5);\n    for (int i = 0; i < 5; i++) {\n        printf(\"%d \", a[i]);\n    }\n    printf(\"\\n\");\n    free(a);\n    return 0;\n}\n",
+    "hints": [
+      "今の a は NULL(どこも指していない)です。どこにも借りていないので、2回呼ぶと同じ場所を使い回してしまいます。int n 個分のバイト数を借ります。",
+      "int *a = malloc(sizeof(int) * n);"
+    ],
+    "tests": [
+      {
+        "label": "squares(5)",
+        "main": "int main() { int *a = squares(5); printf(\"%d %d %d\\n\", a[0], a[2], a[4]); free(a); return 0; }",
+        "expectOutput": [
+          "0 4 16"
+        ]
+      },
+      {
+        "label": "squares(5) と squares(3) を同時に使う",
+        "main": "int main() { int *a = squares(5); int *b = squares(3); b[0] = 100; printf(\"%d %d %d\\n\", a[0], a[4], b[0]); free(a); free(b); return 0; }",
+        "expectOutput": [
+          "0 16 100"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "grow",
+    "title": "あとから伸ばす",
+    "text": "<p>関数 <code>grow(a, old_n, new_n)</code> を完成させてください。<code>malloc</code> で借りた <code>old_n</code> 個の配列 <code>a</code> を、<code>realloc</code> で <code>new_n</code> 個に伸ばし、増えたところ(<code>old_n</code> 番から <code>new_n - 1</code> 番)を 0 にして、新しい住所を返します。</p><p><code>realloc(住所, 新しいバイト数)</code> は、中身を残したまま大きさを変え、新しい住所を返します(場所が変わることがあります)。</p>",
+    "starter": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint *grow(int *a, int old_n, int new_n) {\n    return a;\n}\n\nint main() {\n    int *a = malloc(sizeof(int) * 2);\n    a[0] = 7;\n    a[1] = 8;\n    a = grow(a, 2, 4);\n    printf(\"%d %d %d %d\\n\", a[0], a[1], a[2], a[3]);\n    free(a);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint *grow(int *a, int old_n, int new_n) {\n    int *b = realloc(a, sizeof(int) * new_n);\n    for (int i = old_n; i < new_n; i++) {\n        b[i] = 0;\n    }\n    return b;\n}\n\nint main() {\n    int *a = malloc(sizeof(int) * 2);\n    a[0] = 7;\n    a[1] = 8;\n    a = grow(a, 2, 4);\n    printf(\"%d %d %d %d\\n\", a[0], a[1], a[2], a[3]);\n    free(a);\n    return 0;\n}\n",
+    "hints": [
+      "int *b = realloc(a, sizeof(int) * new_n); で伸ばします。そのあと for で old_n 番から new_n - 1 番までに 0 を入れます。",
+      "int *b = realloc(a, sizeof(int) * new_n); for (int i = old_n; i < new_n; i++) { b[i] = 0; } return b;"
+    ],
+    "tests": [
+      {
+        "label": "{7, 8} を 4 個に",
+        "main": "int main() { int *a = malloc(sizeof(int) * 2); a[0] = 7; a[1] = 8; a = grow(a, 2, 4); printf(\"%d %d %d %d\\n\", a[0], a[1], a[2], a[3]); free(a); return 0; }",
+        "expectOutput": [
+          "7 8 0 0"
+        ]
+      },
+      {
+        "label": "1 個を 3 個に",
+        "main": "int main() { int *a = malloc(sizeof(int)); a[0] = 5; a = grow(a, 1, 3); a[2] = 9; printf(\"%d %d %d\\n\", a[0], a[1], a[2]); free(a); return 0; }",
+        "expectOutput": [
+          "5 0 9"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "copy",
+    "title": "文字列のコピーを作る",
+    "text": "<p>関数 <code>copy_str(s)</code> を完成させてください。文字列 <code>s</code> と同じ中身の文字列を、<code>malloc</code> で借りた新しいメモリに作って返します。終わりの印 <code>'\\0'</code> の分も忘れずに借ります。</p>",
+    "starter": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nchar *copy_str(char *s) {\n    return s;\n}\n\nint main() {\n    char name[] = \"tanaka\";\n    char *c = copy_str(name);\n    c[0] = 'T';\n    printf(\"%s %s\\n\", name, c);\n    free(c);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nchar *copy_str(char *s) {\n    char *c = malloc(strlen(s) + 1);\n    strcpy(c, s);\n    return c;\n}\n\nint main() {\n    char name[] = \"tanaka\";\n    char *c = copy_str(name);\n    c[0] = 'T';\n    printf(\"%s %s\\n\", name, c);\n    free(c);\n    return 0;\n}\n",
+    "hints": [
+      "今のコードは同じ住所を返しているだけなので、コピーを書き換えると元も変わります。strlen(s) + 1 バイトを借ります(+1 は '\\0' の分)。",
+      "char *c = malloc(strlen(s) + 1); strcpy(c, s); return c;"
+    ],
+    "tests": [
+      {
+        "label": "コピーを書き換えても元は変わらない",
+        "main": "int main() { char name[] = \"tanaka\"; char *c = copy_str(name); c[0] = 'T'; printf(\"%s %s\\n\", name, c); free(c); return 0; }",
+        "expectOutput": [
+          "tanaka Tanaka"
+        ]
+      },
+      {
+        "label": "空の文字列",
+        "main": "int main() { char *c = copy_str(\"\"); printf(\"[%s] %d\\n\", c, (int)strlen(c)); free(c); return 0; }",
+        "expectOutput": [
+          "[] 0"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "check",
+    "title": "借りる前に確かめる",
+    "text": "<p>関数 <code>alloc_scores(n)</code> を完成させてください。<code>n</code> が 1 以上なら、<code>n</code> 個の <code>int</code> を借りて全部 0 にしてから住所を返します。<code>n</code> が 0 以下なら、借りずに <code>NULL</code> を返します。</p>",
+    "starter": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint *alloc_scores(int n) {\n    int *a = malloc(sizeof(int) * n);\n    return a;\n}\n\nint main() {\n    int *a = alloc_scores(3);\n    printf(\"%d %d\\n\", a[0], alloc_scores(0) == NULL);\n    free(a);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\nint *alloc_scores(int n) {\n    if (n <= 0) {\n        return NULL;\n    }\n    int *a = malloc(sizeof(int) * n);\n    for (int i = 0; i < n; i++) {\n        a[i] = 0;\n    }\n    return a;\n}\n\nint main() {\n    int *a = alloc_scores(3);\n    printf(\"%d %d\\n\", a[0], alloc_scores(0) == NULL);\n    free(a);\n    return 0;\n}\n",
+    "hints": [
+      "最初に if (n <= 0) { return NULL; } で、借りずに終わります。借りたあとは for で全部 0 を入れます(calloc(n, sizeof(int)) でもかまいません)。",
+      "if (n <= 0) { return NULL; } int *a = malloc(sizeof(int) * n); for (int i = 0; i < n; i++) { a[i] = 0; } return a;"
+    ],
+    "tests": [
+      {
+        "label": "alloc_scores(0) と alloc_scores(-2)",
+        "main": "int main() { printf(\"%d %d\\n\", alloc_scores(0) == NULL, alloc_scores(-2) == NULL); return 0; }",
+        "expectOutput": [
+          "1 1"
+        ]
+      },
+      {
+        "label": "alloc_scores(4) の中身",
+        "main": "int main() { int *a = alloc_scores(4); int s = 0; for (int i = 0; i < 4; i++) { s += a[i]; } printf(\"%d %d\\n\", a != NULL, s); free(a); return 0; }",
+        "expectOutput": [
+          "1 0"
+        ]
+      }
+    ]
+  }
+]

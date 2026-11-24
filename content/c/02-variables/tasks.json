@@ -1,0 +1,59 @@
+[
+  {
+    "id": "average",
+    "title": "平均点を小数で出す",
+    "text": "<p>3教科の点数の合計と平均を表示してください。平均は小数点以下2けたまで出します。</p><pre>合計 250 点\n平均 83.33 点</pre>",
+    "starter": "#include <stdio.h>\n\nint main() {\n    int a = 80;\n    int b = 92;\n    int c = 78;\n    int sum = a + b + c;\n    printf(\"合計 %d 点\\n\", sum);\n    printf(\"平均 %d 点\\n\", sum / 3);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint main() {\n    int a = 80;\n    int b = 92;\n    int c = 78;\n    int sum = a + b + c;\n    printf(\"合計 %d 点\\n\", sum);\n    printf(\"平均 %.2f 点\\n\", (double)sum / 3);\n    return 0;\n}\n",
+    "hints": [
+      "sum / 3 は int どうしの割り算なので、小数点以下が切り捨てられて 83 になります。sum を先に小数にします。",
+      "printf(\"平均 %.2f 点\\n\", (double)sum / 3); 書式も %d から %.2f に変えます。"
+    ],
+    "expectOutput": [
+      "合計 250 点",
+      "平均 83.33 点"
+    ]
+  },
+  {
+    "id": "time",
+    "title": "分を時間と分に分ける",
+    "text": "<p>変数 <code>minutes</code> に入った分数を、「何時間何分」に分けて表示してください。<code>/</code> と <code>%</code> を使います。</p><pre>200 分は 3 時間 20 分</pre>",
+    "starter": "#include <stdio.h>\n\nint main() {\n    int minutes = 200;\n    int hours = 0;\n    int rest = 0;\n    printf(\"%d 分は %d 時間 %d 分\\n\", minutes, hours, rest);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint main() {\n    int minutes = 200;\n    int hours = minutes / 60;\n    int rest = minutes % 60;\n    printf(\"%d 分は %d 時間 %d 分\\n\", minutes, hours, rest);\n    return 0;\n}\n",
+    "hints": [
+      "時間は「60 で割った答え(切り捨て)」、残りの分は「60 で割った余り」です。",
+      "int hours = minutes / 60; と int rest = minutes % 60; にします。"
+    ],
+    "expectOutput": [
+      "200 分は 3 時間 20 分"
+    ]
+  },
+  {
+    "id": "char",
+    "title": "文字の番号",
+    "text": "<p>変数 <code>c</code> に入った文字と、その番号(ASCII コード)、そして番号が1つ次の文字を表示してください。</p><pre>C の番号は 67、次の文字は D</pre>",
+    "starter": "#include <stdio.h>\n\nint main() {\n    char c = 'C';\n    printf(\"%c の番号は %c、次の文字は %c\\n\", c, c, c);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint main() {\n    char c = 'C';\n    printf(\"%c の番号は %d、次の文字は %c\\n\", c, c, c + 1);\n    return 0;\n}\n",
+    "hints": [
+      "同じ値でも、%c で出すと文字、%d で出すと番号になります。",
+      "printf(\"%c の番号は %d、次の文字は %c\\n\", c, c, c + 1);"
+    ],
+    "expectOutput": [
+      "C の番号は 67、次の文字は D"
+    ]
+  },
+  {
+    "id": "circle",
+    "title": "円の面積",
+    "text": "<p>半径 <code>r</code> の円の面積(半径 × 半径 × 円周率)を、小数点以下2けたで表示してください。円周率は <code>3.14159</code> を使います。</p><pre>半径 5 の円の面積は 78.54</pre>",
+    "starter": "#include <stdio.h>\n\nint main() {\n    int r = 5;\n    int pi = 3.14159;\n    printf(\"半径 %d の円の面積は %d\\n\", r, r * r * pi);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint main() {\n    int r = 5;\n    double pi = 3.14159;\n    printf(\"半径 %d の円の面積は %.2f\\n\", r, r * r * pi);\n    return 0;\n}\n",
+    "hints": [
+      "int の箱には整数しか入らないので、pi は 3 になってしまっています。小数を入れる型にします。",
+      "double pi = 3.14159; にして、面積の書式を %.2f にします。"
+    ],
+    "expectOutput": [
+      "半径 5 の円の面積は 78.54"
+    ]
+  }
+]
