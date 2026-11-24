@@ -45,10 +45,7 @@ int main() {
 
 `*p = 100;` は、p の中身ではなく、p が指している先(つまり x)に 100 を入れます。だから x が 100 に変わります。
 
-```
-x:  [ 42 ]  ← 住所 0x506360(例)
-p:  [ 0x506360 ] ── 指している ──→ x
-```
+<figure class="fig"><svg viewBox="0 0 450 116" role="img" aria-label="変数 x には 42、ポインタ p には x の住所 0x506360 が入っていて、p は x を指している"><defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><text x="60" y="26" class="t-m" text-anchor="middle">x</text><rect x="10" y="36" width="100" height="48" rx="8" class="bx"/><text x="60" y="66" class="t-m" text-anchor="middle">42</text><text x="60" y="104" class="t-s" text-anchor="middle">住所 0x506360(例)</text><text x="370" y="26" class="t-m" text-anchor="middle">p</text><rect x="300" y="36" width="140" height="48" rx="8" class="bx-hl"/><text x="370" y="66" class="t-m" text-anchor="middle">0x506360</text><line x1="296" y1="60" x2="116" y2="60" class="ln-hl" marker-end="url(#ah3)"/><text x="206" y="50" class="t-s t-hl" text-anchor="middle">指している</text></svg><figcaption>p の中身は x の住所。*p と書くと、p が指している x の箱を読み書きできる</figcaption></figure>
 
 宣言のときの `*` は「ポインタです」という印、使うときの `*` は「指している先」という意味です。同じ記号でも、役目が違うので注意してください。
 

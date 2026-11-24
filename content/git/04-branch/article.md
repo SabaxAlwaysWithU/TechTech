@@ -9,11 +9,7 @@ description: 本線を守ったまま、別の線で試す
 
 Git の**ブランチ**がこの「別の紙」です。履歴を枝分かれさせて、本線に影響を与えずに作業し、うまくいったら本線に合流させます。
 
-```
-            ○──○ feature(写真を足す作業)
-           /       \
-○──○──○──○─────────○ main(本線)
-```
+<figure class="fig"><svg viewBox="0 0 480 132" role="img" aria-label="main ブランチの途中から feature ブランチが分かれて2回コミットし、最後に main へマージする"><defs><marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><line x1="30" y1="92" x2="470" y2="92" class="ln" /><circle cx="30" cy="92" r="9" class="node"/><circle cx="100" cy="92" r="9" class="node"/><circle cx="170" cy="92" r="9" class="node"/><circle cx="240" cy="92" r="9" class="node"/><path d="M240,92 C270,92 270,40 300,40 L380,40 C410,40 410,92 440,92" class="ln-hl" /><circle cx="310" cy="40" r="9" class="node-hl"/><circle cx="370" cy="40" r="9" class="node-hl"/><circle cx="440" cy="92" r="11" class="node"/><text x="340" y="20" class="t-s t-hl" text-anchor="middle">feature(写真を足す作業)</text><text x="30" y="122" class="t-s" text-anchor="start">main(本線)</text><text x="440" y="122" class="t-s" text-anchor="middle">マージ</text></svg><figcaption>ブランチを分けて作業し、できあがったら本線(main)に合流(マージ)する</figcaption></figure>
 
 ## main ブランチ
 

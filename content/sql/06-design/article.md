@@ -57,10 +57,7 @@ CREATE TABLE orders (
 
 顧客1人に対して注文は何件もあります。この関係を **1対多** と言い、「多」の側(`orders`)に外部キーを置きます。
 
-```
-customers (1) ──< orders (多) ──< order_items (多)
-products  (1) ──< order_items (多)
-```
+<figure class="fig"><svg viewBox="0 0 480 176" role="img" aria-label="customers 1件に orders が複数、orders 1件に order_items が複数、products 1件に order_items が複数つながる"><defs><marker id="ah8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><rect x="6" y="24" width="124" height="40" rx="8" class="bx"/><text x="68" y="50" class="t-m" text-anchor="middle">customers</text><rect x="178" y="24" width="124" height="40" rx="8" class="bx"/><text x="240" y="50" class="t-m" text-anchor="middle">orders</text><rect x="350" y="24" width="124" height="40" rx="8" class="bx"/><text x="412" y="50" class="t-m" text-anchor="middle">order_items</text><rect x="350" y="124" width="124" height="40" rx="8" class="bx"/><text x="412" y="150" class="t-m" text-anchor="middle">products</text><line x1="134" y1="44" x2="174" y2="44" class="ln" marker-end="url(#ah8)"/><line x1="306" y1="44" x2="346" y2="44" class="ln" marker-end="url(#ah8)"/><line x1="412" y1="120" x2="412" y2="68" class="ln" marker-end="url(#ah8)"/><text x="140" y="36" class="t-s t-hl" text-anchor="start">1</text><text x="166" y="36" class="t-s t-hl" text-anchor="end">多</text><text x="312" y="36" class="t-s t-hl" text-anchor="start">1</text><text x="338" y="36" class="t-s t-hl" text-anchor="end">多</text><text x="420" y="114" class="t-s t-hl" text-anchor="start">1</text><text x="420" y="82" class="t-s t-hl" text-anchor="start">多</text><text x="170" y="120" class="t-s" text-anchor="start">矢印の先が「多」の側。</text><text x="170" y="140" class="t-s" text-anchor="start">1人の顧客に注文がいくつも</text></svg><figcaption>1対多の関係。「多」の側の表が、「1」の側の id を外部キーとして持つ</figcaption></figure>
 
 `order_items` は `orders` と `products` の両方に外部キーを持っています。「どの注文の、どの商品か」を2つの番号で表しているわけです。
 

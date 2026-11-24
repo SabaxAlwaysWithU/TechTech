@@ -178,3 +178,22 @@ main.prose th { background: var(--surface); }
     background-color: var(--shiki-dark-bg) !important;
   }
 }
+
+/* 記事の図(記事の Markdown に直接書いたインライン SVG)。
+   色はテーマの変数で塗るので、ダーク表示でもそのまま使える。幅に合わせて縮む */
+main.prose .fig { margin: 1.5rem 0 1.8rem; }
+main.prose .fig svg { display: block; width: 100%; max-width: 32rem; height: auto; margin: 0 auto; overflow: visible; }
+main.prose .fig figcaption { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem; }
+.fig .bx { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+.fig .bx-hl { fill: var(--bg); stroke: var(--accent); stroke-width: 2; }
+.fig .bx-dash { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.fig .bx-border { fill: var(--bg); stroke: var(--fg); stroke-width: 2.5; }
+.fig .ln { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+.fig .ln-hl { stroke: var(--accent); stroke-width: 2.2; fill: none; }
+.fig .ah { fill: var(--muted); }
+.fig .node { fill: var(--bg); stroke: var(--fg); stroke-width: 2; }
+.fig .node-hl { fill: var(--bg); stroke: var(--accent); stroke-width: 2.4; }
+.fig .t { fill: var(--fg); font-size: 16px; }
+.fig .t-s { fill: var(--muted); font-size: 14px; }
+.fig .t-m { fill: var(--fg); font-family: var(--mono); font-size: 16px; }
+.fig .t-hl { fill: var(--accent); }

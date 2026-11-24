@@ -13,16 +13,7 @@ OSもディスクの中を同じように整理しています。書類が**フ�
 
 Linuxでは、いちばん上のディレクトリを**ルート**と呼び、`/` という名前です。すべてのファイルは `/` から枝分かれした先のどこかにあります。
 
-```
-/
-├── bin/        基本的なコマンド
-├── etc/        設定ファイル
-├── home/       ユーザーごとの置き場所
-│   └── saba/   ← あなたのホーム
-├── tmp/        一時ファイル
-├── usr/        追加のプログラム
-└── var/        ログなど、増えていくデータ
-```
+<figure class="fig"><svg viewBox="0 0 480 250" role="img" aria-label="いちばん上の / の下に bin、etc、home、tmp、usr、var が並び、home の下に saba がある"><defs><marker id="ah7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><text x="14" y="26" class="t-m" text-anchor="start">/</text><line x1="18" y1="51" x2="34" y2="51" class="ln" /><text x="40" y="56" class="t-m" text-anchor="start">bin/</text><text x="200" y="56" class="t-s" text-anchor="start">基本的なコマンド</text><line x1="18" y1="81" x2="34" y2="81" class="ln" /><text x="40" y="86" class="t-m" text-anchor="start">etc/</text><text x="200" y="86" class="t-s" text-anchor="start">設定ファイル</text><line x1="18" y1="111" x2="34" y2="111" class="ln" /><text x="40" y="116" class="t-m" text-anchor="start">home/</text><text x="200" y="116" class="t-s" text-anchor="start">ユーザーごとの置き場所</text><path d="M58,124 L58,141 L74,141" class="ln" /><text x="80" y="146" class="t-m t-hl" text-anchor="start">saba/</text><text x="200" y="146" class="t-s t-hl" text-anchor="start">あなたのホーム</text><line x1="18" y1="171" x2="34" y2="171" class="ln" /><text x="40" y="176" class="t-m" text-anchor="start">tmp/</text><text x="200" y="176" class="t-s" text-anchor="start">一時ファイル</text><line x1="18" y1="201" x2="34" y2="201" class="ln" /><text x="40" y="206" class="t-m" text-anchor="start">usr/</text><text x="200" y="206" class="t-s" text-anchor="start">追加のプログラム</text><line x1="18" y1="231" x2="34" y2="231" class="ln" /><text x="40" y="236" class="t-m" text-anchor="start">var/</text><text x="200" y="236" class="t-s" text-anchor="start">ログなど、増えていくデータ</text><line x1="18" y1="32" x2="18" y2="231" class="ln" /></svg><figcaption>Linux のファイルは / を根っこにした1本の木になっている</figcaption></figure>
 
 ユーザーが自由に使える場所が**ホームディレクトリ**で、`/home/ユーザー名` にあります。ターミナルを開いた直後はここにいます。ホームは `~`(チルダ)という記号でも表せます。
 

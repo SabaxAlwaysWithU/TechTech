@@ -102,10 +102,7 @@ int main() {
 }
 ```
 
-```
-name: | H | e | l | l | o | \0 |
-        0   1   2   3   4    5
-```
+<figure class="fig"><svg viewBox="0 0 480 108" role="img" aria-label="Hello の5文字と、終わりの印 \0 の6つの箱。番号は 0 から 5"><defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><text x="8" y="58" class="t-m" text-anchor="start">name</text><rect x="70" y="30" width="58" height="44" rx="6" class="bx"/><text x="99" y="58" class="t-m" text-anchor="middle">H</text><text x="99" y="96" class="t-s" text-anchor="middle">0</text><rect x="136" y="30" width="58" height="44" rx="6" class="bx"/><text x="165" y="58" class="t-m" text-anchor="middle">e</text><text x="165" y="96" class="t-s" text-anchor="middle">1</text><rect x="202" y="30" width="58" height="44" rx="6" class="bx"/><text x="231" y="58" class="t-m" text-anchor="middle">l</text><text x="231" y="96" class="t-s" text-anchor="middle">2</text><rect x="268" y="30" width="58" height="44" rx="6" class="bx"/><text x="297" y="58" class="t-m" text-anchor="middle">l</text><text x="297" y="96" class="t-s" text-anchor="middle">3</text><rect x="334" y="30" width="58" height="44" rx="6" class="bx"/><text x="363" y="58" class="t-m" text-anchor="middle">o</text><text x="363" y="96" class="t-s" text-anchor="middle">4</text><rect x="400" y="30" width="58" height="44" rx="6" class="bx-hl"/><text x="429" y="58" class="t-m t-hl" text-anchor="middle">\0</text><text x="429" y="96" class="t-s" text-anchor="middle">5</text></svg><figcaption>&quot;Hello&quot; は、終わりの印 &#x27;\0&#x27; を入れて6つの箱を使う(下の数は番号)</figcaption></figure>
 
 `"Hello"` は5文字ですが、`'\0'` の分も入れて6つの箱を使います。文字列は `%s` で表示します。
 

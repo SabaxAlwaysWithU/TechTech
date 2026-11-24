@@ -36,9 +36,7 @@ int main() {
 
 Python は、書いたコードをそのまま読みながら動かします。C は違います。
 
-```
-hello.c(人が読む文章) ──コンパイラ(gcc など)──→ hello(コンピュータが直接読む機械語) ──→ 実行
-```
+<figure class="fig"><svg viewBox="0 0 480 104" role="img" aria-label="hello.c をコンパイラで機械語の hello に翻訳し、それを実行する流れ"><defs><marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><rect x="8" y="34" width="120" height="56" rx="8" class="bx"/><text x="68.0" y="59.0" class="t" text-anchor="middle">hello.c</text><text x="68.0" y="78.0" class="t-s" text-anchor="middle">人が読む文章</text><rect x="180" y="34" width="120" height="56" rx="8" class="bx-hl"/><text x="240.0" y="59.0" class="t" text-anchor="middle">hello</text><text x="240.0" y="78.0" class="t-s" text-anchor="middle">機械語</text><rect x="352" y="34" width="120" height="56" rx="8" class="bx"/><text x="412.0" y="59.0" class="t" text-anchor="middle">実行</text><text x="412.0" y="78.0" class="t-s" text-anchor="middle">画面に出る</text><line x1="132" y1="62" x2="176" y2="62" class="ln" marker-end="url(#ah1)"/><text x="154.0" y="26" class="t-s t-hl" text-anchor="middle">gcc で翻訳</text><line x1="304" y1="62" x2="348" y2="62" class="ln" marker-end="url(#ah1)"/><text x="326.0" y="26" class="t-s t-hl" text-anchor="middle">./hello</text></svg><figcaption>C は、先に機械語へ翻訳(コンパイル)してから実行する</figcaption></figure>
 
 ふだんの開発では、ターミナルでこう打ちます(Linux 分野の疑似ターミナルとは別の、本物の環境での話です)。
 

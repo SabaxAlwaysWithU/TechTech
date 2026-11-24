@@ -15,10 +15,7 @@ description: nginx、アプリ、データベース。リバースプロキシ�
 
 客(ブラウザ)と話すのはホール係だけです。厨房と食材庫は外から見えません。
 
-```
-ブラウザ ──→ nginx ──┬── 静的ファイル(HTML、画像、CSS)は自分で返す
-                      └── /api/ 宛ては アプリ ──→ データベース
-```
+<figure class="fig"><svg viewBox="0 0 480 206" role="img" aria-label="ブラウザからの問い合わせを nginx が受け、ファイルは自分で返し、/api/ 宛てはアプリに取り次ぎ、アプリがデータベースを使う"><defs><marker id="ah9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><rect x="4" y="74" width="92" height="44" rx="8" class="bx"/><text x="50.0" y="101.0" class="t" text-anchor="middle">ブラウザ</text><rect x="130" y="74" width="92" height="44" rx="8" class="bx-hl"/><text x="176.0" y="101.0" class="t" text-anchor="middle">nginx</text><line x1="96" y1="96" x2="126" y2="96" class="ln" marker-end="url(#ah9)"/><rect x="270" y="14" width="206" height="52" rx="8" class="bx"/><text x="373.0" y="37.0" class="t" text-anchor="middle">ファイルを返す</text><text x="373.0" y="56.0" class="t-s" text-anchor="middle">HTML・画像・CSS</text><rect x="270" y="128" width="92" height="44" rx="8" class="bx"/><text x="316.0" y="155.0" class="t" text-anchor="middle">アプリ</text><rect x="394" y="128" width="82" height="44" rx="8" class="bx"/><text x="435.0" y="155.0" class="t" text-anchor="middle">DB</text><path d="M222,90 C246,90 246,40 266,40" class="ln" marker-end="url(#ah9)"/><path d="M222,102 C246,102 246,150 266,150" class="ln" marker-end="url(#ah9)"/><line x1="362" y1="150" x2="390" y2="150" class="ln" marker-end="url(#ah9)"/><text x="254" y="196" class="t-s t-hl" text-anchor="middle">/api/ 宛てはアプリへ取り次ぐ</text></svg><figcaption>nginx が入口。ファイルは自分で返し、/api/ はアプリに取り次ぐ(リバースプロキシ)</figcaption></figure>
 
 ## nginx の2つの仕事
 
