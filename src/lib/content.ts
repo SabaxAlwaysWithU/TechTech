@@ -15,6 +15,7 @@ export interface Field {
   order: number;
   practice: PracticeKind;
   languages: string[]; // 記事中でこの言語のコード例に「練習場で試す」を付ける
+  renamed?: Record<string, string>; // 古いレッスンのフォルダ名 → 新しい名前。進捗を引き継ぐ(lib/progress.ts)
 }
 
 export interface QuizQuestion {

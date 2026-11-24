@@ -1,0 +1,75 @@
+[
+  {
+    "id": "length",
+    "title": "短い順に並べる",
+    "text": "<p>関数 <code>by_length(words)</code> を完成させてください。単語のリストを、文字数の少ない順に並べた新しいリストを返します。</p><pre>by_length([\"いちご大福\", \"も\", \"りんご\"]) → [\"も\", \"りんご\", \"いちご大福\"]</pre>",
+    "starter": "def by_length(words):\n    return sorted(words)\n\nprint(by_length([\"いちご大福\", \"も\", \"りんご\"]))\n",
+    "answer": "def by_length(words):\n    return sorted(words, key=len)\n\nprint(by_length([\"いちご大福\", \"も\", \"りんご\"]))",
+    "hints": [
+      "比べる値を文字数にしたいので、key= に文字数を数える関数を渡します。",
+      "return sorted(words, key=len)。len にカッコは付けません。"
+    ],
+    "calls": [
+      { "call": "by_length([\"いちご大福\", \"も\", \"りんご\"])", "expect": ["も", "りんご", "いちご大福"] },
+      { "call": "by_length([\"python\", \"js\", \"sql\"])", "expect": ["js", "sql", "python"] }
+    ]
+  },
+  {
+    "id": "price",
+    "title": "安い順の名前",
+    "text": "<p>関数 <code>cheap_first(products)</code> を完成させてください。商品を値段の安い順に並べ、名前だけのリストにして返します。</p><pre>cheap_first(products) → [\"USBメモリ\", \"マウス\", \"キーボード\", \"モニター\"]</pre>",
+    "starter": "products = [\n    {\"name\": \"モニター\", \"price\": 32000},\n    {\"name\": \"マウス\", \"price\": 2500},\n    {\"name\": \"キーボード\", \"price\": 6800},\n    {\"name\": \"USBメモリ\", \"price\": 1800},\n]\n\ndef cheap_first(products):\n    return [p[\"name\"] for p in products]\n\nprint(cheap_first(products))\n",
+    "answer": "products = [\n    {\"name\": \"モニター\", \"price\": 32000},\n    {\"name\": \"マウス\", \"price\": 2500},\n    {\"name\": \"キーボード\", \"price\": 6800},\n    {\"name\": \"USBメモリ\", \"price\": 1800},\n]\n\ndef cheap_first(products):\n    ordered = sorted(products, key=lambda p: p[\"price\"])\n    return [p[\"name\"] for p in ordered]\n\nprint(cheap_first(products))",
+    "hints": [
+      "先に sorted(products, key=lambda p: p[\"price\"]) で並べてから、名前だけを内包表記で集めます。",
+      "ordered = sorted(products, key=lambda p: p[\"price\"]) のあと return [p[\"name\"] for p in ordered]"
+    ],
+    "calls": [
+      { "call": "cheap_first(products)", "expect": ["USBメモリ", "マウス", "キーボード", "モニター"] },
+      { "call": "cheap_first([])", "expect": [] }
+    ]
+  },
+  {
+    "id": "top",
+    "title": "売れた上位",
+    "text": "<p>関数 <code>top_sellers(sales, n)</code> を完成させてください。「商品名 → 売れた数」の辞書を受け取り、売れた数の多い順に上位 <code>n</code> 個の商品名をリストで返します。</p><pre>top_sellers(sales, 2) → [\"マウス\", \"キーボード\"]</pre>",
+    "starter": "sales = {\"モニター\": 10, \"マウス\": 40, \"USBメモリ\": 18, \"キーボード\": 25}\n\ndef top_sellers(sales, n):\n    return list(sales)[:n]\n\nprint(top_sellers(sales, 2))\n",
+    "answer": "sales = {\"モニター\": 10, \"マウス\": 40, \"USBメモリ\": 18, \"キーボード\": 25}\n\ndef top_sellers(sales, n):\n    ordered = sorted(sales.items(), key=lambda kv: kv[1], reverse=True)\n    return [name for name, count in ordered][:n]\n\nprint(top_sellers(sales, 2))",
+    "hints": [
+      "sales.items() で (名前, 数) の組にして、key=lambda kv: kv[1] と reverse=True で数の多い順に並べます。",
+      "ordered = sorted(sales.items(), key=lambda kv: kv[1], reverse=True) のあと return [name for name, count in ordered][:n]"
+    ],
+    "calls": [
+      { "call": "top_sellers(sales, 2)", "expect": ["マウス", "キーボード"] },
+      { "call": "top_sellers(sales, 4)", "expect": ["マウス", "キーボード", "USBメモリ", "モニター"] },
+      { "call": "top_sellers({\"A\": 1}, 3)", "expect": ["A"] }
+    ]
+  },
+  {
+    "id": "two-keys",
+    "title": "クラスごとの成績順",
+    "text": "<p><code>students</code> を、クラスの順(A、B)に並べ、同じクラスの中は点数の高い順にして出力してください。</p><pre>A 鈴木 90\nA 田中 72\nA 佐藤 65\nB 伊藤 88\nB 山田 80</pre>",
+    "starter": "students = [\n    {\"name\": \"山田\", \"class\": \"B\", \"score\": 80},\n    {\"name\": \"佐藤\", \"class\": \"A\", \"score\": 65},\n    {\"name\": \"鈴木\", \"class\": \"A\", \"score\": 90},\n    {\"name\": \"伊藤\", \"class\": \"B\", \"score\": 88},\n    {\"name\": \"田中\", \"class\": \"A\", \"score\": 72},\n]\n\nfor s in students:\n    print(s[\"class\"], s[\"name\"], s[\"score\"])\n",
+    "answer": "students = [\n    {\"name\": \"山田\", \"class\": \"B\", \"score\": 80},\n    {\"name\": \"佐藤\", \"class\": \"A\", \"score\": 65},\n    {\"name\": \"鈴木\", \"class\": \"A\", \"score\": 90},\n    {\"name\": \"伊藤\", \"class\": \"B\", \"score\": 88},\n    {\"name\": \"田中\", \"class\": \"A\", \"score\": 72},\n]\n\nfor s in sorted(students, key=lambda s: (s[\"class\"], -s[\"score\"])):\n    print(s[\"class\"], s[\"name\"], s[\"score\"])",
+    "hints": [
+      "key でタプル (クラス, 点数) を返すと、クラスで比べてから点数で比べます。点数を高い順にするには - を付けます。",
+      "for s in sorted(students, key=lambda s: (s[\"class\"], -s[\"score\"])):"
+    ],
+    "expectOutput": ["A 鈴木 90", "A 田中 72", "A 佐藤 65", "B 伊藤 88", "B 山田 80"]
+  },
+  {
+    "id": "max",
+    "title": "いちばん高い商品",
+    "text": "<p>関数 <code>most_expensive(products)</code> を完成させてください。いちばん値段の高い商品の名前を返します。並べ替えずに <code>max</code> を使ってみましょう。</p>",
+    "starter": "products = [\n    {\"name\": \"モニター\", \"price\": 32000},\n    {\"name\": \"ノートパソコン\", \"price\": 128000},\n    {\"name\": \"マウス\", \"price\": 2500},\n]\n\ndef most_expensive(products):\n    return products[0][\"name\"]\n\nprint(most_expensive(products))\n",
+    "answer": "products = [\n    {\"name\": \"モニター\", \"price\": 32000},\n    {\"name\": \"ノートパソコン\", \"price\": 128000},\n    {\"name\": \"マウス\", \"price\": 2500},\n]\n\ndef most_expensive(products):\n    return max(products, key=lambda p: p[\"price\"])[\"name\"]\n\nprint(most_expensive(products))",
+    "hints": [
+      "max(products, key=lambda p: p[\"price\"]) は、値段がいちばん高い商品の辞書そのものを返します。",
+      "その辞書の名前を返します。return max(products, key=lambda p: p[\"price\"])[\"name\"]"
+    ],
+    "calls": [
+      { "call": "most_expensive(products)", "expect": "ノートパソコン" },
+      { "call": "most_expensive([{\"name\": \"マウス\", \"price\": 2500}, {\"name\": \"モニター\", \"price\": 32000}])", "expect": "モニター" }
+    ]
+  }
+]

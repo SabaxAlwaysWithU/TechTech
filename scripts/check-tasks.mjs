@@ -39,7 +39,13 @@ let failures = 0;
 for (const field of readdirSync(root)) {
   if (!statSync(join(root, field)).isDirectory()) continue;
   const fieldJson = join(root, field, 'field.json');
-  const practice = existsSync(fieldJson) ? JSON.parse(readFileSync(fieldJson, 'utf8')).practice : 'sql';
+  const fieldInfo = existsSync(fieldJson) ? JSON.parse(readFileSync(fieldJson, 'utf8')) : {};
+  const practice = fieldInfo.practice ?? 'sql';
+  // renamed(古いフォルダ名 → 新しい名前)の行き先が、今あるレッスンか
+  for (const [from, to] of Object.entries(fieldInfo.renamed ?? {})) {
+    if (!existsSync(join(root, field, to, 'article.md'))) { console.log(`!! ${field}/field.json の renamed: ${from} → ${to} の行き先がありません`); failures++; }
+    if (existsSync(join(root, field, from))) { console.log(`!! ${field}/field.json の renamed: ${from} はまだあるレッスンです`); failures++; }
+  }
   const schemaPath = join(root, field, 'schema.sql');
   const schema = existsSync(schemaPath) ? readFileSync(schemaPath, 'utf8') : '';
   for (const lesson of readdirSync(join(root, field)).filter((d) => statSync(join(root, field, d)).isDirectory())) {

@@ -16,7 +16,7 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 
 ## 今の状態
 
-9分野・65レッスン(SQL 7、HTML/CSS 7、JavaScript 9、OS 6、Linux 6、ネットワーク 9、Git 6、Webアプリの道具 6、Python 9)と、各分野の最後に総合演習(計9つ、課題41個)。
+9分野・68レッスン(SQL 7、HTML/CSS 7、JavaScript 9、OS 6、Linux 6、ネットワーク 9、Git 6、Webアプリの道具 6、Python 12)と、各分野の最後に総合演習(計9つ、課題41個)。
 
 - 2026-11-22 PR #1(ネットワーク図の位置ずれ修正、PR でのビルドチェック)をマージ済み
 - 2026-11-23 `deploy.yml` の Node.js を 22 から 26(LTS、2029年4月までサポート)に上げた
@@ -29,6 +29,8 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 - 2026-11-24 公開に使う GitHub Actions を最新版に上げた(checkout v7、setup-node v7、upload-pages-artifact v5、deploy-pages v5)。Node.js 20 の終了への対応
 - 2026-11-24 JavaScript に 09 画面を書き換える(DOM)を追加。練習場に「画面」の欄(見本のページ SAMPLE_PAGE)ができ、課題は `"dom": true` と `actions`(click / fill)と `checks`(HTML と同じ)で書く。総合演習は 10-final に移した(js/09-final の進捗は消える)
 - 2026-11-24 Python に 08 クラス、09 ファイルとモジュールを追加。練習場で open が使える(練習用のファイル memo.txt / scores.csv と、課題の `files`)。総合演習は 10-final に移した
+- 2026-11-24 総合演習の番号を動かしても進捗が消えないようにした(`field.json` の `renamed` に古いフォルダ名 → 新しい名前。`progress.ts` が読み込み時に引き継ぐ)。レッスンを総合演習の前に足すときは、これを使う
+- 2026-11-24 Python に 10 内包表記、11 並べ替え(sorted の key、lambda)、12 標準ライブラリ(json、collections)を追加。総合演習は 13-final(前の 08-final / 10-final の進捗も引き継ぐ)
 
 ## 次にやること
 
@@ -42,4 +44,4 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 ## いずれやるかもしれないこと
 
 - Webアプリの道具に「サーバーの裏側」「コードを書かない選択肢」
-- Python の続き: 内包表記、辞書やリストの並べ替え(sorted の key、lambda)、標準ライブラリ(collections、json)。JavaScript の続き: localStorage、フォームの送信、画面の課題に自分の HTML を使う(今は SAMPLE_PAGE だけ)
+- JavaScript の続き: localStorage、フォームの送信、画面の課題に自分の HTML を使う(今は SAMPLE_PAGE だけ)

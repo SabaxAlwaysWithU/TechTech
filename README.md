@@ -47,6 +47,8 @@ public/pyodide/              Python 本体(Pyodide)。ビルドのたびに scri
 
 `content/<分野>/<番号>-<名前>/` に `article.md`、`quiz.json`、`tasks.json` を置くだけ。番号順に並ぶ。
 
+総合演習(`<番号>-final`)の前にレッスンを差し込むときは、総合演習のフォルダ名の番号を上げ、`field.json` の `renamed` に `"古いフォルダ名": "新しいフォルダ名"` を足す。利用者の進捗(localStorage のキーはフォルダ名)が新しい名前に引き継がれる([progress.ts](src/lib/progress.ts))。`check-tasks.mjs` が行き先の有無を確かめる。
+
 ### 分野を足す
 
 `content/<分野>/` に `field.json` とレッスンのフォルダを置く。`field.json` の `practice` で練習場の種類を選ぶ:
@@ -156,6 +158,7 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 14. Python分野 — 練習場(Pyodide を Web Worker で実行、出力・戻り値の判定、エラーの行と日本語の補足、Tab と Enter の字下げの手助け)と7レッスン(Python を動かす、文字列、条件分岐、リストと繰り返し、辞書、関数、エラーと例外)+ 総合演習「成績表を作る」(課題5)。課題は計32(2026-11-23)
 15. JavaScript 09 画面を書き換える(DOM)— JavaScript の練習場に「画面」の欄を足し、querySelector、textContent、createElement / append、addEventListener、入力欄の value、fetch したデータを並べる、innerHTML と XSS。課題5。総合演習は 10-final に移した(2026-11-24)
 16. Python 08 クラス、09 ファイルとモジュール — Python の練習場でファイルを読み書きできるようにした(練習用のファイル、課題の files)。総合演習は 10-final に移した(2026-11-24)
+17. Python 10 内包表記(リスト・辞書の内包表記、enumerate、zip)、11 並べ替え(sorted の key、lambda、タプルで2つの条件、max / min の key)、12 標準ライブラリ(json、Counter、defaultdict)。課題15。総合演習は 13-final に移し、`field.json` の `renamed` で前の 08-final / 10-final の進捗を引き継ぐ(2026-11-24)
 
 ## 未決事項
 

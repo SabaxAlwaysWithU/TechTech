@@ -1,0 +1,32 @@
+[
+  {
+    "question": "sorted([\"りんご\", \"も\", \"バナナ\"], key=len) の結果はどれですか？",
+    "options": ["[\"も\", \"りんご\", \"バナナ\"]", "[1, 3, 3]", "[\"バナナ\", \"も\", \"りんご\"]", "[\"りんご\", \"バナナ\", \"も\"]"],
+    "explanation": "key=len なので文字数で比べます。並ぶのは元の文字列です。「りんご」と「バナナ」は同じ3文字なので、元の順番のまま並びます。"
+  },
+  {
+    "question": "lambda p: p[\"price\"] と同じ意味の関数はどれですか？",
+    "options": [
+      "def f(p): return p[\"price\"]",
+      "def f(): return p[\"price\"]",
+      "def f(p): print(p[\"price\"])",
+      "def f(price): return p"
+    ],
+    "explanation": "lambda 引数: 返す値 は、引数を受け取って値を返す関数です。return は書きませんが、コロンのうしろの値が返されます。"
+  },
+  {
+    "question": "生徒をクラスの順に並べ、同じクラスの中は点数の高い順にしたいです。key はどれですか？",
+    "options": [
+      "lambda s: (s[\"class\"], -s[\"score\"])",
+      "lambda s: (s[\"score\"], s[\"class\"])",
+      "lambda s: s[\"class\"] + s[\"score\"]",
+      "lambda s: (-s[\"class\"], s[\"score\"])"
+    ],
+    "explanation": "タプルは1つ目で比べ、同じなら2つ目で比べます。点数を大きい順にするために - を付けます。文字列のクラスに - は付けられません。"
+  },
+  {
+    "question": "prices = [3, 1, 2] のあと x = prices.sort() を実行すると、x はどうなりますか？",
+    "options": ["None", "[1, 2, 3]", "[3, 1, 2]", "エラーになる"],
+    "explanation": ".sort() は元のリストを並べ替えて、何も返しません(None)。並べたリストを受け取りたいなら x = sorted(prices) です。"
+  }
+]

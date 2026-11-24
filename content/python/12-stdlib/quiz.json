@@ -1,0 +1,27 @@
+[
+  {
+    "question": "API から受け取った JSON の文字列を、Python の辞書やリストにする関数はどれですか？",
+    "options": ["json.loads", "json.dumps", "json.dump", "dict"],
+    "explanation": "loads は文字列(string)から読み込みます。dumps は逆に、辞書やリストを JSON の文字列にします。s が付かない load / dump はファイルと読み書きします。"
+  },
+  {
+    "question": "json.dumps({\"name\": \"マウス\"}) で日本語が \\u30de… のような記号になってしまいました。どうすれば日本語のまま出せますか？",
+    "options": ["ensure_ascii=False を付ける", "indent=2 を付ける", "json.loads を使う", "encoding=\"utf-8\" を付ける"],
+    "explanation": "dumps は、何も指定しないと日本語を \\u の形に変えます。ensure_ascii=False を付けると日本語のまま出ます。indent は改行と字下げを入れるためのものです。"
+  },
+  {
+    "question": "Counter([\"a\", \"b\", \"a\", \"c\", \"a\", \"b\"]).most_common(1) の結果はどれですか？",
+    "options": ["[(\"a\", 3)]", "\"a\"", "3", "[(\"a\", 3), (\"b\", 2)]"],
+    "explanation": "most_common(n) は、多い順に上位 n 個の (もの, 回数) の組をリストで返します。1 なので1組だけです。"
+  },
+  {
+    "question": "groups = defaultdict(list) のあと、まだないキーで groups[\"A\"].append(\"鈴木\") を実行するとどうなりますか？",
+    "options": [
+      "groups[\"A\"] に空のリストが自動で作られ、\"鈴木\" が入る",
+      "KeyError になる",
+      "groups[\"A\"] が \"鈴木\" という文字列になる",
+      "何も起きない"
+    ],
+    "explanation": "defaultdict(list) は、ないキーを引くと空のリストを自動で作ります。ふつうの辞書なら KeyError になるところです。"
+  }
+]
