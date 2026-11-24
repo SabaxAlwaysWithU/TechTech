@@ -197,3 +197,6 @@ main.prose .fig figcaption { text-align: center; color: var(--muted); font-size:
 .fig .t-s { fill: var(--muted); font-size: 14px; }
 .fig .t-m { fill: var(--fg); font-family: var(--mono); font-size: 16px; }
 .fig .t-hl { fill: var(--accent); }
+
+/* 練習場の課題文の中の長いコード(空白の少ない攻撃の文字列など)も、スマホ幅で途中から折り返す */
+.task-text code { overflow-wrap: anywhere; }
