@@ -100,8 +100,7 @@ export interface SqlApp {
 /** C の課題の確かめ。利用者の main の代わりに main を付けて実行し、出力を expectOutput と比べる */
 export interface CTest {
   label: string; // 判定のメッセージに出す名前(例: "add(2, 3)")
-  main: string; // 例: int main() { printf("%d
-", add(2, 3)); return 0; }
+  main: string; // 例: int main() { printf("%d\n", add(2, 3)); return 0; }
   expectOutput: string[];
 }
 
