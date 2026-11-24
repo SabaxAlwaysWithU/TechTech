@@ -57,6 +57,7 @@ src/lib/picoc.gen.js         C のインタプリタ(picoc-js、MIT)。scripts/p
 - `"sql"`: [Practice.astro](src/components/Practice.astro)。`schema.sql` が必要
 - `"html"`: [HtmlPractice.astro](src/components/HtmlPractice.astro)。入力欄の横にプレビュー
 - `"js"`: [JsPractice.astro](src/components/JsPractice.astro)。sandbox 付き iframe でコードを実行し、出力を表示
+- `"bits"`: [BitsPractice.astro](src/components/BitsPractice.astro)。ビットのボタンを押して 0 / 1 を切り替え、10進・16進・8進・文字・符号あり・小数での値を見る。計算と判定は [bits-core.js](src/lib/bits-core.js)
 - `"c"`: [CPractice.astro](src/components/CPractice.astro)。ブラウザの中の C のインタプリタ(picoc)でコードを実行し、出力を表示する
 - `"python"`: [PyPractice.astro](src/components/PyPractice.astro)。ブラウザの中の本物の Python(Pyodide)でコードを実行し、出力を表示
 - `"shell"`: [ShellPractice.astro](src/components/ShellPractice.astro)。疑似ターミナル。仮想のファイル・プロセス・ユーザー・Gitリポジトリは [shell.ts](src/lib/shell.ts)。OS分野と Git分野で共用
@@ -109,6 +110,14 @@ Python(Web Worker の中の Pyodide で実行し、[pyrunner.ts](src/lib/pyrunne
 - `input()` は使えない(呼ぶとエラーで知らせる)。標準ライブラリは使えるが、numpy などの追加パッケージは読み込まない
 - Pyodide の版は package.json で固定(`pyodide`)。上げるときは `npm install --save-exact pyodide@版` のあと、check-tasks と browser-check を通す
 - 初回は約12MB を読み込む(2回目からはブラウザのキャッシュ)。読み込みが終わるまで「実行」は押せない
+
+ビット(コンピュータの中の数。[bits-core.js](src/lib/bits-core.js) の1か所で、画面と `check-tasks.mjs` の両方が使う):
+
+- 課題の `bits` で練習場を決める: `width`(ビットの数、既定 8)、`fraction`(小数点より右のビットの数)、`start`(最初の並び)、`ops`(使える操作のボタン: `inc` +1、`dec` -1、`shl` 左へずらす、`shr` 右へずらす、`not` 反転)。あふれたビットは捨てる(オーバーフロー)
+- `bitChecks` をすべて満たせば正解: `value`(符号なしの値)、`signed`(2の補数の値)、`fixed`(小数の値)、`usedOp`(その操作を使った)、`ones`(1 の数)。ボタンを押すたびに判定し、一度正解したら残る
+- `bytesTool: true` で「文字のバイト(UTF-8)」の欄を出す(フリーモードではいつも出る)
+- `answer` は1行に1つ、`0000 1101` のような並びか、`操作: inc`(または `操作: +1`)。`check-tasks.mjs` が手順を実行して正解になること、最初の状態では正解にならないことを確かめ、`browser-check.mjs` はボタンを押して確かめる
+- 区切りは4ビットずつ(16進数の1文字)。9ビットのように3の倍数のときは3ビットずつで、8進数も出す(ファイルの権限)
 
 C(Web Worker の中の picoc で実行し、[crunner.ts](src/lib/crunner.ts) で判定):
 
@@ -186,3 +195,4 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 ## 未決事項
 
 - (なし)サイト名は TechTech に決定(2026-11-15)
+22. コンピュータの中の数 — 新しい練習場(ビットのボタン、読み方の表、+1・ずらす・反転、小数、文字のバイト)と6レッスン(2進数とビット、16進数、負の数とオーバーフロー、ビットをずらす・反転する、文字とバイト、小数とその誤差)+ 総合演習「数の係」。課題32(2026-11-25)

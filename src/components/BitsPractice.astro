@@ -1,0 +1,376 @@
+---
+// 「コンピュータの中の数」の練習場。ビットのボタンを押して 0 / 1 を切り替え、10進・16進・文字・符号あり・小数での値を見る。
+// 課題は、今のビットが bitChecks(lib/bits-core.js)を満たしたら正解。押すたびに判定する(一度正解したら残る)。
+import type { Task } from '../lib/content';
+interface Props {
+  lessonId?: string;
+  lessonTitle?: string;
+  tasks?: Task[];
+  backHref?: string;
+  nextHref?: string;
+  nextLabel?: string;
+}
+const { lessonId, lessonTitle, tasks = [], backHref, nextHref, nextLabel } = Astro.props;
+const hasTasks = tasks.length > 0;
+---
+<main class="practice">
+  <div class="pane left">
+    <section class="task">
+      {hasTasks ? (
+        <>
+          <p class="eyebrow">{lessonTitle} の練習</p>
+          <nav class="task-tabs" id="task-tabs" aria-label="課題">
+            {tasks.map((t, i) => (
+              <button type="button" class="tab" data-index={i} aria-current={i === 0 ? 'true' : undefined}>課題{i + 1}</button>
+            ))}
+          </nav>
+          <h1 id="task-title">{tasks[0].title}</h1>
+          <div id="task-text" class="task-text" set:html={tasks[0].text} />
+          <div class="hints">
+            <button type="button" class="btn secondary" id="hint-btn">ヒントを見る</button>
+            <ol id="hint-list" class="hint-list"></ol>
+            <details id="answer-box" hidden>
+              <summary>模範解答を見る</summary>
+              <pre id="answer-code"></pre>
+            </details>
+          </div>
+          <div id="verdict" class="verdict" hidden></div>
+        </>
+      ) : (
+        <>
+          <h1>フリーモード</h1>
+          <p class="muted">課題はありません。ビットを押して、数や文字がどう変わるかを試せます。下の「文字のバイト」では、文字が何バイトのどんな数になるかを見られます。</p>
+        </>
+      )}
+    </section>
+  </div>
+  <div class="pane right">
+    <section class="bits-box">
+      <p class="label">ビット <span class="muted">(押すと 0 と 1 が切り替わる)</span></p>
+      <div id="bits" class="bits" role="group" aria-label="ビット"></div>
+      <div id="ops" class="ops"></div>
+      <div class="actions">
+        <button type="button" class="btn secondary" id="clear">全部 0 にする</button>
+        <button type="button" class="btn secondary" id="reset">最初に戻す</button>
+      </div>
+    </section>
+    <section class="readout">
+      <h2>この並びの読み方</h2>
+      <table class="values" id="values"></table>
+    </section>
+    <section class="bytes" id="bytes-section">
+      <h2>文字のバイト(UTF-8)</h2>
+      <input id="bytes-input" class="bytes-input" value="A" spellcheck="false" aria-label="バイトを見たい文字" />
+      <div id="bytes-view" class="bytes-view"></div>
+    </section>
+    {hasTasks && (
+      <nav class="lesson-nav">
+        {backHref && <a href={backHref} data-back>← 記事に戻る</a>}
+        {nextHref && <a href={nextHref}>{nextLabel ?? '次へ'} →</a>}
+      </nav>
+    )}
+  </div>
+</main>
+
+<script type="application/json" id="practice-data" set:html={JSON.stringify({ lessonId, tasks })} />
+
+<script>
+  import { OPS, fromString, toString, unsigned, signed, fixed, hex, asChar, placeLabels, applyOp, judgeBits, groupSize } from '../lib/bits-core.js';
+  import { getProgress, markTaskCleared } from '../lib/progress';
+  import type { Task } from '../lib/content';
+
+  const data = JSON.parse(document.getElementById('practice-data')!.textContent!) as { lessonId?: string; tasks: Task[] };
+  const tasks = data.tasks;
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  let taskIndex = 0;
+  let hintsShown = 0;
+  let solved = false;
+  type Setup = { width: number; fraction: number; start: string; ops: string[] };
+  let setup: Setup;
+  let state: { bits: number[]; used: Record<string, boolean> };
+
+  function currentTask(): Task | undefined { return tasks[taskIndex]; }
+
+  function makeSetup(): Setup {
+    const b = currentTask()?.bits;
+    return {
+      width: b?.width ?? 8,
+      fraction: b?.fraction ?? 0,
+      start: b?.start ?? '',
+      ops: b?.ops ?? (currentTask() ? [] : Object.keys(OPS)),
+    };
+  }
+
+  // 4つ(または3つ)ずつのまとまりを1つの塊にする。狭い画面で折り返すときは、まとまりの切れ目で折り返す
+  function renderBits() {
+    const box = $('bits');
+    box.innerHTML = '';
+    const labels = placeLabels(setup.width, setup.fraction);
+    const g = groupSize(setup.width);
+    let group: HTMLElement | null = null;
+    state.bits.forEach((b, i) => {
+      const atPoint = setup.fraction > 0 && i === setup.width - setup.fraction;
+      if (atPoint) {
+        const dot = document.createElement('span');
+        dot.className = 'point';
+        dot.textContent = '.';
+        box.appendChild(dot);
+      }
+      if (!group || atPoint || (setup.width - i) % g === 0) {
+        group = document.createElement('span');
+        group.className = 'grp';
+        box.appendChild(group);
+      }
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = `bit-${i}`;
+      btn.className = 'bit' + (b ? ' on' : '');
+      btn.setAttribute('aria-pressed', b ? 'true' : 'false');
+      btn.setAttribute('aria-label', `重み ${labels[i]} のビット`);
+      btn.innerHTML = '<span class="w"></span><span class="v"></span>';
+      btn.querySelector('.w')!.textContent = labels[i];
+      btn.querySelector('.v')!.textContent = String(b);
+      btn.addEventListener('click', () => { state.bits[i] = state.bits[i] ? 0 : 1; update(); });
+      group.appendChild(btn);
+    });
+  }
+
+  function renderOps() {
+    const box = $('ops');
+    box.innerHTML = '';
+    for (const op of setup.ops) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn secondary op';
+      btn.dataset.op = op;
+      btn.textContent = OPS[op as keyof typeof OPS] ?? op;
+      btn.addEventListener('click', () => { state.bits = applyOp(state.bits, op); state.used[op] = true; update(); });
+      box.appendChild(btn);
+    }
+    box.hidden = setup.ops.length === 0;
+  }
+
+  function renderValues() {
+    const rows: [string, string][] = [
+      ['2進数', toString(state.bits)],
+      ['10進数(符号なし)', String(unsigned(state.bits))],
+      ['10進数(符号あり・2の補数)', String(signed(state.bits))],
+      ['16進数', '0x' + hex(state.bits)],
+    ];
+    // 9ビット(ファイルの権限など)のように3の倍数なら、3ビットずつの8進数も出す
+    if (setup.width % 3 === 0 && setup.fraction === 0) rows.push(['8進数(3ビットずつ)', unsigned(state.bits).toString(8).padStart(setup.width / 3, '0')]);
+    if (setup.fraction > 0) rows.push(['小数(点より右が ' + setup.fraction + ' ビット)', String(fixed(state.bits, setup.fraction))]);
+    if (setup.width <= 8) rows.push(['文字(ASCII)', asChar(state.bits) ?? '(表示できる文字ではない)']);
+    const table = $('values');
+    table.innerHTML = '';
+    for (const [k, v] of rows) {
+      const tr = document.createElement('tr');
+      const th = document.createElement('th'); th.textContent = k;
+      const td = document.createElement('td'); td.textContent = v;
+      tr.append(th, td);
+      table.appendChild(tr);
+    }
+  }
+
+  function judge() {
+    const t = currentTask();
+    if (!t?.bitChecks || solved) return;
+    const j = judgeBits(state, setup, t.bitChecks);
+    const verdict = $('verdict');
+    if (j.correct) {
+      solved = true;
+      verdict.hidden = false;
+      verdict.className = 'verdict correct';
+      verdict.textContent = '正解です。';
+      if (data.lessonId) markTaskCleared(data.lessonId, t.id);
+      document.querySelector<HTMLButtonElement>(`#task-tabs .tab[data-index="${taskIndex}"]`)?.classList.add('done');
+    } else {
+      verdict.hidden = false;
+      verdict.className = 'verdict wrong';
+      verdict.textContent = `まだです: ${j.message}`;
+    }
+  }
+
+  // ボタンは作り直さず、中身だけ書き換える(キーボードで操作しているときにフォーカスが外れないように)
+  function refreshBits() {
+    state.bits.forEach((b, i) => {
+      const btn = document.getElementById(`bit-${i}`);
+      if (!btn) return;
+      btn.classList.toggle('on', b === 1);
+      btn.setAttribute('aria-pressed', b ? 'true' : 'false');
+      btn.querySelector('.v')!.textContent = String(b);
+    });
+  }
+
+  function update() {
+    refreshBits();
+    renderValues();
+    judge();
+  }
+
+  function start() {
+    setup = makeSetup();
+    state = { bits: fromString(setup.start, setup.width), used: {} };
+    renderOps();
+    renderBits();
+    renderValues();
+  }
+
+  // ---- 文字のバイト ----
+  function renderBytes() {
+    const text = $<HTMLInputElement>('bytes-input').value;
+    const view = $('bytes-view');
+    view.innerHTML = '';
+    const enc = new TextEncoder();
+    for (const ch of Array.from(text).slice(0, 12)) {
+      const bytes = Array.from(enc.encode(ch));
+      const row = document.createElement('div');
+      row.className = 'byte-row';
+      const c = document.createElement('span');
+      c.className = 'ch';
+      c.textContent = ch === ' ' ? '(空白)' : ch;
+      const b = document.createElement('span');
+      b.className = 'bs';
+      b.textContent = `${bytes.length}バイト: ` + bytes.map((x) => x.toString(16).toUpperCase().padStart(2, '0')).join(' ') + '  (' + bytes.map((x) => x.toString(2).padStart(8, '0')).join(' ') + ')';
+      row.append(c, b);
+      view.appendChild(row);
+    }
+    if (!text) view.innerHTML = '<p class="muted small">文字を入れると、UTF-8 で何バイトのどんな数になるかが出ます。</p>';
+  }
+  $('bytes-input').addEventListener('input', renderBytes);
+
+  function renderTask() {
+    const t = currentTask();
+    solved = false;
+    if (t) {
+      hintsShown = 0;
+      $('task-title').textContent = t.title;
+      $('task-text').innerHTML = t.text;
+      $('hint-list').innerHTML = '';
+      const hintBtn = $<HTMLButtonElement>('hint-btn');
+      hintBtn.hidden = t.hints.length === 0;
+      hintBtn.textContent = 'ヒントを見る';
+      const ans = $<HTMLDetailsElement>('answer-box');
+      ans.hidden = true;
+      ans.open = false;
+      $('answer-code').textContent = t.answer ?? '';
+      const verdict = $('verdict');
+      verdict.hidden = true;
+      verdict.className = 'verdict';
+      const prog = data.lessonId ? getProgress(data.lessonId) : {};
+      for (const tab of document.querySelectorAll<HTMLButtonElement>('#task-tabs .tab')) {
+        const i = Number(tab.dataset.index);
+        tab.toggleAttribute('aria-current', i === taskIndex);
+        tab.classList.toggle('done', !!prog.tasks?.[tasks[i].id]);
+      }
+      if (prog.tasks?.[t.id]) { verdict.hidden = false; verdict.classList.add('correct'); verdict.textContent = 'クリア済み。別のやり方も試してみましょう。'; }
+      $('bytes-section').hidden = !t.bytesTool;
+    }
+    start();
+  }
+
+  function showHint() {
+    const t = currentTask();
+    if (!t) return;
+    if (hintsShown < t.hints.length) {
+      const li = document.createElement('li');
+      li.textContent = t.hints[hintsShown];
+      $('hint-list').appendChild(li);
+      hintsShown++;
+    }
+    const btn = $<HTMLButtonElement>('hint-btn');
+    if (hintsShown >= t.hints.length) {
+      btn.hidden = true;
+      $('answer-box').hidden = false;
+    } else {
+      btn.textContent = `次のヒントを見る(${hintsShown}/${t.hints.length})`;
+    }
+  }
+
+  $('clear').addEventListener('click', () => { state.bits = state.bits.map(() => 0); update(); });
+  $('reset').addEventListener('click', () => { solved = false; start(); judge(); });
+  document.getElementById('hint-btn')?.addEventListener('click', showHint);
+  document.getElementById('task-tabs')?.addEventListener('click', (e) => {
+    const tab = (e.target as HTMLElement).closest<HTMLButtonElement>('.tab');
+    if (!tab) return;
+    taskIndex = Number(tab.dataset.index);
+    renderTask();
+  });
+
+  const params = new URLSearchParams(location.search);
+  const presetTask = Number(params.get('task'));
+  if (tasks.length && presetTask >= 1 && presetTask <= tasks.length) taskIndex = presetTask - 1;
+  renderTask();
+  renderBytes();
+</script>
+
+<style>
+  .practice {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+    display: grid;
+    grid-template-columns: minmax(16rem, 1fr) minmax(0, 2fr);
+    gap: 2rem;
+    font-size: 0.95rem;
+  }
+  @media (max-width: 760px) { .practice { grid-template-columns: 1fr; } }
+  .pane { min-width: 0; }
+  h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  h2 { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 2rem 0 0.4rem; font-weight: 600; }
+  .eyebrow { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.6rem; }
+  .task p { margin: 0 0 1rem; }
+  .task-text :global(p) { margin: 0 0 0.8rem; }
+  .task-text :global(ul) { margin: 0 0 0.8rem; padding-left: 1.4rem; }
+  .task-text :global(code), .task code { font-family: var(--mono); background: var(--surface); padding: 0.1em 0.35em; font-size: 0.9em; border-radius: 5px; }
+  .task-tabs { display: flex; gap: 0.3rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .task-tabs .tab { font: inherit; font-size: 0.85rem; padding: 0.3rem 0.9rem; cursor: pointer; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; }
+  .task-tabs .tab:hover { background: var(--surface); }
+  .task-tabs .tab[aria-current] { color: var(--fg); border-color: var(--fg); background: var(--surface); }
+  .task-tabs .tab.done::after { content: ' ✓'; color: var(--accent); }
+  .hints { margin-top: 1rem; }
+  .hint-list { margin: 0.8rem 0 0; padding-left: 1.4rem; }
+  .hint-list :global(li) { margin-bottom: 0.4rem; }
+  details { margin-top: 0.8rem; }
+  summary { cursor: pointer; color: var(--accent); }
+  #answer-code { font-family: var(--mono); font-size: 0.85rem; background: var(--surface); padding: 0.8rem 1rem; white-space: pre-wrap; margin: 0.5rem 0 0; border-radius: var(--radius-sm); }
+  .verdict { margin-top: 1rem; padding: 0.7rem 1rem; border-left: 4px solid var(--line); background: var(--surface); font-weight: 600; border-radius: var(--radius-sm); }
+  .verdict.correct { border-left-color: var(--accent); color: var(--accent); }
+  .verdict.wrong { border-left-color: var(--error); }
+  .label { display: block; font-size: 0.85rem; color: var(--muted); margin: 0 0 0.6rem; font-weight: 600; }
+  .bits { display: flex; flex-wrap: wrap; gap: 0.5rem 0.45rem; align-items: flex-end; }
+  .bits :global(.grp) { display: flex; gap: 0.25rem; }
+  .bits :global(.bit) {
+    display: flex; flex-direction: column; align-items: center; gap: 0.15rem; width: 2.6rem; padding: 0.3rem 0 0.4rem;
+    font: inherit; cursor: pointer; background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  }
+  .bits :global(.bit .w) { font-size: 0.65rem; color: var(--muted); font-family: var(--mono); }
+  .bits :global(.bit .v) { font-size: 1.4rem; font-family: var(--mono); font-weight: 600; line-height: 1.1; }
+  .bits :global(.bit.on) { border-color: var(--accent); background: var(--bg); }
+  .bits :global(.bit.on .v) { color: var(--accent); }
+  .bits :global(.bit:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .bits :global(.point) { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; align-self: flex-end; padding: 0 0.1rem; }
+  @media (max-width: 480px) {
+    .bits :global(.bit) { width: 1.85rem; }
+    .bits :global(.bit .v) { font-size: 1.2rem; }
+    .bits :global(.bit .w) { font-size: 0.6rem; }
+    .bits :global(.grp) { gap: 0.2rem; }
+  }
+  .ops { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+  .ops :global(.op) { font-family: var(--mono); font-size: 0.85rem; padding: 0.3rem 0.8rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; }
+  .actions .btn { font-size: 0.85rem; padding: 0.3rem 0.9rem; }
+  .values { border-collapse: separate; border-spacing: 0; width: 100%; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+  .values :global(th), .values :global(td) { padding: 0.45rem 0.8rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  .values :global(tr:last-child th), .values :global(tr:last-child td) { border-bottom: 0; }
+  .values :global(th) { font-weight: 400; color: var(--muted); font-size: 0.85rem; width: 45%; background: var(--surface); }
+  .values :global(td) { font-family: var(--mono); font-size: 1rem; overflow-wrap: anywhere; }
+  .bytes-input { font: inherit; font-size: 1rem; padding: 0.4rem 0.7rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--fg); width: 100%; max-width: 20rem; }
+  .bytes-input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .bytes-view { margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .bytes-view :global(.byte-row) { display: flex; gap: 0.8rem; align-items: baseline; font-size: 0.85rem; }
+  .bytes-view :global(.ch) { min-width: 2.5rem; font-size: 1.1rem; }
+  .bytes-view :global(.bs) { font-family: var(--mono); overflow-wrap: anywhere; color: var(--muted); }
+  .small { font-size: 0.8rem; }
+  .lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+</style>

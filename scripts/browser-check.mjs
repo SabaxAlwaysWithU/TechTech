@@ -19,6 +19,7 @@ import { readFileSync, readdirSync, statSync, existsSync, mkdtempSync, rmSync } 
 import { join, extname, delimiter } from 'node:path';
 import { tmpdir } from 'node:os';
 import { parseAppAnswer } from '../src/lib/sqlapp-core.js';
+import { parseBitsAnswer } from '../src/lib/bits-core.js';
 
 const root = join(import.meta.dirname, '..');
 const dist = join(root, 'dist');
@@ -228,6 +229,18 @@ async function runTask(tab, job) {
       await tab.eval(setValue('code-input', code));
       await tab.eval(`document.getElementById('run').click()`);
       break;
+    case 'bits':
+      // 模範解答の手順: 0 と 1 の並びにする(違うビットを押す)、または「操作: +1」のボタンを押す
+      for (const step of parseBitsAnswer(code)) {
+        if (step.set !== undefined) {
+          await tab.eval(`(() => { const want = ${js(step.set)}; const n = document.querySelectorAll('#bits .bit').length; const w = want.padStart(n, '0').slice(-n); for (let i = 0; i < n; i++) { const b = document.getElementById('bit-' + i); if (b.querySelector('.v').textContent !== w[i]) b.click(); } })()`);
+        } else if (step.op) {
+          await tab.eval(`document.querySelector('#ops [data-op="${step.op}"]').click()`);
+        } else {
+          throw new Error(`模範解答の手順を読み取れません: ${step.raw}`);
+        }
+      }
+      return waitFor(async () => { const v = await verdict(tab); return v.startsWith('正解') && v; }, 3000, '判定').catch(() => verdict(tab));
     case 'c':
       await waitFor(() => tab.eval(`!document.getElementById('run').disabled`), 15000, 'C の準備');
       await tab.eval(setValue('code-input', code));

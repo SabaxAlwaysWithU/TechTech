@@ -5,6 +5,7 @@ import HtmlPractice from '../../components/HtmlPractice.astro';
 import JsPractice from '../../components/JsPractice.astro';
 import PyPractice from '../../components/PyPractice.astro';
 import CPractice from '../../components/CPractice.astro';
+import BitsPractice from '../../components/BitsPractice.astro';
 import ShellPractice from '../../components/ShellPractice.astro';
 import StackPractice from '../../components/StackPractice.astro';
 import NetPractice from '../../components/NetPractice.astro';
@@ -20,6 +21,7 @@ const { field } = Astro.props;
   {field.practice === 'js' && <JsPractice />}
   {field.practice === 'python' && <PyPractice />}
   {field.practice === 'c' && <CPractice />}
+  {field.practice === 'bits' && <BitsPractice />}
   {field.practice === 'shell' && <ShellPractice />}
   {field.practice === 'stack' && <StackPractice catalog={getCatalog(field.id)!} />}
   {field.practice === 'net' && <NetPractice />}

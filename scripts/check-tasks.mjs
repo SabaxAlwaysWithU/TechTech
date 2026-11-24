@@ -9,6 +9,7 @@ import { runPython } from '../src/lib/pyrun-core.js';
 import { runApp, judgeApp, parseAppAnswer } from '../src/lib/sqlapp-core.js';
 import { loadPyodide } from 'pyodide';
 import { runCCode, replaceMain } from '../src/lib/crun-core.js';
+import { runBitsAnswer, judgeBits, fromString } from '../src/lib/bits-core.js';
 import { preparePicoc, generated as picocPath } from './prepare-picoc.mjs';
 import { pathToFileURL } from 'node:url';
 
@@ -89,7 +90,7 @@ for (const field of readdirSync(root)) {
     if (!existsSync(articlePath)) { console.log('  !! article.md がありません'); failures++; }
     else {
       const body = readFileSync(articlePath, 'utf8').replace(/^---[\s\S]*?---/, '');
-      const chars = body.replace(/```[\s\S]*?```/g, '').replace(/\s/g, '').length;
+      const chars = body.replace(/```[\s\S]*?```/g, '').replace(/<figure[\s\S]*?<\/figure>/g, '').replace(/\s/g, '').length;
       console.log(`  記事: 約${chars}字(コード除く)`);
     }
     if (existsSync(quizPath)) {
@@ -141,6 +142,24 @@ for (const field of readdirSync(root)) {
           console.log(`  !! 課題 ${t.id}: ${e.message}`);
           failures++;
         }
+      }
+    }
+    if (existsSync(tasksPath) && practice === 'bits') {
+      // ビット: 模範解答の手順を実行して bitChecks を満たすか、最初の状態では満たさないかを確かめる
+      const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
+      for (const t of tasks) {
+        let ok = true;
+        if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); ok = false; }
+        if (!Array.isArray(t.bitChecks) || !t.bitChecks.length) { console.log(`  !! 課題 ${t.id}: bitChecks がありません`); failures++; continue; }
+        const r = runBitsAnswer(t.bits ?? {}, t.answer);
+        if (r.error) { console.log(`  !! 課題 ${t.id}: ${r.error}`); ok = false; }
+        else {
+          const j = judgeBits(r.state, t.bits ?? {}, t.bitChecks);
+          if (!j.correct) { console.log(`  !! 課題 ${t.id}: 模範解答で正解になりません: ${j.message}`); ok = false; }
+        }
+        const w = t.bits?.width ?? 8;
+        if (judgeBits({ bits: fromString(t.bits?.start ?? '', w), used: {} }, t.bits ?? {}, t.bitChecks).correct) { console.log(`  !! 課題 ${t.id}: 最初の状態のままで正解になってしまいます`); ok = false; }
+        if (ok) console.log(`  課題 ${t.id}: OK(${w}ビット、条件 ${t.bitChecks.length}件)`); else failures++;
       }
     }
     if (existsSync(tasksPath) && practice === 'c') {
