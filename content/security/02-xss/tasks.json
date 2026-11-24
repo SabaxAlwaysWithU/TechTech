@@ -1,0 +1,160 @@
+[
+  {
+    "id": "textcontent",
+    "title": "書き込みを文字として出す",
+    "text": "<p>画面は、ひとこと掲示板です。今のコードは書き込みを <code>innerHTML</code> で出しているので、HTML として動いてしまいます。<code>textContent</code> で、文字として出すように直してください。</p><p>判定では、ふつうの書き込みのあとに、攻撃の書き込み <code>&lt;img src=\"x\" onerror=\"document.body.style.background='#fdd'\"&gt;</code> をします。画像の要素ができず、書き込んだ文字がそのまま表示されれば正解です。</p>",
+    "dom": true,
+    "page": "<h1 id=\"title\">ひとこと掲示板</h1>\n<p><input id=\"name\" placeholder=\"名前\"> <input id=\"body\" placeholder=\"ひとこと\"> <button id=\"post\">書き込む</button></p>\n<ul id=\"list\"></ul>",
+    "starter": "const list = document.querySelector(\"#list\");\ndocument.querySelector(\"#post\").addEventListener(\"click\", () => {\n  const li = document.createElement(\"li\");\n  li.innerHTML = document.querySelector(\"#body\").value;\n  list.append(li);\n});\n",
+    "answer": "const list = document.querySelector(\"#list\");\ndocument.querySelector(\"#post\").addEventListener(\"click\", () => {\n  const li = document.createElement(\"li\");\n  li.textContent = document.querySelector(\"#body\").value;\n  list.append(li);\n});",
+    "hints": [
+      "innerHTML は HTML として読みます。文字として入れるのは textContent です。",
+      "li.textContent = document.querySelector(\"#body\").value;"
+    ],
+    "actions": [
+      {
+        "fill": "#body",
+        "value": "こんにちは"
+      },
+      {
+        "click": "#post"
+      },
+      {
+        "fill": "#body",
+        "value": "<img src=\"x\" onerror=\"document.body.style.background='#fdd'\">"
+      },
+      {
+        "click": "#post"
+      }
+    ],
+    "checks": [
+      {
+        "selector": "#list li",
+        "count": 2,
+        "message": "書き込みが2つ表示されていません。"
+      },
+      {
+        "selector": "#list img",
+        "count": 0,
+        "message": "攻撃の書き込みが、画像の要素(HTML)として動いてしまいました。"
+      },
+      {
+        "selector": "#list li",
+        "textIncludes": "onerror",
+        "message": "攻撃の書き込みが、文字として表示されていません。"
+      }
+    ]
+  },
+  {
+    "id": "name",
+    "title": "名前は太字で、でも安全に",
+    "text": "<p>書き込みを「<strong>名前</strong>: ひとこと」の形で出したいです。名前は <code>&lt;strong&gt;</code> の中に入れて太字にします。今のコードは HTML を文字列で組み立てているので、名前に攻撃を書き込まれると動いてしまいます。</p><p><code>createElement</code> と <code>textContent</code> で、<code>&lt;li&gt;&lt;strong&gt;名前&lt;/strong&gt;: ひとこと&lt;/li&gt;</code> の形を作ってください。</p>",
+    "dom": true,
+    "page": "<h1 id=\"title\">ひとこと掲示板</h1>\n<p><input id=\"name\" placeholder=\"名前\"> <input id=\"body\" placeholder=\"ひとこと\"> <button id=\"post\">書き込む</button></p>\n<ul id=\"list\"></ul>",
+    "starter": "const list = document.querySelector(\"#list\");\ndocument.querySelector(\"#post\").addEventListener(\"click\", () => {\n  const name = document.querySelector(\"#name\").value;\n  const body = document.querySelector(\"#body\").value;\n  list.innerHTML += `<li><strong>${name}</strong>: ${body}</li>`;\n});\n",
+    "answer": "const list = document.querySelector(\"#list\");\ndocument.querySelector(\"#post\").addEventListener(\"click\", () => {\n  const li = document.createElement(\"li\");\n  const strong = document.createElement(\"strong\");\n  strong.textContent = document.querySelector(\"#name\").value;\n  li.append(strong, \": \" + document.querySelector(\"#body\").value);\n  list.append(li);\n});",
+    "hints": [
+      "strong を createElement で作り、strong.textContent に名前を入れます。li.append(strong, \": \" + 本文) のように、文字はそのまま append すると文字として入ります。",
+      "const li = document.createElement(\"li\"); const strong = document.createElement(\"strong\"); strong.textContent = 名前; li.append(strong, \": \" + 本文); list.append(li);"
+    ],
+    "actions": [
+      {
+        "fill": "#name",
+        "value": "さば"
+      },
+      {
+        "fill": "#body",
+        "value": "こんにちは"
+      },
+      {
+        "click": "#post"
+      },
+      {
+        "fill": "#name",
+        "value": "<img src=\"x\" onerror=\"document.body.style.background='#fdd'\">"
+      },
+      {
+        "fill": "#body",
+        "value": "やあ"
+      },
+      {
+        "click": "#post"
+      }
+    ],
+    "checks": [
+      {
+        "selector": "#list li",
+        "count": 2,
+        "message": "書き込みが2つ表示されていません。"
+      },
+      {
+        "selector": "#list li strong",
+        "count": 2,
+        "message": "名前が strong の中に入っていません。"
+      },
+      {
+        "selector": "#list li:first-child",
+        "text": "さば: こんにちは",
+        "message": "1つ目が「さば: こんにちは」になっていません。"
+      },
+      {
+        "selector": "#list img",
+        "count": 0,
+        "message": "名前に書き込まれた攻撃が、HTML として動いてしまいました。"
+      }
+    ]
+  },
+  {
+    "id": "link",
+    "title": "リンクは https だけ",
+    "text": "<p>ひとことの欄に URL が書かれたら、リンクにします。ただし <code>https://</code> か <code>http://</code> で始まるときだけで、それ以外(<code>javascript:</code> など)はリンクにせず、ただの文字として出します。リンクにするときの文字も <code>textContent</code> で入れます。</p>",
+    "dom": true,
+    "page": "<h1 id=\"title\">ひとこと掲示板</h1>\n<p><input id=\"name\" placeholder=\"名前\"> <input id=\"body\" placeholder=\"ひとこと\"> <button id=\"post\">書き込む</button></p>\n<ul id=\"list\"></ul>",
+    "starter": "const list = document.querySelector(\"#list\");\ndocument.querySelector(\"#post\").addEventListener(\"click\", () => {\n  const url = document.querySelector(\"#body\").value;\n  const li = document.createElement(\"li\");\n  const a = document.createElement(\"a\");\n  a.href = url;\n  a.textContent = url;\n  li.append(a);\n  list.append(li);\n});\n",
+    "answer": "const list = document.querySelector(\"#list\");\ndocument.querySelector(\"#post\").addEventListener(\"click\", () => {\n  const url = document.querySelector(\"#body\").value;\n  const li = document.createElement(\"li\");\n  if (/^https?:\\/\\//.test(url)) {\n    const a = document.createElement(\"a\");\n    a.href = url;\n    a.textContent = url;\n    li.append(a);\n  } else {\n    li.textContent = url;\n  }\n  list.append(li);\n});",
+    "hints": [
+      "https:// か http:// で始まるかは、正規表現 /^https?:\\/\\// で確かめられます。",
+      "if (/^https?:\\/\\//.test(url)) { …今のリンクを作る処理… } else { li.textContent = url; }"
+    ],
+    "actions": [
+      {
+        "fill": "#body",
+        "value": "https://example.com"
+      },
+      {
+        "click": "#post"
+      },
+      {
+        "fill": "#body",
+        "value": "javascript:alert(1)"
+      },
+      {
+        "click": "#post"
+      }
+    ],
+    "checks": [
+      {
+        "selector": "#list li",
+        "count": 2,
+        "message": "書き込みが2つ表示されていません。"
+      },
+      {
+        "selector": "#list a",
+        "count": 1,
+        "message": "リンクになっているのが1つではありません。javascript: で始まるものはリンクにしません。"
+      },
+      {
+        "selector": "#list a",
+        "attr": {
+          "href": "https://example.com"
+        },
+        "message": "https の URL がリンクになっていません。"
+      },
+      {
+        "selector": "#list li:last-child",
+        "text": "javascript:alert(1)",
+        "message": "javascript: の書き込みが、文字として表示されていません。"
+      }
+    ]
+  }
+]

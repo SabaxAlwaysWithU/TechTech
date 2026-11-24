@@ -1,0 +1,173 @@
+[
+  {
+    "id": "board",
+    "title": "1 書き込みの表示",
+    "text": "<p>掲示板の書き込みを、「<strong>名前</strong>: ひとこと」の形で、安全に表示してください(名前は <code>&lt;strong&gt;</code> の中)。判定では、名前とひとことの両方に攻撃を書き込みます。</p>",
+    "dom": true,
+    "page": "<h1 id=\"title\">ひとこと掲示板</h1>\n<p><input id=\"name\" placeholder=\"名前\"> <input id=\"body\" placeholder=\"ひとこと\"> <button id=\"post\">書き込む</button></p>\n<ul id=\"list\"></ul>",
+    "starter": "const list = document.querySelector(\"#list\");\ndocument.querySelector(\"#post\").addEventListener(\"click\", () => {\n  const name = document.querySelector(\"#name\").value;\n  const body = document.querySelector(\"#body\").value;\n  list.innerHTML += `<li><strong>${name}</strong>: ${body}</li>`;\n});\n",
+    "answer": "const list = document.querySelector(\"#list\");\ndocument.querySelector(\"#post\").addEventListener(\"click\", () => {\n  const li = document.createElement(\"li\");\n  const strong = document.createElement(\"strong\");\n  strong.textContent = document.querySelector(\"#name\").value;\n  li.append(strong, \": \" + document.querySelector(\"#body\").value);\n  list.append(li);\n});",
+    "hints": [
+      "innerHTML で組み立てずに、createElement と textContent で作ります(レッスン「XSS」の課題2)。",
+      "const li = document.createElement(\"li\"); const strong = document.createElement(\"strong\"); strong.textContent = 名前; li.append(strong, \": \" + 本文); list.append(li);"
+    ],
+    "actions": [
+      {
+        "fill": "#name",
+        "value": "<img src=\"x\" onerror=\"document.body.style.background='#fdd'\">"
+      },
+      {
+        "fill": "#body",
+        "value": "<img src=\"x\" onerror=\"document.body.style.background='#fdd'\">"
+      },
+      {
+        "click": "#post"
+      },
+      {
+        "fill": "#name",
+        "value": "さば"
+      },
+      {
+        "fill": "#body",
+        "value": "よろしく"
+      },
+      {
+        "click": "#post"
+      }
+    ],
+    "checks": [
+      {
+        "selector": "#list li",
+        "count": 2,
+        "message": "書き込みが2つ表示されていません。"
+      },
+      {
+        "selector": "#list img",
+        "count": 0,
+        "message": "攻撃の書き込みが、HTML として動いてしまいました。"
+      },
+      {
+        "selector": "#list li:last-child",
+        "text": "さば: よろしく",
+        "message": "2つ目が「さば: よろしく」になっていません。"
+      },
+      {
+        "selector": "#list li:last-child strong",
+        "text": "さば",
+        "message": "名前が strong の中に入っていません。"
+      }
+    ]
+  },
+  {
+    "id": "validate",
+    "title": "2 書き込みの中身",
+    "text": "<p>関数 <code>validPost(name, body)</code> を完成させてください。名前は前後の空白を除いて 1〜20 文字、ひとことは前後の空白を除いて 1〜140 文字なら <code>true</code> を返します。</p>",
+    "starter": "function validPost(name, body) {\n  return name !== \"\" && body !== \"\";\n}\n\nconsole.log(validPost(\"さば\", \"こんにちは\"));\n",
+    "answer": "function validPost(name, body) {\n  const n = name.trim().length;\n  const b = body.trim().length;\n  return n >= 1 && n <= 20 && b >= 1 && b <= 140;\n}\n\nconsole.log(validPost(\"さば\", \"こんにちは\"));",
+    "hints": [
+      "trim() で前後の空白を除いてから、length で長さを調べます。",
+      "const n = name.trim().length; const b = body.trim().length; return n >= 1 && n <= 20 && b >= 1 && b <= 140;"
+    ],
+    "calls": [
+      {
+        "call": "validPost(\"さば\", \"こんにちは\")",
+        "expect": true
+      },
+      {
+        "call": "validPost(\"   \", \"こんにちは\")",
+        "expect": false
+      },
+      {
+        "call": "validPost(\"さば\", \"あ\".repeat(141))",
+        "expect": false
+      },
+      {
+        "call": "validPost(\"あ\".repeat(21), \"やあ\")",
+        "expect": false
+      },
+      {
+        "call": "validPost(\"さば\", \"あ\".repeat(140))",
+        "expect": true
+      }
+    ]
+  },
+  {
+    "id": "admin",
+    "title": "3 管理者のログイン",
+    "text": "<p>関数 <code>adminLogin(admin, password)</code> を完成させてください。<code>admin</code> は <code>{ salt, hash }</code> です。<code>hash(salt + password)</code> が <code>admin.hash</code> と同じなら <code>true</code> を返します。</p>",
+    "starter": "// 練習用の小さなハッシュ関数(本物のサイトでは使えない。しくみを見るためのもの)\nfunction hash(text) {\n  let h = 2166136261;\n  for (const ch of text) {\n    h ^= ch.codePointAt(0);\n    h = Math.imul(h, 16777619) >>> 0;\n  }\n  return h.toString(16).padStart(8, \"0\");\n}\n\nconst admin = { salt: \"Qz81\", hash: hash(\"Qz81\" + \"Secr3t!\") };\n\nfunction adminLogin(admin, password) {\n  return password === \"Secr3t!\";\n}\n\nconsole.log(adminLogin(admin, \"Secr3t!\"));\n",
+    "answer": "// 練習用の小さなハッシュ関数(本物のサイトでは使えない。しくみを見るためのもの)\nfunction hash(text) {\n  let h = 2166136261;\n  for (const ch of text) {\n    h ^= ch.codePointAt(0);\n    h = Math.imul(h, 16777619) >>> 0;\n  }\n  return h.toString(16).padStart(8, \"0\");\n}\n\nconst admin = { salt: \"Qz81\", hash: hash(\"Qz81\" + \"Secr3t!\") };\n\nfunction adminLogin(admin, password) {\n  return hash(admin.salt + password) === admin.hash;\n}\n\nconsole.log(adminLogin(admin, \"Secr3t!\"));",
+    "hints": [
+      "今のコードは、パスワードをコードの中に書いて、そのまま比べています。保存してあるソルトとハッシュを使います。",
+      "return hash(admin.salt + password) === admin.hash;"
+    ],
+    "calls": [
+      {
+        "call": "adminLogin(admin, \"Secr3t!\")",
+        "expect": true
+      },
+      {
+        "call": "adminLogin(admin, \"secr3t!\")",
+        "expect": false
+      },
+      {
+        "call": "adminLogin({ salt: \"ab\", hash: hash(\"ab\" + \"other\") }, \"other\")",
+        "expect": true
+      },
+      {
+        "call": "adminLogin({ salt: \"ab\", hash: hash(\"ab\" + \"other\") }, \"Secr3t!\")",
+        "expect": false
+      }
+    ]
+  },
+  {
+    "id": "api",
+    "title": "4 書き込みの API",
+    "text": "<p>関数 <code>acceptPost(req, session)</code> を完成させてください。<code>req.method</code> が <code>\"POST\"</code>、<code>req.origin</code> が <code>\"https://board.example\"</code>、<code>req.token</code> が <code>session.csrfToken</code> と同じなら <code>true</code>、1つでも違えば <code>false</code> を返します。</p>",
+    "starter": "function acceptPost(req, session) {\n  return req.method === \"POST\";\n}\n\nconsole.log(acceptPost({ method: \"POST\", origin: \"https://board.example\", token: \"k7\" }, { csrfToken: \"k7\" }));\n",
+    "answer": "function acceptPost(req, session) {\n  return req.method === \"POST\" && req.origin === \"https://board.example\" && req.token === session.csrfToken;\n}\n\nconsole.log(acceptPost({ method: \"POST\", origin: \"https://board.example\", token: \"k7\" }, { csrfToken: \"k7\" }));",
+    "hints": [
+      "3つの条件を && でつなぎます。",
+      "return req.method === \"POST\" && req.origin === \"https://board.example\" && req.token === session.csrfToken;"
+    ],
+    "calls": [
+      {
+        "call": "acceptPost({ method: \"POST\", origin: \"https://board.example\", token: \"k7\" }, { csrfToken: \"k7\" })",
+        "expect": true
+      },
+      {
+        "call": "acceptPost({ method: \"POST\", origin: \"https://evil.test\", token: \"k7\" }, { csrfToken: \"k7\" })",
+        "expect": false
+      },
+      {
+        "call": "acceptPost({ method: \"POST\", origin: \"https://board.example\", token: \"xx\" }, { csrfToken: \"k7\" })",
+        "expect": false
+      },
+      {
+        "call": "acceptPost({ method: \"GET\", origin: \"https://board.example\", token: \"k7\" }, { csrfToken: \"k7\" })",
+        "expect": false
+      }
+    ]
+  },
+  {
+    "id": "log",
+    "title": "5 ログ",
+    "text": "<p>関数 <code>logLine(req)</code> を完成させてください。<code>req</code>(<code>{ method, path, body }</code>)から、ログの1行 <code>\"POST /login name=tanaka&amp;password=***\"</code> の形の文字列を作ります。<code>body</code> の中の <code>password=</code> と <code>token=</code> の値は <code>***</code> に置き換えます。</p>",
+    "starter": "function logLine(req) {\n  return `${req.method} ${req.path} ${req.body}`;\n}\n\nconsole.log(logLine({ method: \"POST\", path: \"/login\", body: \"name=tanaka&password=hello123\" }));\n",
+    "answer": "function logLine(req) {\n  const body = req.body.replace(/(password|token)=[^&\\s]+/g, \"$1=***\");\n  return `${req.method} ${req.path} ${body}`;\n}\n\nconsole.log(logLine({ method: \"POST\", path: \"/login\", body: \"name=tanaka&password=hello123\" }));",
+    "hints": [
+      "body を、レッスン「秘密の情報の扱い」と同じ正規表現で置き換えてから並べます。",
+      "const body = req.body.replace(/(password|token)=[^&\\s]+/g, \"$1=***\");"
+    ],
+    "calls": [
+      {
+        "call": "logLine({ method: \"POST\", path: \"/login\", body: \"name=tanaka&password=hello123\" })",
+        "expect": "POST /login name=tanaka&password=***"
+      },
+      {
+        "call": "logLine({ method: \"POST\", path: \"/post\", body: \"token=k7&text=hi\" })",
+        "expect": "POST /post token=***&text=hi"
+      }
+    ]
+  }
+]

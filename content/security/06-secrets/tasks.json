@@ -1,0 +1,103 @@
+[
+  {
+    "id": "mask",
+    "title": "鍵の一部だけ見せる",
+    "text": "<p>関数 <code>maskKey(key)</code> を完成させてください。鍵の最初の4文字だけを残し、うしろに <code>****</code> を付けた文字列を返します。</p><pre>maskKey(\"abcd-1234-ffff-0000\") → \"abcd****\"</pre>",
+    "starter": "function maskKey(key) {\n  return key;\n}\n\nconsole.log(maskKey(\"abcd-1234-ffff-0000\"));\n",
+    "answer": "function maskKey(key) {\n  return key.slice(0, 4) + \"****\";\n}\n\nconsole.log(maskKey(\"abcd-1234-ffff-0000\"));",
+    "hints": [
+      "最初の4文字は key.slice(0, 4) で取り出せます。",
+      "return key.slice(0, 4) + \"****\";"
+    ],
+    "calls": [
+      {
+        "call": "maskKey(\"abcd-1234-ffff-0000\")",
+        "expect": "abcd****"
+      },
+      {
+        "call": "maskKey(\"xy\")",
+        "expect": "xy****"
+      }
+    ]
+  },
+  {
+    "id": "redact",
+    "title": "ログから消す",
+    "text": "<p>関数 <code>redact(line)</code> を完成させてください。ログの行の中の <code>password=…</code> と <code>token=…</code> の値の部分を <code>***</code> に置き換えます。値は、次の <code>&amp;</code> か空白の手前までです。</p>",
+    "starter": "function redact(line) {\n  return line;\n}\n\nconsole.log(redact(\"POST /login name=tanaka&password=hello123\"));\n",
+    "answer": "function redact(line) {\n  return line.replace(/(password|token)=[^&\\s]+/g, \"$1=***\");\n}\n\nconsole.log(redact(\"POST /login name=tanaka&password=hello123\"));",
+    "hints": [
+      "正規表現で (password|token)=[^&\\s]+ に一致させ、$1=*** に置き換えます。g を付けて全部です。",
+      "return line.replace(/(password|token)=[^&\\s]+/g, \"$1=***\");"
+    ],
+    "calls": [
+      {
+        "call": "redact(\"POST /login name=tanaka&password=hello123\")",
+        "expect": "POST /login name=tanaka&password=***"
+      },
+      {
+        "call": "redact(\"token=abc123 user=suzuki password=pw\")",
+        "expect": "token=*** user=suzuki password=***"
+      },
+      {
+        "call": "redact(\"GET /products\")",
+        "expect": "GET /products"
+      }
+    ]
+  },
+  {
+    "id": "find",
+    "title": "コードに書かれた鍵を探す",
+    "text": "<p>関数 <code>findKeys(code)</code> を完成させてください。コードの文字列を行ごとに見て、<code>API_KEY = \"…\"</code> のように、<code>KEY</code> か <code>SECRET</code> か <code>PASSWORD</code> を含む名前に文字列を直接入れている行の番号(1から数える)を、配列で返します。<code>process.env</code> から読んでいる行は問題ないので含めません。</p>",
+    "starter": "function findKeys(code) {\n  const result = [];\n  return result;\n}\n\nconsole.log(findKeys('const API_KEY = \"abcd\";\\nconst DB_PASSWORD = process.env.DB_PASSWORD;'));\n",
+    "answer": "function findKeys(code) {\n  const result = [];\n  code.split(\"\\n\").forEach((line, i) => {\n    if (/\\w*(KEY|SECRET|PASSWORD)\\w*\\s*=\\s*[\"']/.test(line)) result.push(i + 1);\n  });\n  return result;\n}\n\nconsole.log(findKeys('const API_KEY = \"abcd\";\\nconst DB_PASSWORD = process.env.DB_PASSWORD;'));",
+    "hints": [
+      "split(\"\\n\") で行に分け、forEach((line, i) => …) で番号と一緒に見ます。番号は i + 1 です。",
+      "名前のあとに = と引用符(\" か ')が続く行が、文字列を直接入れている行です。/\\w*(KEY|SECRET|PASSWORD)\\w*\\s*=\\s*[\"']/"
+    ],
+    "calls": [
+      {
+        "call": "findKeys('const API_KEY = \"abcd\";\\nconst DB_PASSWORD = process.env.DB_PASSWORD;\\nconst STRIPE_SECRET = \\'xyz\\';')",
+        "expect": [
+          1,
+          3
+        ]
+      },
+      {
+        "call": "findKeys('const name = \"saba\";')",
+        "expect": []
+      }
+    ]
+  },
+  {
+    "id": "env",
+    "title": "環境変数から読む",
+    "text": "<p>関数 <code>loadConfig(env)</code> を完成させてください。環境変数の入れ物 <code>env</code>(本物では <code>process.env</code>)から設定を作ります。<code>API_KEY</code> がなければ、鍵なしで動かずに、<code>\"API_KEY が設定されていません\"</code> というエラーを投げます。あれば <code>{ apiKey: env.API_KEY, debug: env.DEBUG === \"true\" }</code> を返します。</p>",
+    "starter": "function loadConfig(env) {\n  return { apiKey: env.API_KEY || \"abcd-1234-ffff-0000\", debug: env.DEBUG === \"true\" };\n}\n\nconsole.log(loadConfig({ API_KEY: \"k1\" }));\n",
+    "answer": "function loadConfig(env) {\n  if (!env.API_KEY) throw new Error(\"API_KEY が設定されていません\");\n  return { apiKey: env.API_KEY, debug: env.DEBUG === \"true\" };\n}\n\nconsole.log(loadConfig({ API_KEY: \"k1\" }));",
+    "hints": [
+      "今のコードは、環境変数がないときにコードに書いた鍵を使っています。それでは鍵がコードに残ります。",
+      "if (!env.API_KEY) throw new Error(\"API_KEY が設定されていません\"); のあと、鍵は env.API_KEY だけを使います。"
+    ],
+    "calls": [
+      {
+        "call": "loadConfig({ API_KEY: \"k1\", DEBUG: \"true\" })",
+        "expect": {
+          "apiKey": "k1",
+          "debug": true
+        }
+      },
+      {
+        "call": "loadConfig({ API_KEY: \"k2\" })",
+        "expect": {
+          "apiKey": "k2",
+          "debug": false
+        }
+      },
+      {
+        "call": "(() => { try { loadConfig({}); return \"エラーにならなかった\"; } catch (e) { return e.message; } })()",
+        "expect": "API_KEY が設定されていません"
+      }
+    ]
+  }
+]

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "cookie",
+    "title": "安全な Cookie",
+    "text": "<p>関数 <code>sessionCookie(id)</code> を完成させてください。<code>session=セッションID; HttpOnly; Secure; SameSite=Lax</code> の形の文字列を返します。</p>",
+    "starter": "function sessionCookie(id) {\n  return `session=${id}`;\n}\n\nconsole.log(sessionCookie(\"8f3a9c\"));\n",
+    "answer": "function sessionCookie(id) {\n  return `session=${id}; HttpOnly; Secure; SameSite=Lax`;\n}\n\nconsole.log(sessionCookie(\"8f3a9c\"));",
+    "hints": [
+      "; で区切って、3つの印を足します。",
+      "return `session=${id}; HttpOnly; Secure; SameSite=Lax`;"
+    ],
+    "calls": [
+      {
+        "call": "sessionCookie(\"8f3a9c\")",
+        "expect": "session=8f3a9c; HttpOnly; Secure; SameSite=Lax"
+      }
+    ]
+  },
+  {
+    "id": "origin",
+    "title": "どこから送られたか",
+    "text": "<p>関数 <code>fromOurSite(origin)</code> を完成させてください。リクエストの <code>Origin</code> が、自分のサイト <code>https://shop.example</code> とぴったり同じときだけ <code>true</code> を返します。</p>",
+    "starter": "function fromOurSite(origin) {\n  return origin.includes(\"shop.example\");\n}\n\nconsole.log(fromOurSite(\"https://shop.example\"));\n",
+    "answer": "function fromOurSite(origin) {\n  return origin === \"https://shop.example\";\n}\n\nconsole.log(fromOurSite(\"https://shop.example\"));",
+    "hints": [
+      "includes だと、https://shop.example.evil.test のような、名前の一部が同じだけの別のサイトも通ってしまいます。",
+      "return origin === \"https://shop.example\";"
+    ],
+    "calls": [
+      {
+        "call": "fromOurSite(\"https://shop.example\")",
+        "expect": true
+      },
+      {
+        "call": "fromOurSite(\"https://shop.example.evil.test\")",
+        "expect": false
+      },
+      {
+        "call": "fromOurSite(\"http://shop.example\")",
+        "expect": false
+      },
+      {
+        "call": "fromOurSite(\"https://evil.test\")",
+        "expect": false
+      }
+    ]
+  },
+  {
+    "id": "check",
+    "title": "CSRF を確かめる",
+    "text": "<p>関数 <code>checkRequest(req, session)</code> を完成させてください。住所の変更のリクエスト <code>req</code>(<code>method</code>、<code>origin</code>、<code>token</code>)を確かめ、次の順で、だめなら理由を、すべてよければ <code>\"OK\"</code> を返します。</p><ul><li><code>method</code> が <code>\"POST\"</code> でなければ <code>\"POST で送ってください\"</code></li><li><code>origin</code> が <code>\"https://shop.example\"</code> でなければ <code>\"別のサイトからは受け付けません\"</code></li><li><code>token</code> が <code>session.csrfToken</code> と違えば <code>\"トークンが違います\"</code></li></ul>",
+    "starter": "function checkRequest(req, session) {\n  return \"OK\";\n}\n\nconsole.log(checkRequest({ method: \"POST\", origin: \"https://shop.example\", token: \"t9\" }, { csrfToken: \"t9\" }));\n",
+    "answer": "function checkRequest(req, session) {\n  if (req.method !== \"POST\") return \"POST で送ってください\";\n  if (req.origin !== \"https://shop.example\") return \"別のサイトからは受け付けません\";\n  if (req.token !== session.csrfToken) return \"トークンが違います\";\n  return \"OK\";\n}\n\nconsole.log(checkRequest({ method: \"POST\", origin: \"https://shop.example\", token: \"t9\" }, { csrfToken: \"t9\" }));",
+    "hints": [
+      "if で1つずつ確かめ、だめならその時点で理由を return します。",
+      "if (req.method !== \"POST\") return …; if (req.origin !== \"https://shop.example\") return …; if (req.token !== session.csrfToken) return …; return \"OK\";"
+    ],
+    "calls": [
+      {
+        "call": "checkRequest({ method: \"POST\", origin: \"https://shop.example\", token: \"t9\" }, { csrfToken: \"t9\" })",
+        "expect": "OK"
+      },
+      {
+        "call": "checkRequest({ method: \"GET\", origin: \"https://shop.example\", token: \"t9\" }, { csrfToken: \"t9\" })",
+        "expect": "POST で送ってください"
+      },
+      {
+        "call": "checkRequest({ method: \"POST\", origin: \"https://evil.test\", token: \"t9\" }, { csrfToken: \"t9\" })",
+        "expect": "別のサイトからは受け付けません"
+      },
+      {
+        "call": "checkRequest({ method: \"POST\", origin: \"https://shop.example\" }, { csrfToken: \"t9\" })",
+        "expect": "トークンが違います"
+      }
+    ]
+  },
+  {
+    "id": "logout",
+    "title": "ログアウトでセッションを消す",
+    "text": "<p>関数 <code>logout(sessions, id)</code> を完成させてください。<code>sessions</code> は「セッション ID → 利用者の名前」の <code>Map</code> です。ログアウトでは、その ID をサーバー側の <code>sessions</code> から消します(Cookie を消すだけでは、盗まれた ID がまだ使えてしまうため)。消したら <code>true</code>、もともとなければ <code>false</code> を返します。</p>",
+    "starter": "function logout(sessions, id) {\n  return true;\n}\n\nconst sessions = new Map([[\"a1\", \"tanaka\"]]);\nconsole.log(logout(sessions, \"a1\"), sessions.has(\"a1\"));\n",
+    "answer": "function logout(sessions, id) {\n  return sessions.delete(id);\n}\n\nconst sessions = new Map([[\"a1\", \"tanaka\"]]);\nconsole.log(logout(sessions, \"a1\"), sessions.has(\"a1\"));",
+    "hints": [
+      "Map から消すのは delete です。消せたら true、なければ false を返してくれます。",
+      "return sessions.delete(id);"
+    ],
+    "calls": [
+      {
+        "call": "(() => { const s = new Map([[\"a1\", \"tanaka\"], [\"b2\", \"suzuki\"]]); return [logout(s, \"a1\"), s.has(\"a1\"), s.has(\"b2\")]; })()",
+        "expect": [
+          true,
+          false,
+          true
+        ]
+      },
+      {
+        "call": "logout(new Map(), \"zz\")",
+        "expect": false
+      }
+    ]
+  }
+]

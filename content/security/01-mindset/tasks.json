@@ -1,0 +1,109 @@
+[
+  {
+    "id": "column",
+    "title": "並び順は許可リストで",
+    "text": "<p>関数 <code>orderColumn(input)</code> を完成させてください。利用者が選んだ並び順の列の名前 <code>input</code> が、<code>\"name\"</code>、<code>\"price\"</code>、<code>\"id\"</code> のどれかならそのまま返し、それ以外なら <code>\"id\"</code> を返します。</p>",
+    "starter": "function orderColumn(input) {\n  return input;\n}\n\nconsole.log(orderColumn(\"price\"));\n",
+    "answer": "function orderColumn(input) {\n  const allowed = [\"name\", \"price\", \"id\"];\n  return allowed.includes(input) ? input : \"id\";\n}\n\nconsole.log(orderColumn(\"price\"));",
+    "hints": [
+      "許す名前を配列にして、includes で入っているかを調べます。",
+      "const allowed = [\"name\", \"price\", \"id\"]; return allowed.includes(input) ? input : \"id\";"
+    ],
+    "calls": [
+      {
+        "call": "orderColumn(\"price\")",
+        "expect": "price"
+      },
+      {
+        "call": "orderColumn(\"name\")",
+        "expect": "name"
+      },
+      {
+        "call": "orderColumn(\"price; DROP TABLE users\")",
+        "expect": "id"
+      },
+      {
+        "call": "orderColumn(\"\")",
+        "expect": "id"
+      }
+    ]
+  },
+  {
+    "id": "qty",
+    "title": "数量を確かめる",
+    "text": "<p>関数 <code>quantity(input)</code> を完成させてください。フォームから届いた文字列 <code>input</code> が「1〜2けたの数字だけ」で、数にして 1〜99 なら、その数を返します。そうでなければ <code>null</code> を返します。</p>",
+    "starter": "function quantity(input) {\n  return Number(input);\n}\n\nconsole.log(quantity(\"3\"));\n",
+    "answer": "function quantity(input) {\n  if (!/^\\d{1,2}$/.test(input)) return null;\n  const n = Number(input);\n  return n >= 1 && n <= 99 ? n : null;\n}\n\nconsole.log(quantity(\"3\"));",
+    "hints": [
+      "まず正規表現 /^\\d{1,2}$/ で、形が数字1〜2けただけかを確かめます。Number だけだと \"1e9\" や \" 3\" も数になってしまいます。",
+      "形がよければ Number にして、1 以上 99 以下か確かめます。"
+    ],
+    "calls": [
+      {
+        "call": "quantity(\"3\")",
+        "expect": 3
+      },
+      {
+        "call": "quantity(\"99\")",
+        "expect": 99
+      },
+      {
+        "call": "quantity(\"0\")",
+        "expect": null
+      },
+      {
+        "call": "quantity(\"-1\")",
+        "expect": null
+      },
+      {
+        "call": "quantity(\"1e9\")",
+        "expect": null
+      },
+      {
+        "call": "quantity(\" 3\")",
+        "expect": null
+      },
+      {
+        "call": "quantity(\"3abc\")",
+        "expect": null
+      }
+    ]
+  },
+  {
+    "id": "file",
+    "title": "ファイル名を確かめる",
+    "text": "<p>関数 <code>safeFileName(name)</code> を完成させてください。アップロードされたファイルの名前が「英数字・<code>_</code>・<code>-</code> のあとに、<code>.png</code> か <code>.jpg</code>」の形なら <code>true</code>、それ以外(<code>../</code> でほかの場所を指すものなど)は <code>false</code> を返します。</p>",
+    "starter": "function safeFileName(name) {\n  return !name.includes(\"../\");\n}\n\nconsole.log(safeFileName(\"cat.png\"));\n",
+    "answer": "function safeFileName(name) {\n  return /^[\\w-]+\\.(png|jpg)$/.test(name);\n}\n\nconsole.log(safeFileName(\"cat.png\"));",
+    "hints": [
+      "「../ を含まない」という拒否リストではなく、許す形を正規表現で決めます。",
+      "return /^[\\w-]+\\.(png|jpg)$/.test(name);"
+    ],
+    "calls": [
+      {
+        "call": "safeFileName(\"cat.png\")",
+        "expect": true
+      },
+      {
+        "call": "safeFileName(\"my_photo-1.jpg\")",
+        "expect": true
+      },
+      {
+        "call": "safeFileName(\"../../etc/passwd\")",
+        "expect": false
+      },
+      {
+        "call": "safeFileName(\"..\\\\secret.png\")",
+        "expect": false
+      },
+      {
+        "call": "safeFileName(\"run.exe\")",
+        "expect": false
+      },
+      {
+        "call": "safeFileName(\"a.png.exe\")",
+        "expect": false
+      }
+    ]
+  }
+]
