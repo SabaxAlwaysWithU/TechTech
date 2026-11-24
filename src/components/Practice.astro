@@ -52,7 +52,17 @@ const hasTasks = tasks.length > 0;
     </section>
   </div>
   <div class="pane right">
-    <section class="editor">
+    <section class="app-screen" id="app-section" hidden>
+      <p class="label" id="app-title"></p>
+      <form id="app-form" class="app-form" autocomplete="off">
+        <div id="app-fields" class="app-fields"></div>
+        <button class="btn" id="app-run" type="submit" disabled></button>
+      </form>
+      <p class="label sql-label">アプリが組み立てた SQL <span class="muted">(入力に合わせて変わります)</span></p>
+      <pre id="app-sql" class="app-sql"></pre>
+      <p class="muted small" id="app-params"></p>
+    </section>
+    <section class="editor" id="sql-editor">
       <label for="sql-input" class="label">SQL入力欄 <span class="muted">(Ctrl+Enter で実行)</span></label>
       <textarea id="sql-input" spellcheck="false" placeholder="SELECT * FROM products;"></textarea>
       <div class="actions">
@@ -78,8 +88,9 @@ const hasTasks = tasks.length > 0;
 <script type="application/json" id="practice-data" set:html={JSON.stringify({ lessonId, tasks })} />
 
 <script>
-  import { createDb, listTables, tableColumns, tableContents, runSql, formatCell, type ResultSet, type RunResult, type RunError } from '../lib/sqldb';
+  import { createDb, listTables, tableColumns, tableContents, runSql, formatCell, translateError, type ResultSet, type RunResult, type RunError } from '../lib/sqldb';
   import { judge } from '../lib/judge';
+  import { buildAppQuery, runApp, judgeApp, loggedInUser } from '../lib/sqlapp-core.js';
   import { getProgress, markTaskCleared } from '../lib/progress';
   import type { Task } from '../lib/content';
   import type { Database } from 'sql.js';
@@ -168,10 +179,113 @@ const hasTasks = tasks.length > 0;
   // ---- 課題 ----
   function currentTask(): Task | undefined { return tasks[taskIndex]; }
 
+  // 課題ごとのデータベース(setup があれば共通のデータのあとに実行)を作り直し、表の一覧を更新する
+  let loadSeq = 0;
+  async function loadDb() {
+    const seq = ++loadSeq;
+    const next = await createDb(currentTask()?.setup);
+    if (seq !== loadSeq) { next.close(); return; }
+    db?.close();
+    db = next;
+    refreshTables();
+  }
+
+  // ---- アプリの画面(SQL インジェクションの体験) ----
+  const appSection = $('app-section');
+  const appFields = $('app-fields');
+  function appValues(): Record<string, string> {
+    const v: Record<string, string> = {};
+    for (const f of currentTask()?.app?.fields ?? []) v[f.id] = (document.getElementById(`app-${f.id}`) as HTMLInputElement).value;
+    return v;
+  }
+  function updateAppSql() {
+    const app = currentTask()?.app;
+    if (!app) return;
+    const q = buildAppQuery(app, appValues());
+    $('app-sql').textContent = q.sql;
+    $('app-params').textContent = q.params
+      ? `入力は SQL に埋め込まず、? の場所に「値」として別に渡します: ${q.params.map((p: string) => `「${p}」`).join('、')}`
+      : '入力を、そのまま SQL の文字列の中に埋め込んでいます。';
+  }
+  function renderApp() {
+    const app = currentTask()?.app;
+    appSection.hidden = !app;
+    $('sql-editor').hidden = !!app;
+    if (!app) return;
+    $('app-title').textContent = app.title + (app.safe ? '(安全な作り)' : '');
+    $<HTMLButtonElement>('app-run').textContent = app.button;
+    appFields.innerHTML = '';
+    for (const f of app.fields) {
+      const label = document.createElement('label');
+      label.className = 'app-field';
+      const span = document.createElement('span');
+      span.textContent = f.label;
+      const inp = document.createElement('input');
+      inp.id = `app-${f.id}`;
+      inp.type = f.type ?? 'text';
+      inp.spellcheck = false;
+      inp.addEventListener('input', updateAppSql);
+      label.append(span, inp);
+      appFields.appendChild(label);
+    }
+    updateAppSql();
+  }
+  async function submitApp(e: Event) {
+    e.preventDefault();
+    const t = currentTask();
+    if (!t?.app) return;
+    const btn = $<HTMLButtonElement>('app-run');
+    btn.disabled = true;
+    const values = appValues();
+    // 毎回、最初の状態のデータベースで動かす(入力で表を消されても、次はまた元どおり)
+    const runDb = await createDb(t.setup);
+    const r = runApp(runDb, t.app, values);
+    const truth = await createDb(t.setup);
+    const j = judgeApp(truth, t.app, values, r, t.expectApp ?? {});
+    truth.close();
+    loadSeq++;
+    db?.close();
+    db = runDb;
+    refreshTables();
+    result.innerHTML = '';
+    if (!r.ok) {
+      showRun({ ok: false, message: r.error!, hint: translateError(r.error!) });
+    } else {
+      const p = document.createElement('p');
+      if (t.app.kind === 'login') {
+        const user = loggedInUser(r);
+        p.className = user ? 'ok' : 'app-fail';
+        p.textContent = user ? `ログイン成功: ようこそ、${user.name} さん${user.role ? `(権限: ${user.role})` : ''}` : 'ログイン失敗: 名前かパスワードが違います';
+      } else {
+        p.className = 'muted';
+        p.textContent = `検索結果: ${r.result!.values.length}件`;
+      }
+      const note = document.createElement('p');
+      note.className = 'muted small';
+      note.textContent = 'データベースから返ってきた行(ふつうの利用者には見えません):';
+      result.append(p, note, renderTable(r.result!));
+    }
+    const verdict = $('verdict');
+    verdict.hidden = false;
+    verdict.className = 'verdict ' + (j.correct ? 'correct' : 'wrong');
+    if (j.correct) {
+      verdict.textContent = '正解です。';
+      if (data.lessonId) markTaskCleared(data.lessonId, t.id);
+      document.querySelector<HTMLButtonElement>(`#task-tabs .tab[data-index="${taskIndex}"]`)?.classList.add('done');
+    } else {
+      verdict.textContent = `不正解: ${j.message}`;
+    }
+    status.textContent = `実行: ${new Date().toLocaleTimeString('ja-JP')}`;
+    btn.disabled = false;
+  }
+  $('app-form').addEventListener('submit', submitApp);
+
   function renderTask() {
     const t = currentTask();
     if (!t) return;
     hintsShown = 0;
+    renderApp();
+    loadDb();
     $('task-title').textContent = t.title;
     $('task-text').innerHTML = t.text;
     $('hint-list').innerHTML = '';
@@ -250,7 +364,7 @@ const hasTasks = tasks.length > 0;
     runBtn.disabled = resetBtn.disabled = true;
     status.textContent = '初期状態に戻しています…';
     db?.close();
-    db = await createDb();
+    db = await createDb(currentTask()?.setup);
     refreshTables();
     runBtn.disabled = resetBtn.disabled = false;
     status.textContent = '表を初期状態に戻しました。';
@@ -277,11 +391,12 @@ const hasTasks = tasks.length > 0;
 
   (async () => {
     try {
-      db = await createDb();
+      db = await createDb(currentTask()?.setup);
       refreshTables();
       if (tasks.length) renderTask();
       if (preset) input.value = preset;
       runBtn.disabled = resetBtn.disabled = false;
+      $<HTMLButtonElement>('app-run').disabled = false;
       status.textContent = '';
       if (preset && !tasks.length) run();
     } catch (e) {
@@ -375,4 +490,14 @@ const hasTasks = tasks.length > 0;
   :global(.error .hint) { margin: 0 0 0.4rem; font-weight: 600; }
   :global(.error .raw) { margin: 0; font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
   :global(.ok) { color: var(--accent); font-weight: 600; }
+  :global(.app-fail) { color: var(--error); font-weight: 600; }
+  .app-screen { border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.2rem; }
+  .app-form { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem; }
+  .app-fields { display: flex; flex-direction: column; gap: 0.5rem; }
+  .app-fields :global(.app-field) { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.85rem; color: var(--muted); }
+  .app-fields :global(input) { font: inherit; font-family: var(--mono); font-size: 0.95rem; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0.45rem 0.7rem; max-width: 26rem; }
+  .app-fields :global(input:focus) { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+  .app-form .btn { align-self: flex-start; }
+  .sql-label { margin-top: 0.4rem; }
+  .app-sql { font-family: var(--mono); font-size: 0.85rem; background: var(--surface); padding: 0.7rem 0.9rem; margin: 0; border-radius: var(--radius-sm); white-space: pre-wrap; overflow-wrap: anywhere; }
 </style>

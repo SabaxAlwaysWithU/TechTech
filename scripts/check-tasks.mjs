@@ -6,6 +6,7 @@ import vm from 'node:vm';
 import initSqlJs from 'sql.js';
 import { runUserCode } from '../src/lib/jsrun-core.js';
 import { runPython } from '../src/lib/pyrun-core.js';
+import { runApp, judgeApp, parseAppAnswer } from '../src/lib/sqlapp-core.js';
 import { loadPyodide } from 'pyodide';
 
 /** 練習場と同じ jsrun-core.js の関数を、vm の別環境で動かす(await、setTimeout、練習用の fetch が使える) */
@@ -168,8 +169,29 @@ for (const field of readdirSync(root)) {
     if (existsSync(tasksPath) && practice === 'sql') {
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
-        const db = new SQL.Database();
-        db.run(schema);
+        const fresh = () => { const d = new SQL.Database(); d.run(schema); if (t.setup) d.run(t.setup); return d; };
+        if (t.app) {
+          // アプリの画面の課題: 模範解答の「ラベル: 値」を画面に入れたとして動かし、expectApp を満たすか確かめる
+          const db = fresh(), truth = fresh();
+          try {
+            const values = parseAppAnswer(t.app, t.answer);
+            const missing = t.app.fields.filter((f) => !(f.id in values)).map((f) => f.label);
+            if (missing.length) throw new Error(`answer に「${missing.join('」「')}: 値」の行がありません`);
+            const r = runApp(db, t.app, values);
+            const j = judgeApp(truth, t.app, values, r, t.expectApp ?? {});
+            if (!j.correct) throw new Error(`模範解答で正解になりません: ${j.message}\n     SQL: ${r.sql}`);
+            console.log(`  課題 ${t.id}: OK(${t.app.title}${t.app.safe ? '・安全' : ''}) ${r.sql}`);
+          } catch (e) {
+            console.log(`  !! 課題 ${t.id}: ${e.message}`);
+            failures++;
+          } finally {
+            db.close();
+            truth.close();
+          }
+          if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); failures++; }
+          continue;
+        }
+        const db = fresh();
         try {
           const res = db.exec(t.answer);
           if (t.mutation) {

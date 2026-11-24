@@ -30,11 +30,12 @@ export async function initSql(): Promise<SqlJsStatic> {
   return sqlJs;
 }
 
-/** 初期状態のデータベースを新しく作る */
-export async function createDb(): Promise<Database> {
+/** 初期状態のデータベースを新しく作る。setup があれば、共通のデータのあとに実行する(課題だけの表など) */
+export async function createDb(setup?: string): Promise<Database> {
   const SQL = await initSql();
   const db = new SQL.Database();
   db.run(schemaSql);
+  if (setup) db.run(setup);
   return db;
 }
 

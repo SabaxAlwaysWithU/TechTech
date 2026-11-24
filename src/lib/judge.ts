@@ -6,6 +6,7 @@ export interface JudgeTask {
   answer: string;
   ordered?: boolean;
   mutation?: boolean;
+  setup?: string; // 共通のデータのあとに実行する SQL(課題だけの表など)
 }
 
 export interface Judgement {
@@ -105,8 +106,8 @@ export async function judge(
   userSql: string,
   task: JudgeTask,
 ): Promise<{ judgement: Judgement; userDb: Database; userRun: ReturnType<typeof runSql> }> {
-  const userDb = await createDb();
-  const expectDb = await createDb();
+  const userDb = await createDb(task.setup);
+  const expectDb = await createDb(task.setup);
   const userRun = runSql(userDb, userSql);
   const expectRun = runSql(expectDb, task.answer);
   if (!expectRun.ok) {

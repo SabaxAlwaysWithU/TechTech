@@ -70,6 +70,8 @@ SQL(`tasks.json` の `answer` を同じ初期状態で実行して比べる):
 - `ordered: true` のときだけ行の順番を比べる
 - `mutation: true` のときは実行後の全表の中身を比べる(INSERT / UPDATE / DELETE / CREATE TABLE 用)
 - 列名は比べない。列数、行数、各セルの値が一致すれば正解
+- `setup`: 共通のデータ(`schema.sql`)のあとに実行する SQL。その課題だけの表を足す(08 の `users` 表)
+- `app`: SQL 入力欄の代わりに「アプリの画面」(ログインや検索)を出す。入力は `query` の `{欄id}` にそのまま埋め込まれ(`safe: true` ならプレースホルダ `?` で値として渡す)、組み立てた SQL を画面に見せる。判定は `expectApp`(`loginAs`、`bypass`=本当のパスワードを使っていない、`unknownName`=名前の欄に実在の名前がない、`error`、`fail`、`success`、`inputIncludes`、`leaks`=この SELECT の値が全部結果に出た)。仕組みは [sqlapp-core.js](src/lib/sqlapp-core.js) の1か所で、練習場と `check-tasks.mjs` の両方が使う。`answer` は「ラベル: 値」を1行ずつ書く(`browser-check.mjs` がそれを入れて送信する)
 
 HTML(プレビューにできたページを `checks` で調べる。すべて満たせば正解):
 
@@ -166,6 +168,7 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 17. Python 10 内包表記(リスト・辞書の内包表記、enumerate、zip)、11 並べ替え(sorted の key、lambda、タプルで2つの条件、max / min の key)、12 標準ライブラリ(json、Counter、defaultdict)。課題15。総合演習は 13-final に移し、`field.json` の `renamed` で前の 08-final / 10-final の進捗を引き継ぐ(2026-11-24)
 18. JavaScript 10 データを保存する(localStorage、文字列だけ、JSON で配列を保存)、11 フォームを受け取る(submit と preventDefault、value、FormData、入力の確認、fetch で送る、二重送信)。練習場に localStorage の欄、課題ごとの画面(page)、フォームの送信を追加。総合演習は 12-final に移した(前の 09-final / 10-final の進捗を引き継ぐ)(2026-11-24)
 19. Webアプリの道具 07 コードを書かない選択肢(ノーコード、CMS、ネットショップ作成、フォーム、ノーコードのアプリ。課題6)、08 サーバーの裏側(Web サーバー、証明書、systemd / Docker、CDN、PaaS が肩代わりするもの。課題5)。どちらもレッスン専用の catalog.json を使う。総合演習は 09-final に移した(2026-11-24)
+20. SQL 08 SQL インジェクション — ログイン画面と検索画面を練習場に出し、`'` でエラー、`admin' --` で管理者に、`' OR 1=1 --` で名前も知らずに、`UNION` でパスワードを盗む、プレースホルダの画面では防がれる、を体験する(課題6)。他人のサイトで試すのは犯罪であることも明記。総合演習は 09-final に移した(2026-11-24)
 
 ## 未決事項
 

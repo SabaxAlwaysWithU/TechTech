@@ -18,6 +18,7 @@ import { createServer } from 'node:http';
 import { readFileSync, readdirSync, statSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { join, extname, delimiter } from 'node:path';
 import { tmpdir } from 'node:os';
+import { parseAppAnswer } from '../src/lib/sqlapp-core.js';
 
 const root = join(import.meta.dirname, '..');
 const dist = join(root, 'dist');
@@ -200,6 +201,13 @@ async function runTask(tab, job) {
   await tab.goto(job.url);
   switch (practice) {
     case 'sql':
+      if (task.app) {
+        // アプリの画面(ログインや検索)に、answer の「ラベル: 値」を入れて送信する
+        await waitFor(() => tab.eval(`!document.getElementById('app-run').disabled`), 15000, 'データベースの準備');
+        for (const [id, v] of Object.entries(parseAppAnswer(task.app, code))) await tab.eval(setValue('app-' + id, v));
+        await tab.eval(`document.getElementById('app-form').requestSubmit()`);
+        break;
+      }
       await waitFor(() => tab.eval(`!document.getElementById('run').disabled`), 15000, 'データベースの準備');
       await tab.eval(setValue('sql-input', code));
       await tab.eval(`document.getElementById('run').click()`);

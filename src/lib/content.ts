@@ -58,6 +58,9 @@ export interface Task {
   // SQL用
   ordered?: boolean; // 行の順番も比べる
   mutation?: boolean; // 実行後の表の中身で比べる
+  setup?: string; // 共通のデータ(schema.sql)のあとに実行する SQL。この課題だけの表やデータ
+  app?: SqlApp; // SQL を使うアプリの画面(ログインや検索)。SQL の代わりに画面に入力する(lib/sqlapp-core.js)
+  expectApp?: Record<string, unknown>; // app の判定条件(lib/sqlapp-core.js の judgeApp)
   // HTML用
   checks?: HtmlCheck[];
   // JS / Python 用
@@ -81,6 +84,15 @@ export interface Task {
   picks?: Record<string, string[]>; // 層ごとに正解とする選択肢id。どれか1つ選べばよい
   why?: Record<string, string>; // 層ごとの「なぜそれか」(正解・不正解どちらでも表示)
   rejects?: Record<string, Record<string, string>>; // 層 → 選択肢id → その選択肢が合わない理由
+}
+
+export interface SqlApp {
+  kind: 'login' | 'search';
+  title: string;
+  button: string;
+  query: string; // {欄id} に入力が入る
+  safe?: boolean; // プレースホルダ(?)で値として渡す
+  fields: { id: string; label: string; type?: string }[];
 }
 
 export interface NetCheckLike {
