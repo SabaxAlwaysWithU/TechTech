@@ -1,0 +1,313 @@
+---
+// 正規表現の練習場。パターンを打つたびに、確かめ用の文字列のどこに一致したかを色で見せ、課題の条件(lib/regex-core.js)で判定する。
+import type { Task } from '../lib/content';
+interface Props {
+  lessonId?: string;
+  lessonTitle?: string;
+  tasks?: Task[];
+  backHref?: string;
+  nextHref?: string;
+  nextLabel?: string;
+}
+const { lessonId, lessonTitle, tasks = [], backHref, nextHref, nextLabel } = Astro.props;
+const hasTasks = tasks.length > 0;
+const freeText = `TechTech へようこそ。
+お問い合わせ: info@example.com / 03-1234-5678
+注文番号 A-1001 と A-1002 は 2026-11-25 に発送しました。
+価格: 2,500円、6,800円、32,000円`;
+---
+<main class="practice">
+  <div class="pane left">
+    <section class="task">
+      {hasTasks ? (
+        <>
+          <p class="eyebrow">{lessonTitle} の練習</p>
+          <nav class="task-tabs" id="task-tabs" aria-label="課題">
+            {tasks.map((t, i) => (
+              <button type="button" class="tab" data-index={i} aria-current={i === 0 ? 'true' : undefined}>課題{i + 1}</button>
+            ))}
+          </nav>
+          <h1 id="task-title">{tasks[0].title}</h1>
+          <div id="task-text" class="task-text" set:html={tasks[0].text} />
+          <div class="hints">
+            <button type="button" class="btn secondary" id="hint-btn">ヒントを見る</button>
+            <ol id="hint-list" class="hint-list"></ol>
+            <details id="answer-box" hidden>
+              <summary>模範解答を見る</summary>
+              <pre id="answer-code"></pre>
+            </details>
+          </div>
+          <div id="verdict" class="verdict" hidden></div>
+        </>
+      ) : (
+        <>
+          <h1>フリーモード</h1>
+          <p class="muted">課題はありません。パターンを打つと、下の文章で一致したところに色が付きます。文章も書き換えられます。</p>
+        </>
+      )}
+    </section>
+  </div>
+  <div class="pane right">
+    <section class="editor">
+      <label for="pattern" class="label">パターン <span class="muted" id="flags-note"></span></label>
+      <div class="pattern-row">
+        <span class="slash">/</span>
+        <input id="pattern" class="pattern" spellcheck="false" autocomplete="off" autocapitalize="off" />
+        <span class="slash">/</span>
+      </div>
+      <p id="pattern-error" class="pattern-error" hidden></p>
+    </section>
+    <section id="tests-section" hidden>
+      <h2>確かめ用の文字列 <span class="muted" id="full-note"></span></h2>
+      <table class="tests" id="tests"></table>
+    </section>
+    <section id="extract-section" hidden>
+      <h2>取り出し</h2>
+      <pre class="sample" id="extract-text"></pre>
+      <p class="small"><span class="muted">取り出した結果:</span> <span id="extract-result" class="mono"></span></p>
+    </section>
+    <section id="replace-section" hidden>
+      <h2>置き換え <span class="muted" id="replace-note"></span></h2>
+      <pre class="sample" id="replace-text"></pre>
+      <p class="small"><span class="muted">置き換えた結果:</span></p>
+      <pre class="sample result" id="replace-result"></pre>
+    </section>
+    <section id="free-section" hidden>
+      <h2>文章 <span class="muted">(書き換えられます)</span></h2>
+      <textarea id="free-text" class="free-text" spellcheck="false">{freeText}</textarea>
+      <pre class="sample" id="free-view"></pre>
+      <p class="small muted" id="free-count"></p>
+    </section>
+    {hasTasks && (
+      <nav class="lesson-nav">
+        {backHref && <a href={backHref} data-back>← 記事に戻る</a>}
+        {nextHref && <a href={nextHref}>{nextLabel ?? '次へ'} →</a>}
+      </nav>
+    )}
+  </div>
+</main>
+
+<script type="application/json" id="practice-data" set:html={JSON.stringify({ lessonId, tasks })} />
+
+<script>
+  import { judgeRegex, ranges, compile } from '../lib/regex-core.js';
+  import { getProgress, markTaskCleared } from '../lib/progress';
+  import type { Task } from '../lib/content';
+
+  const data = JSON.parse(document.getElementById('practice-data')!.textContent!) as { lessonId?: string; tasks: Task[] };
+  const tasks = data.tasks;
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const input = $<HTMLInputElement>('pattern');
+  let taskIndex = 0;
+  let hintsShown = 0;
+  let solved = false;
+
+  function currentTask(): Task | undefined { return tasks[taskIndex]; }
+
+  /** 文字列を、一致した部分に <mark> を付けて el に入れる */
+  function highlight(el: HTMLElement, text: string, pattern: string, flags = '') {
+    el.replaceChildren();
+    let pos = 0;
+    for (const [a, b] of ranges(pattern, flags, text)) {
+      if (a > pos) el.append(text.slice(pos, a));
+      const mk = document.createElement('mark');
+      mk.textContent = text.slice(a, b);
+      el.append(mk);
+      pos = b;
+    }
+    if (pos < text.length) el.append(text.slice(pos));
+  }
+
+  function render() {
+    const t = currentTask();
+    const pattern = input.value;
+    const flags = t?.regex?.flags ?? '';
+    const err = pattern ? compile(pattern, flags, false).error : undefined;
+    const errBox = $('pattern-error');
+    errBox.hidden = !err;
+    if (err) errBox.textContent = `パターンに誤りがあります: ${err}`;
+    if (!t) {
+      const text = $<HTMLTextAreaElement>('free-text').value;
+      highlight($('free-view'), text, pattern);
+      $('free-count').textContent = pattern && !err ? `一致: ${ranges(pattern, '', text).length} か所` : '';
+      return;
+    }
+    const r = t.regex ?? {};
+    const j = judgeRegex(pattern, t);
+    // 確かめ用の文字列
+    const table = $('tests');
+    table.replaceChildren();
+    const rows = j.rows.length ? j.rows : [...(r.match ?? []).map((s) => ({ text: s, want: true, got: false })), ...(r.noMatch ?? []).map((s) => ({ text: s, want: false, got: false }))];
+    for (const row of rows) {
+      const tr = document.createElement('tr');
+      const ok = pattern && !err ? row.want === row.got : null;
+      tr.className = ok === null ? '' : ok ? 'ok' : 'ng';
+      const td1 = document.createElement('td');
+      td1.className = 'mono';
+      if (r.full) td1.textContent = row.text; else highlight(td1, row.text, err ? '' : pattern, flags);
+      const td2 = document.createElement('td');
+      td2.textContent = row.want ? '一致してほしい' : '一致してほしくない';
+      td2.className = 'want';
+      const td3 = document.createElement('td');
+      td3.className = 'mark';
+      td3.textContent = ok === null ? '' : ok ? '✓' : '✗';
+      tr.append(td1, td2, td3);
+      table.appendChild(tr);
+    }
+    if (r.extract) {
+      highlight($('extract-text'), r.extract.text, err ? '' : pattern, flags);
+      $('extract-result').textContent = j.extracted ? (j.extracted.length ? j.extracted.map((s) => `「${s}」`).join(' ') : '(なし)') : '';
+    }
+    if (r.replace) {
+      highlight($('replace-text'), r.replace.text, err ? '' : pattern, flags);
+      $('replace-result').textContent = j.replaced ?? r.replace.text;
+    }
+    // 判定(一度正解したら残る)
+    if (solved) return;
+    const verdict = $('verdict');
+    if (j.correct) {
+      solved = true;
+      verdict.hidden = false;
+      verdict.className = 'verdict correct';
+      verdict.textContent = '正解です。';
+      if (data.lessonId) markTaskCleared(data.lessonId, t.id);
+      document.querySelector<HTMLButtonElement>(`#task-tabs .tab[data-index="${taskIndex}"]`)?.classList.add('done');
+    } else if (pattern) {
+      verdict.hidden = false;
+      verdict.className = 'verdict wrong';
+      verdict.textContent = `まだです: ${j.message}`;
+    } else {
+      verdict.hidden = true;
+    }
+  }
+
+  function renderTask() {
+    const t = currentTask();
+    solved = false;
+    $('free-section').hidden = !!t;
+    if (!t) { input.value = ''; render(); return; }
+    const r = t.regex ?? {};
+    hintsShown = 0;
+    $('task-title').textContent = t.title;
+    $('task-text').innerHTML = t.text;
+    $('hint-list').innerHTML = '';
+    const hintBtn = $<HTMLButtonElement>('hint-btn');
+    hintBtn.hidden = t.hints.length === 0;
+    hintBtn.textContent = 'ヒントを見る';
+    const ans = $<HTMLDetailsElement>('answer-box');
+    ans.hidden = true;
+    ans.open = false;
+    $('answer-code').textContent = t.answer ?? '';
+    const verdict = $('verdict');
+    verdict.hidden = true;
+    verdict.className = 'verdict';
+    const prog = data.lessonId ? getProgress(data.lessonId) : {};
+    for (const tab of document.querySelectorAll<HTMLButtonElement>('#task-tabs .tab')) {
+      const i = Number(tab.dataset.index);
+      tab.toggleAttribute('aria-current', i === taskIndex);
+      tab.classList.toggle('done', !!prog.tasks?.[tasks[i].id]);
+    }
+    $('tests-section').hidden = !(r.match?.length || r.noMatch?.length);
+    $('full-note').textContent = r.full ? '(文字列の全体が一致するかで調べます)' : '(色の付いたところが一致した部分)';
+    $('extract-section').hidden = !r.extract;
+    $('replace-section').hidden = !r.replace;
+    $('replace-note').textContent = r.replace ? `(一致した部分を「${r.replace.with}」に置き換えます)` : '';
+    $('flags-note').textContent = r.flags?.includes('i') ? '(大文字と小文字を区別しない設定)' : '';
+    input.value = t.starter ?? '';
+    render();
+    if (prog.tasks?.[t.id] && !solved) { verdict.hidden = false; verdict.className = 'verdict correct'; verdict.textContent = 'クリア済み。別の書き方も試してみましょう。'; }
+  }
+
+  function showHint() {
+    const t = currentTask();
+    if (!t) return;
+    if (hintsShown < t.hints.length) {
+      const li = document.createElement('li');
+      li.textContent = t.hints[hintsShown];
+      $('hint-list').appendChild(li);
+      hintsShown++;
+    }
+    const btn = $<HTMLButtonElement>('hint-btn');
+    if (hintsShown >= t.hints.length) {
+      btn.hidden = true;
+      $('answer-box').hidden = false;
+    } else {
+      btn.textContent = `次のヒントを見る(${hintsShown}/${t.hints.length})`;
+    }
+  }
+
+  input.addEventListener('input', render);
+  $('free-text').addEventListener('input', render);
+  document.getElementById('hint-btn')?.addEventListener('click', showHint);
+  document.getElementById('task-tabs')?.addEventListener('click', (e) => {
+    const tab = (e.target as HTMLElement).closest<HTMLButtonElement>('.tab');
+    if (!tab) return;
+    taskIndex = Number(tab.dataset.index);
+    renderTask();
+  });
+
+  const params = new URLSearchParams(location.search);
+  const presetTask = Number(params.get('task'));
+  if (tasks.length && presetTask >= 1 && presetTask <= tasks.length) taskIndex = presetTask - 1;
+  renderTask();
+  const preset = params.get('code');
+  if (preset) { input.value = preset; render(); }
+</script>
+
+<style>
+  .practice {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+    display: grid;
+    grid-template-columns: minmax(16rem, 1fr) minmax(0, 2fr);
+    gap: 2rem;
+    font-size: 0.95rem;
+  }
+  @media (max-width: 760px) { .practice { grid-template-columns: 1fr; } }
+  .pane { min-width: 0; }
+  h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  h2 { font-size: 0.85rem; color: var(--muted); letter-spacing: 0.05em; margin: 2rem 0 0.5rem; font-weight: 600; }
+  h2 .muted { font-weight: 400; letter-spacing: 0; }
+  .eyebrow { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.6rem; }
+  .task p { margin: 0 0 1rem; }
+  .task-text :global(p) { margin: 0 0 0.8rem; }
+  .task-text :global(ul) { margin: 0 0 0.8rem; padding-left: 1.4rem; }
+  .task-text :global(code), .task code { font-family: var(--mono); background: var(--surface); padding: 0.1em 0.35em; font-size: 0.9em; border-radius: 5px; overflow-wrap: anywhere; }
+  .task-text :global(pre) { font-family: var(--mono); background: var(--surface); padding: 0.6rem 0.8rem; font-size: 0.85rem; border-radius: var(--radius-sm); white-space: pre-wrap; }
+  .task-tabs { display: flex; gap: 0.3rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .task-tabs .tab { font: inherit; font-size: 0.85rem; padding: 0.3rem 0.9rem; cursor: pointer; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; }
+  .task-tabs .tab:hover { background: var(--surface); }
+  .task-tabs .tab[aria-current] { color: var(--fg); border-color: var(--fg); background: var(--surface); }
+  .task-tabs .tab.done::after { content: ' ✓'; color: var(--accent); }
+  .hints { margin-top: 1rem; }
+  .hint-list { margin: 0.8rem 0 0; padding-left: 1.4rem; }
+  .hint-list :global(li) { margin-bottom: 0.4rem; }
+  details { margin-top: 0.8rem; }
+  summary { cursor: pointer; color: var(--accent); }
+  #answer-code { font-family: var(--mono); font-size: 0.85rem; background: var(--surface); padding: 0.8rem 1rem; white-space: pre-wrap; margin: 0.5rem 0 0; border-radius: var(--radius-sm); overflow-wrap: anywhere; }
+  .verdict { margin-top: 1rem; padding: 0.7rem 1rem; border-left: 4px solid var(--line); background: var(--surface); font-weight: 600; border-radius: var(--radius-sm); overflow-wrap: anywhere; }
+  .verdict.correct { border-left-color: var(--accent); color: var(--accent); }
+  .verdict.wrong { border-left-color: var(--error); }
+  .label { display: block; font-size: 0.85rem; color: var(--muted); margin: 0 0 0.4rem; font-weight: 600; }
+  .pattern-row { display: flex; align-items: center; gap: 0.3rem; }
+  .slash { font-family: var(--mono); font-size: 1.2rem; color: var(--muted); }
+  .pattern { flex: 1; min-width: 0; font-family: var(--mono); font-size: 1.05rem; padding: 0.5rem 0.7rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--fg); }
+  .pattern:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+  .pattern-error { color: var(--error); font-size: 0.85rem; margin: 0.4rem 0 0; font-family: var(--mono); overflow-wrap: anywhere; }
+  .tests { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+  .tests :global(td) { padding: 0.4rem 0.7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .tests :global(tr:last-child td) { border-bottom: 0; }
+  .tests :global(td.mono) { font-family: var(--mono); overflow-wrap: anywhere; }
+  .tests :global(td.want) { color: var(--muted); font-size: 0.8rem; white-space: nowrap; width: 1%; }
+  .tests :global(td.mark) { width: 1.5rem; text-align: center; font-weight: 700; }
+  .tests :global(tr.ok td.mark) { color: var(--accent); }
+  .tests :global(tr.ng td.mark) { color: var(--error); }
+  .practice :global(mark) { background: color-mix(in srgb, var(--accent) 22%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; box-shadow: inset 0 -2px 0 var(--accent); }
+  .sample { font-family: var(--mono); font-size: 0.9rem; background: var(--surface); padding: 0.7rem 0.9rem; margin: 0; border-radius: var(--radius-sm); white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
+  .sample.result { margin-top: 0.3rem; }
+  .mono { font-family: var(--mono); overflow-wrap: anywhere; }
+  .small { font-size: 0.85rem; margin: 0.5rem 0 0; }
+  .free-text { width: 100%; min-height: 7rem; font-family: var(--mono); font-size: 0.9rem; padding: 0.6rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg); color: var(--fg); margin-bottom: 0.5rem; resize: vertical; }
+  .lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+</style>

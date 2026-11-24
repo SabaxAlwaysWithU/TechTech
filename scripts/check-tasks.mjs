@@ -10,6 +10,7 @@ import { runApp, judgeApp, parseAppAnswer } from '../src/lib/sqlapp-core.js';
 import { loadPyodide } from 'pyodide';
 import { runCCode, replaceMain } from '../src/lib/crun-core.js';
 import { runBitsAnswer, judgeBits, fromString } from '../src/lib/bits-core.js';
+import { judgeRegex } from '../src/lib/regex-core.js';
 import { preparePicoc, generated as picocPath } from './prepare-picoc.mjs';
 import { pathToFileURL } from 'node:url';
 
@@ -142,6 +143,19 @@ for (const field of readdirSync(root)) {
           console.log(`  !! 課題 ${t.id}: ${e.message}`);
           failures++;
         }
+      }
+    }
+    if (existsSync(tasksPath) && practice === 'regex') {
+      // 正規表現: 模範解答のパターンが正解になり、最初のパターン(starter、なければ空)は正解にならないことを確かめる
+      const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
+      for (const t of tasks) {
+        let ok = true;
+        if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); ok = false; }
+        if (!t.regex) { console.log(`  !! 課題 ${t.id}: regex がありません`); failures++; continue; }
+        const a = judgeRegex(t.answer ?? '', t);
+        if (!a.correct) { console.log(`  !! 課題 ${t.id}: 模範解答 /${t.answer}/ で正解になりません: ${a.message} ${a.error ?? ''}`); ok = false; }
+        if (judgeRegex(t.starter ?? '', t).correct) { console.log(`  !! 課題 ${t.id}: 最初のパターンのままで正解になってしまいます`); ok = false; }
+        if (ok) console.log(`  課題 ${t.id}: OK /${t.answer}/`); else failures++;
       }
     }
     if (existsSync(tasksPath) && practice === 'bits') {

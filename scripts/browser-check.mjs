@@ -229,6 +229,9 @@ async function runTask(tab, job) {
       await tab.eval(setValue('code-input', code));
       await tab.eval(`document.getElementById('run').click()`);
       break;
+    case 'regex':
+      await tab.eval(setValue('pattern', code));
+      return waitFor(async () => { const v = await verdict(tab); return v.startsWith('正解') && v; }, 3000, '判定').catch(() => verdict(tab));
     case 'bits':
       // 模範解答の手順: 0 と 1 の並びにする(違うビットを押す)、または「操作: +1」のボタンを押す
       for (const step of parseBitsAnswer(code)) {

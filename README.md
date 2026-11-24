@@ -57,6 +57,7 @@ src/lib/picoc.gen.js         C のインタプリタ(picoc-js、MIT)。scripts/p
 - `"sql"`: [Practice.astro](src/components/Practice.astro)。`schema.sql` が必要
 - `"html"`: [HtmlPractice.astro](src/components/HtmlPractice.astro)。入力欄の横にプレビュー
 - `"js"`: [JsPractice.astro](src/components/JsPractice.astro)。sandbox 付き iframe でコードを実行し、出力を表示
+- `"regex"`: [RegexPractice.astro](src/components/RegexPractice.astro)。パターンを打つたびに、確かめ用の文字列で一致したところに色が付く。判定は [regex-core.js](src/lib/regex-core.js)
 - `"bits"`: [BitsPractice.astro](src/components/BitsPractice.astro)。ビットのボタンを押して 0 / 1 を切り替え、10進・16進・8進・文字・符号あり・小数での値を見る。計算と判定は [bits-core.js](src/lib/bits-core.js)
 - `"c"`: [CPractice.astro](src/components/CPractice.astro)。ブラウザの中の C のインタプリタ(picoc)でコードを実行し、出力を表示する
 - `"python"`: [PyPractice.astro](src/components/PyPractice.astro)。ブラウザの中の本物の Python(Pyodide)でコードを実行し、出力を表示
@@ -110,6 +111,11 @@ Python(Web Worker の中の Pyodide で実行し、[pyrunner.ts](src/lib/pyrunne
 - `input()` は使えない(呼ぶとエラーで知らせる)。標準ライブラリは使えるが、numpy などの追加パッケージは読み込まない
 - Pyodide の版は package.json で固定(`pyodide`)。上げるときは `npm install --save-exact pyodide@版` のあと、check-tasks と browser-check を通す
 - 初回は約12MB を読み込む(2回目からはブラウザのキャッシュ)。読み込みが終わるまで「実行」は押せない
+
+正規表現([regex-core.js](src/lib/regex-core.js) の1か所で、画面と `check-tasks.mjs` の両方が使う。JavaScript の RegExp に u フラグを付けて動かす):
+
+- 課題の `regex` をすべて満たせば正解: `match`(どれにも一致する)、`noMatch`(どれにも一致しない)、`full`(全体が一致するかで調べる。`^(?:…)$` で包む)、`extract`(`text` から一致を全部取り出すと `expect` になる。`group` でグループの番号)、`replace`(`text` の一致を全部 `with` に置き換えると `expect` になる。`$1` が使える)、`flags`(`i` など)
+- `answer` は模範のパターン、`starter` は最初に入っているパターン。`check-tasks.mjs` が、模範で正解・最初のパターンでは不正解を確かめる。パターンを打つたびに判定し、一度正解したら残る
 
 ビット(コンピュータの中の数。[bits-core.js](src/lib/bits-core.js) の1か所で、画面と `check-tasks.mjs` の両方が使う):
 
@@ -197,3 +203,4 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 - (なし)サイト名は TechTech に決定(2026-11-15)
 22. コンピュータの中の数 — 新しい練習場(ビットのボタン、読み方の表、+1・ずらす・反転、小数、文字のバイト)と6レッスン(2進数とビット、16進数、負の数とオーバーフロー、ビットをずらす・反転する、文字とバイト、小数とその誤差)+ 総合演習「数の係」。課題32(2026-11-25)
 23. アルゴリズム — Python の練習場で6レッスン(アルゴリズムと計算量、二分探索、並べ替え、速い並べ替え、スタックとキュー、辞書と集合で速くする)+ 総合演習「注文処理の係」。課題29。O(n²) の書き方が時間切れ(5秒)になるよう、判定に大きなデータを入れた課題もある。期待する値は、模範解答を実際に動かして作った(2026-11-25)
+24. 正規表現 — 新しい練習場(パターンを打つと一致したところに色、✓ / ✗、取り出し、置き換え)と6レッスン(正規表現とは、くり返し、位置と入力チェック、グループと取り出し、置き換え、実際に使う)+ 総合演習「データ整理の係」。課題31(2026-11-25)
