@@ -15,6 +15,7 @@ export interface Field {
   order: number;
   practice: PracticeKind;
   languages: string[]; // 記事中でこの言語のコード例に「練習場で試す」を付ける
+  renamed?: Record<string, string>; // 古いレッスンのフォルダ名 → 新しい名前。進捗を引き継ぐ(lib/progress.ts)
 }
 
 export interface QuizQuestion {
@@ -57,6 +58,9 @@ export interface Task {
   // SQL用
   ordered?: boolean; // 行の順番も比べる
   mutation?: boolean; // 実行後の表の中身で比べる
+  setup?: string; // 共通のデータ(schema.sql)のあとに実行する SQL。この課題だけの表やデータ
+  app?: SqlApp; // SQL を使うアプリの画面(ログインや検索)。SQL の代わりに画面に入力する(lib/sqlapp-core.js)
+  expectApp?: Record<string, unknown>; // app の判定条件(lib/sqlapp-core.js の judgeApp)
   // HTML用
   checks?: HtmlCheck[];
   // JS / Python 用
@@ -64,6 +68,9 @@ export interface Task {
   calls?: JsCall[]; // 関数を呼んだ結果がこの通りなら正解
   dom?: boolean; // JS: 見本のページ(jsrunner.ts の SAMPLE_PAGE)の上で実行し、checks(HTML と同じ書き方)で画面を調べる
   actions?: DomAction[]; // JS の画面の課題: コードを実行したあと、判定の前に行う操作
+  page?: string; // JS の画面の課題: 見本のページ(SAMPLE_PAGE)の代わりに使う HTML
+  storage?: Record<string, string>; // JS: 実行を始めるときの localStorage の中身(課題では実行のたびにここから始める)
+  expectStorage?: Record<string, string | null>; // JS: 実行後の localStorage の中身がこの通りなら正解(null は「ない」)
   // Python: 練習用のファイル(名前 → 中身)。pyrun-core.js の SAMPLE_FILES に足して、実行のたびに作り直す
   files?: Record<string, string>;
   // シェル(OS)用。ShellCheck は lib/shell.ts
@@ -77,6 +84,15 @@ export interface Task {
   picks?: Record<string, string[]>; // 層ごとに正解とする選択肢id。どれか1つ選べばよい
   why?: Record<string, string>; // 層ごとの「なぜそれか」(正解・不正解どちらでも表示)
   rejects?: Record<string, Record<string, string>>; // 層 → 選択肢id → その選択肢が合わない理由
+}
+
+export interface SqlApp {
+  kind: 'login' | 'search';
+  title: string;
+  button: string;
+  query: string; // {欄id} に入力が入る
+  safe?: boolean; // プレースホルダ(?)で値として渡す
+  fields: { id: string; label: string; type?: string }[];
 }
 
 export interface NetCheckLike {
@@ -104,10 +120,11 @@ export interface Catalog {
   layers: CatalogLayer[];
 }
 
-const catalogFiles = import.meta.glob<Catalog>('/content/*/catalog.json', { eager: true, import: 'default' });
+const catalogFiles = import.meta.glob<Catalog>(['/content/*/catalog.json', '/content/*/*/catalog.json'], { eager: true, import: 'default' });
 
-export function getCatalog(field: string): Catalog | undefined {
-  return catalogFiles[`/content/${field}/catalog.json`];
+/** 構成の練習場の選択肢。レッスンのフォルダに catalog.json があれば、分野のものの代わりにそれを使う */
+export function getCatalog(field: string, lesson?: string): Catalog | undefined {
+  return (lesson && catalogFiles[`/content/${field}/${lesson}/catalog.json`]) || catalogFiles[`/content/${field}/catalog.json`];
 }
 
 export interface ShellCheckLike {

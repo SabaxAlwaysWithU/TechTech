@@ -6,13 +6,14 @@ import vm from 'node:vm';
 import initSqlJs from 'sql.js';
 import { runUserCode } from '../src/lib/jsrun-core.js';
 import { runPython } from '../src/lib/pyrun-core.js';
+import { runApp, judgeApp, parseAppAnswer } from '../src/lib/sqlapp-core.js';
 import { loadPyodide } from 'pyodide';
 
 /** 練習場と同じ jsrun-core.js の関数を、vm の別環境で動かす(await、setTimeout、練習用の fetch が使える) */
-function runJsInVm(code, calls) {
+function runJsInVm(code, calls, storage) {
   const run = vm.runInNewContext(`(${runUserCode.toString()})`, { setTimeout, clearTimeout });
   const timeout = new Promise((resolve) => setTimeout(() => resolve({ ok: false, logs: [], error: '5秒たっても終わりませんでした' }), 5000).unref());
-  return Promise.race([run(code, calls), timeout]);
+  return Promise.race([run(code, calls, { storage: { ...storage } }), timeout]);
 }
 
 /** 練習場と同じ pyrun-core.js を、Node の Pyodide で動かす(初めて使うときに読み込む) */
@@ -39,7 +40,13 @@ let failures = 0;
 for (const field of readdirSync(root)) {
   if (!statSync(join(root, field)).isDirectory()) continue;
   const fieldJson = join(root, field, 'field.json');
-  const practice = existsSync(fieldJson) ? JSON.parse(readFileSync(fieldJson, 'utf8')).practice : 'sql';
+  const fieldInfo = existsSync(fieldJson) ? JSON.parse(readFileSync(fieldJson, 'utf8')) : {};
+  const practice = fieldInfo.practice ?? 'sql';
+  // renamed(古いフォルダ名 → 新しい名前)の行き先が、今あるレッスンか
+  for (const [from, to] of Object.entries(fieldInfo.renamed ?? {})) {
+    if (!existsSync(join(root, field, to, 'article.md'))) { console.log(`!! ${field}/field.json の renamed: ${from} → ${to} の行き先がありません`); failures++; }
+    if (existsSync(join(root, field, from))) { console.log(`!! ${field}/field.json の renamed: ${from} はまだあるレッスンです`); failures++; }
+  }
   const schemaPath = join(root, field, 'schema.sql');
   const schema = existsSync(schemaPath) ? readFileSync(schemaPath, 'utf8') : '';
   for (const lesson of readdirSync(join(root, field)).filter((d) => statSync(join(root, field, d)).isDirectory())) {
@@ -67,6 +74,7 @@ for (const field of readdirSync(root)) {
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
         if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); failures++; }
+        if (t.page && !t.dom) { console.log(`  !! 課題 ${t.id}: page は画面の課題("dom": true)でだけ使えます`); failures++; }
         if (t.dom) {
           // JavaScript の画面の課題: Node には画面がないので、形だけ確かめる(正解になるかは browser-check.mjs)
           if (!Array.isArray(t.checks) || t.checks.length === 0) { console.log(`  !! 課題 ${t.id}: 画面の課題には checks が必要です`); failures++; }
@@ -75,10 +83,10 @@ for (const field of readdirSync(root)) {
           console.log(`  課題 ${t.id}: 画面の判定 ${t.checks?.length ?? 0}件、操作 ${t.actions?.length ?? 0}件(ブラウザで確かめる)`);
           continue;
         }
-        if (!t.expectOutput && !t.calls) { console.log(`  !! 課題 ${t.id}: expectOutput か calls が必要です`); failures++; continue; }
+        if (!t.expectOutput && !t.calls && !t.expectStorage) { console.log(`  !! 課題 ${t.id}: expectOutput か calls か expectStorage が必要です`); failures++; continue; }
         const calls = (t.calls ?? []).map((c) => c.call);
         try {
-          const out = practice === 'python' ? await runPy(t.answer, calls, t.files) : await runJsInVm(t.answer, calls);
+          const out = practice === 'python' ? await runPy(t.answer, calls, t.files) : await runJsInVm(t.answer, calls, t.storage);
           if (!out.ok) throw new Error(out.error);
           const logs = out.logs;
           const results = out.results;
@@ -93,7 +101,11 @@ for (const field of readdirSync(root)) {
             const same = practice === 'python' ? r && 'v' in r && samePy(r.v, c.expect) : r && !('e' in r) && JSON.stringify(r.v) === JSON.stringify(c.expect);
             if (!same) { ok = false; console.log(`  !! 課題 ${t.id}: ${c.call} → ${JSON.stringify(r)}(期待 ${JSON.stringify(c.expect)})`); }
           });
-          if (ok) console.log(`  課題 ${t.id}: OK(出力${logs.length}行、呼び出し${calls.length}件)`); else failures++;
+          for (const [k, v] of Object.entries(t.expectStorage ?? {})) {
+            const got = out.storage?.[k] ?? null;
+            if (got !== v) { ok = false; console.log(`  !! 課題 ${t.id}: localStorage の ${k} → ${JSON.stringify(got)}(期待 ${JSON.stringify(v)})`); }
+          }
+          if (ok) console.log(`  課題 ${t.id}: OK(出力${logs.length}行、呼び出し${calls.length}件${t.expectStorage ? '、保存' + Object.keys(t.expectStorage).length + '件' : ''})`); else failures++;
         } catch (e) {
           console.log(`  !! 課題 ${t.id}: ${e.message}`);
           failures++;
@@ -102,7 +114,10 @@ for (const field of readdirSync(root)) {
     }
     if (existsSync(tasksPath) && practice === 'stack') {
       // 構成(Webアプリの道具): picks の id がカタログに存在するか、全層に正解があるかを確かめる
-      const catalog = JSON.parse(readFileSync(join(root, field, 'catalog.json'), 'utf8'));
+      // レッスンのフォルダに catalog.json があれば、分野のものの代わりにそれを使う
+      const lessonCatalog = join(dir, 'catalog.json');
+      const catalog = JSON.parse(readFileSync(existsSync(lessonCatalog) ? lessonCatalog : join(root, field, 'catalog.json'), 'utf8'));
+      if (existsSync(lessonCatalog)) console.log(`  (このレッスンだけの選択肢: ${catalog.layers.map((l) => l.label).join(' / ')})`);
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
         let ok = true;
@@ -154,8 +169,29 @@ for (const field of readdirSync(root)) {
     if (existsSync(tasksPath) && practice === 'sql') {
       const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
       for (const t of tasks) {
-        const db = new SQL.Database();
-        db.run(schema);
+        const fresh = () => { const d = new SQL.Database(); d.run(schema); if (t.setup) d.run(t.setup); return d; };
+        if (t.app) {
+          // アプリの画面の課題: 模範解答の「ラベル: 値」を画面に入れたとして動かし、expectApp を満たすか確かめる
+          const db = fresh(), truth = fresh();
+          try {
+            const values = parseAppAnswer(t.app, t.answer);
+            const missing = t.app.fields.filter((f) => !(f.id in values)).map((f) => f.label);
+            if (missing.length) throw new Error(`answer に「${missing.join('」「')}: 値」の行がありません`);
+            const r = runApp(db, t.app, values);
+            const j = judgeApp(truth, t.app, values, r, t.expectApp ?? {});
+            if (!j.correct) throw new Error(`模範解答で正解になりません: ${j.message}\n     SQL: ${r.sql}`);
+            console.log(`  課題 ${t.id}: OK(${t.app.title}${t.app.safe ? '・安全' : ''}) ${r.sql}`);
+          } catch (e) {
+            console.log(`  !! 課題 ${t.id}: ${e.message}`);
+            failures++;
+          } finally {
+            db.close();
+            truth.close();
+          }
+          if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); failures++; }
+          continue;
+        }
+        const db = fresh();
         try {
           const res = db.exec(t.answer);
           if (t.mutation) {

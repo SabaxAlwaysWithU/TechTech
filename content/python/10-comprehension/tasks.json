@@ -1,0 +1,76 @@
+[
+  {
+    "id": "tax",
+    "title": "税込みのリスト",
+    "text": "<p>関数 <code>with_tax(prices)</code> を完成させてください。値段のリストを受け取り、それぞれを 1.1 倍して <code>round</code> で整数にした、税込みのリストを返します。</p><pre>with_tax([2500, 6800, 32000]) → [2750, 7480, 35200]</pre><p>内包表記で1行で書いてみましょう。</p>",
+    "starter": "def with_tax(prices):\n    return []\n\nprint(with_tax([2500, 6800, 32000]))\n",
+    "answer": "def with_tax(prices):\n    return [round(p * 1.1) for p in prices]\n\nprint(with_tax([2500, 6800, 32000]))",
+    "hints": [
+      "[作る値 for p in prices] の形です。作る値は round(p * 1.1) です。",
+      "return [round(p * 1.1) for p in prices]"
+    ],
+    "calls": [
+      { "call": "with_tax([2500, 6800, 32000])", "expect": [2750, 7480, 35200] },
+      { "call": "with_tax([800])", "expect": [880] },
+      { "call": "with_tax([])", "expect": [] }
+    ]
+  },
+  {
+    "id": "filter",
+    "title": "安い商品の名前",
+    "text": "<p>関数 <code>cheap_names(products, limit)</code> を完成させてください。商品の辞書のリストから、値段が <code>limit</code> 未満の商品の名前だけを、元の順番のままリストにして返します。</p><pre>cheap_names(products, 10000) → [\"マウス\", \"キーボード\", \"USBメモリ\"]</pre>",
+    "starter": "products = [\n    {\"name\": \"マウス\", \"price\": 2500},\n    {\"name\": \"ノートパソコン\", \"price\": 128000},\n    {\"name\": \"キーボード\", \"price\": 6800},\n    {\"name\": \"モニター\", \"price\": 32000},\n    {\"name\": \"USBメモリ\", \"price\": 1800},\n]\n\ndef cheap_names(products, limit):\n    return [p for p in products]\n\nprint(cheap_names(products, 10000))\n",
+    "answer": "products = [\n    {\"name\": \"マウス\", \"price\": 2500},\n    {\"name\": \"ノートパソコン\", \"price\": 128000},\n    {\"name\": \"キーボード\", \"price\": 6800},\n    {\"name\": \"モニター\", \"price\": 32000},\n    {\"name\": \"USBメモリ\", \"price\": 1800},\n]\n\ndef cheap_names(products, limit):\n    return [p[\"name\"] for p in products if p[\"price\"] < limit]\n\nprint(cheap_names(products, 10000))",
+    "hints": [
+      "今のコードは辞書をそのまま全部集めています。左の作る値を名前に、うしろに if を付けて値段で選びます。",
+      "return [p[\"name\"] for p in products if p[\"price\"] < limit]"
+    ],
+    "calls": [
+      { "call": "cheap_names(products, 10000)", "expect": ["マウス", "キーボード", "USBメモリ"] },
+      { "call": "cheap_names(products, 2000)", "expect": ["USBメモリ"] },
+      { "call": "cheap_names(products, 1000)", "expect": [] }
+    ]
+  },
+  {
+    "id": "table",
+    "title": "値段の早見表",
+    "text": "<p>関数 <code>price_table(products)</code> を完成させてください。商品の辞書のリストから、「名前 → 値段」の辞書を作って返します。</p><pre>price_table(products) → {\"マウス\": 2500, \"キーボード\": 6800, \"モニター\": 32000}</pre>",
+    "starter": "products = [\n    {\"name\": \"マウス\", \"price\": 2500},\n    {\"name\": \"キーボード\", \"price\": 6800},\n    {\"name\": \"モニター\", \"price\": 32000},\n]\n\ndef price_table(products):\n    return {}\n\nprint(price_table(products))\n",
+    "answer": "products = [\n    {\"name\": \"マウス\", \"price\": 2500},\n    {\"name\": \"キーボード\", \"price\": 6800},\n    {\"name\": \"モニター\", \"price\": 32000},\n]\n\ndef price_table(products):\n    return {p[\"name\"]: p[\"price\"] for p in products}\n\nprint(price_table(products))",
+    "hints": [
+      "辞書内包表記は { キー: 値 for p in products } の形です。",
+      "return {p[\"name\"]: p[\"price\"] for p in products}"
+    ],
+    "calls": [
+      { "call": "price_table(products)", "expect": { "マウス": 2500, "キーボード": 6800, "モニター": 32000 } },
+      { "call": "price_table([])", "expect": {} }
+    ]
+  },
+  {
+    "id": "zip",
+    "title": "名前と点数を組にする",
+    "text": "<p>関数 <code>make_scores(names, points)</code> を完成させてください。名前のリストと点数のリストを受け取り、「名前 → 点数」の辞書を返します。</p><pre>make_scores([\"山田\", \"佐藤\"], [80, 65]) → {\"山田\": 80, \"佐藤\": 65}</pre>",
+    "starter": "def make_scores(names, points):\n    return {}\n\nprint(make_scores([\"山田\", \"佐藤\", \"鈴木\"], [80, 65, 90]))\n",
+    "answer": "def make_scores(names, points):\n    return dict(zip(names, points))\n\nprint(make_scores([\"山田\", \"佐藤\", \"鈴木\"], [80, 65, 90]))",
+    "hints": [
+      "zip(names, points) で、名前と点数が前から1つずつ組になります。",
+      "return dict(zip(names, points))。{n: p for n, p in zip(names, points)} でもかまいません。"
+    ],
+    "calls": [
+      { "call": "make_scores([\"山田\", \"佐藤\", \"鈴木\"], [80, 65, 90])", "expect": { "山田": 80, "佐藤": 65, "鈴木": 90 } },
+      { "call": "make_scores([\"田中\"], [100])", "expect": { "田中": 100 } }
+    ]
+  },
+  {
+    "id": "enumerate",
+    "title": "番号を付けて表示する",
+    "text": "<p>リスト <code>ranking</code> を、1 から始まる番号付きで出力してください。番号を数える変数は作らず、<code>enumerate</code> を使います。</p><pre>1位 鈴木\n2位 山田\n3位 佐藤</pre>",
+    "starter": "ranking = [\"鈴木\", \"山田\", \"佐藤\"]\n\nfor name in ranking:\n    print(name)\n",
+    "answer": "ranking = [\"鈴木\", \"山田\", \"佐藤\"]\n\nfor i, name in enumerate(ranking, 1):\n    print(f\"{i}位 {name}\")",
+    "hints": [
+      "for i, name in enumerate(ranking, 1): と書くと、i に 1, 2, 3、name に名前が入ります。",
+      "for の中は print(f\"{i}位 {name}\") です。"
+    ],
+    "expectOutput": ["1位 鈴木", "2位 山田", "3位 佐藤"]
+  }
+]

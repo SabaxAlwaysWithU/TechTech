@@ -1,7 +1,8 @@
 {
   "title": "Python",
-  "description": "全9レッスンと総合演習。読みやすさで人気のプログラミング言語。計算、文字列、条件、リスト、辞書、関数、エラーの読み方、クラス、ファイルまで。",
+  "description": "全12レッスンと総合演習。読みやすさで人気のプログラミング言語。計算、文字列、条件、リスト、辞書、関数、エラーの読み方、クラス、ファイル、内包表記、並べ替え、標準ライブラリまで。",
   "order": 9,
   "practice": "python",
-  "languages": ["python", "py"]
+  "languages": ["python", "py"],
+  "renamed": { "08-final": "13-final", "10-final": "13-final" }
 }

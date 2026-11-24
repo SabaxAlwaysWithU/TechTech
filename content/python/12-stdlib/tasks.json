@@ -1,0 +1,133 @@
+[
+  {
+    "id": "loads",
+    "title": "API のデータを合計する",
+    "text": "<p>関数 <code>total_price(text)</code> を完成させてください。API から届いた JSON の文字列(商品のリスト)を受け取り、値段(<code>price</code>)の合計を返します。</p>",
+    "starter": "import json\n\ntext = '[{\"name\": \"マウス\", \"price\": 2500}, {\"name\": \"モニター\", \"price\": 32000}]'\n\ndef total_price(text):\n    return 0\n\nprint(total_price(text))\n",
+    "answer": "import json\n\ntext = '[{\"name\": \"マウス\", \"price\": 2500}, {\"name\": \"モニター\", \"price\": 32000}]'\n\ndef total_price(text):\n    products = json.loads(text)\n    return sum(p[\"price\"] for p in products)\n\nprint(total_price(text))",
+    "hints": [
+      "json.loads(text) で、文字列が辞書のリストになります。",
+      "products = json.loads(text) のあと return sum(p[\"price\"] for p in products)"
+    ],
+    "calls": [
+      {
+        "call": "total_price(text)",
+        "expect": 34500
+      },
+      {
+        "call": "total_price('[{\"name\": \"USBメモリ\", \"price\": 1800}]')",
+        "expect": 1800
+      },
+      {
+        "call": "total_price('[]')",
+        "expect": 0
+      }
+    ]
+  },
+  {
+    "id": "dumps",
+    "title": "注文を JSON にする",
+    "text": "<p>関数 <code>to_json(order)</code> を完成させてください。注文の辞書を JSON の文字列にして返します。日本語は <code>\\u30de</code> のような記号にせず、そのまま出します。</p><pre>to_json({\"product\": \"マウス\", \"quantity\": 2})\n→ '{\"product\": \"マウス\", \"quantity\": 2}'</pre>",
+    "starter": "import json\n\ndef to_json(order):\n    return json.dumps(order)\n\nprint(to_json({\"product\": \"マウス\", \"quantity\": 2}))\n",
+    "answer": "import json\n\ndef to_json(order):\n    return json.dumps(order, ensure_ascii=False)\n\nprint(to_json({\"product\": \"マウス\", \"quantity\": 2}))",
+    "hints": [
+      "実行すると、今は日本語が \\u30de… になっています。dumps に、日本語をそのまま出す指定を足します。",
+      "return json.dumps(order, ensure_ascii=False)"
+    ],
+    "calls": [
+      {
+        "call": "to_json({\"product\": \"マウス\", \"quantity\": 2})",
+        "expect": "{\"product\": \"マウス\", \"quantity\": 2}"
+      },
+      {
+        "call": "to_json({\"gift\": False, \"note\": None})",
+        "expect": "{\"gift\": false, \"note\": null}"
+      }
+    ]
+  },
+  {
+    "id": "counter",
+    "title": "よく出る単語",
+    "text": "<p>関数 <code>top_words(text, n)</code> を完成させてください。空白で区切られた文章を受け取り、出てきた回数の多い順に上位 <code>n</code> 個の <code>(単語, 回数)</code> の組をリストで返します。<code>Counter</code> を使いましょう。</p><pre>top_words(\"りんご みかん りんご ぶどう りんご みかん\", 2)\n→ [(\"りんご\", 3), (\"みかん\", 2)]</pre>",
+    "starter": "from collections import Counter\n\ndef top_words(text, n):\n    words = text.split()\n    return []\n\nprint(top_words(\"りんご みかん りんご ぶどう りんご みかん\", 2))\n",
+    "answer": "from collections import Counter\n\ndef top_words(text, n):\n    words = text.split()\n    return Counter(words).most_common(n)\n\nprint(top_words(\"りんご みかん りんご ぶどう りんご みかん\", 2))",
+    "hints": [
+      "Counter(words) で単語ごとの回数が数えられます。多い順の上位を取り出すメソッドがあります。",
+      "return Counter(words).most_common(n)"
+    ],
+    "calls": [
+      {
+        "call": "top_words(\"りんご みかん りんご ぶどう りんご みかん\", 2)",
+        "expect": [
+          [
+            "りんご",
+            3
+          ],
+          [
+            "みかん",
+            2
+          ]
+        ]
+      },
+      {
+        "call": "top_words(\"a b c a\", 1)",
+        "expect": [
+          [
+            "a",
+            2
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "group",
+    "title": "クラスごとに分ける",
+    "text": "<p>関数 <code>group_by_class(students)</code> を完成させてください。<code>(名前, クラス)</code> の組のリストを受け取り、「クラス → 名前のリスト」の辞書を返します。名前は元の順番のままです。</p><pre>group_by_class(students)\n→ {\"B\": [\"山田\", \"伊藤\"], \"A\": [\"佐藤\", \"鈴木\", \"田中\"]}</pre>",
+    "starter": "from collections import defaultdict\n\nstudents = [(\"山田\", \"B\"), (\"佐藤\", \"A\"), (\"鈴木\", \"A\"), (\"伊藤\", \"B\"), (\"田中\", \"A\")]\n\ndef group_by_class(students):\n    groups = {}\n    for name, cls in students:\n        groups[cls].append(name)\n    return groups\n\nprint(group_by_class(students))\n",
+    "answer": "from collections import defaultdict\n\nstudents = [(\"山田\", \"B\"), (\"佐藤\", \"A\"), (\"鈴木\", \"A\"), (\"伊藤\", \"B\"), (\"田中\", \"A\")]\n\ndef group_by_class(students):\n    groups = defaultdict(list)\n    for name, cls in students:\n        groups[cls].append(name)\n    return dict(groups)\n\nprint(group_by_class(students))",
+    "hints": [
+      "今のコードは、まだないクラスを引いたところで KeyError になります。ないキーに空のリストを自動で作る辞書を使います。",
+      "groups = defaultdict(list) にします。返すときは return dict(groups) にすると、ふつうの辞書になります。"
+    ],
+    "calls": [
+      {
+        "call": "group_by_class(students)",
+        "expect": {
+          "B": [
+            "山田",
+            "伊藤"
+          ],
+          "A": [
+            "佐藤",
+            "鈴木",
+            "田中"
+          ]
+        }
+      },
+      {
+        "call": "group_by_class([])",
+        "expect": {}
+      }
+    ]
+  },
+  {
+    "id": "file",
+    "title": "注文ファイルを集計する",
+    "text": "<p>練習用のファイル <code>orders.json</code> に、注文が JSON で入っています(左の「練習用のファイル」で中身を見られます)。商品ごとに数量(<code>quantity</code>)を合計し、多い順に出力してください。</p><pre>マウス 6個\nキーボード 3個\nモニター 1個</pre>",
+    "starter": "import json\nfrom collections import Counter\n\nwith open(\"orders.json\", encoding=\"utf-8\") as f:\n    orders = []\n\nprint(len(orders), \"件\")\n",
+    "answer": "import json\nfrom collections import Counter\n\nwith open(\"orders.json\", encoding=\"utf-8\") as f:\n    orders = json.load(f)\n\ntotals = Counter()\nfor o in orders:\n    totals[o[\"product\"]] += o[\"quantity\"]\n\nfor name, count in totals.most_common():\n    print(f\"{name} {count}個\")",
+    "hints": [
+      "ファイルからは json.load(f) で読みます。Counter() を空で作り、totals[o[\"product\"]] += o[\"quantity\"] で数量を足していけます(ないキーは 0 から)。",
+      "最後に for name, count in totals.most_common(): で多い順に回し、print(f\"{name} {count}個\") です。"
+    ],
+    "files": {
+      "orders.json": "[\n  {\n    \"id\": 1,\n    \"product\": \"マウス\",\n    \"quantity\": 2\n  },\n  {\n    \"id\": 2,\n    \"product\": \"モニター\",\n    \"quantity\": 1\n  },\n  {\n    \"id\": 3,\n    \"product\": \"マウス\",\n    \"quantity\": 1\n  },\n  {\n    \"id\": 4,\n    \"product\": \"キーボード\",\n    \"quantity\": 1\n  },\n  {\n    \"id\": 5,\n    \"product\": \"マウス\",\n    \"quantity\": 3\n  },\n  {\n    \"id\": 6,\n    \"product\": \"キーボード\",\n    \"quantity\": 2\n  }\n]\n"
+    },
+    "expectOutput": [
+      "マウス 6個",
+      "キーボード 3個",
+      "モニター 1個"
+    ]
+  }
+]

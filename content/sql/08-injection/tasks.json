@@ -1,0 +1,188 @@
+[
+  {
+    "id": "normal",
+    "title": "ふつうにログインする",
+    "text": "<p>右は、入力から SQL を組み立てるログイン画面です。名前 <code>tanaka</code>、パスワード <code>hello123</code> でログインしてください。</p><p>入力するたびに、下の「アプリが組み立てた SQL」が変わる様子を見ておきましょう。</p><p class=\"muted\">左の <code>users</code> 表は、仕組みを見るために開いています。攻撃する人には見えない前提です。</p>",
+    "setup": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  password TEXT NOT NULL,\n  role TEXT NOT NULL\n);\nINSERT INTO users (id, name, password, role) VALUES\n  (1, 'admin', 'S3cret!9', '管理者'),\n  (2, 'tanaka', 'hello123', '会員'),\n  (3, 'suzuki', 'sakura88', '会員'),\n  (4, 'sato', 'p@ssw0rd', '会員');\n",
+    "app": {
+      "kind": "login",
+      "title": "会員ログイン",
+      "button": "ログイン",
+      "query": "SELECT id, name, role FROM users WHERE name = '{name}' AND password = '{password}'",
+      "fields": [
+        {
+          "id": "name",
+          "label": "名前"
+        },
+        {
+          "id": "password",
+          "label": "パスワード"
+        }
+      ]
+    },
+    "answer": "名前: tanaka\nパスワード: hello123",
+    "hints": [
+      "名前の欄に tanaka、パスワードの欄に hello123 を入れて「ログイン」を押します。",
+      "組み立てられる SQL は WHERE name = 'tanaka' AND password = 'hello123' になります。"
+    ],
+    "expectApp": {
+      "loginAs": "tanaka"
+    }
+  },
+  {
+    "id": "quote",
+    "title": "引用符を1つ入れる",
+    "text": "<p>名前の欄に <code>'</code>(引用符)を1つ入れて、ログインしてみてください。パスワードは何でもかまいません。</p><p>SQL がどうなるか、エラーの文と、組み立てられた SQL を見比べましょう。</p>",
+    "setup": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  password TEXT NOT NULL,\n  role TEXT NOT NULL\n);\nINSERT INTO users (id, name, password, role) VALUES\n  (1, 'admin', 'S3cret!9', '管理者'),\n  (2, 'tanaka', 'hello123', '会員'),\n  (3, 'suzuki', 'sakura88', '会員'),\n  (4, 'sato', 'p@ssw0rd', '会員');\n",
+    "app": {
+      "kind": "login",
+      "title": "会員ログイン",
+      "button": "ログイン",
+      "query": "SELECT id, name, role FROM users WHERE name = '{name}' AND password = '{password}'",
+      "fields": [
+        {
+          "id": "name",
+          "label": "名前"
+        },
+        {
+          "id": "password",
+          "label": "パスワード"
+        }
+      ]
+    },
+    "answer": "名前: '\nパスワード: x",
+    "hints": [
+      "名前の欄に ' だけを入れます。",
+      "組み立てられた SQL の引用符を数えてみましょう。name = ''' のところで、組み合わせが崩れています。"
+    ],
+    "expectApp": {
+      "error": true,
+      "inputIncludes": {
+        "name": "'"
+      }
+    }
+  },
+  {
+    "id": "comment",
+    "title": "パスワードなしで管理者になる",
+    "text": "<p>管理者の名前は <code>admin</code> だと分かっています。パスワードは知りません。</p><p>名前の欄の入力だけで SQL を書き換えて、admin としてログインしてください。</p>",
+    "setup": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  password TEXT NOT NULL,\n  role TEXT NOT NULL\n);\nINSERT INTO users (id, name, password, role) VALUES\n  (1, 'admin', 'S3cret!9', '管理者'),\n  (2, 'tanaka', 'hello123', '会員'),\n  (3, 'suzuki', 'sakura88', '会員'),\n  (4, 'sato', 'p@ssw0rd', '会員');\n",
+    "app": {
+      "kind": "login",
+      "title": "会員ログイン",
+      "button": "ログイン",
+      "query": "SELECT id, name, role FROM users WHERE name = '{name}' AND password = '{password}'",
+      "fields": [
+        {
+          "id": "name",
+          "label": "名前"
+        },
+        {
+          "id": "password",
+          "label": "パスワード"
+        }
+      ]
+    },
+    "answer": "名前: admin' --\nパスワード: x",
+    "hints": [
+      "admin のあとに ' を付けると、名前の文字列がそこで閉じます。残りの「AND password = …」を無視させる印は何でしたか。",
+      "名前に admin' -- と入れます。-- から先はコメントになります。"
+    ],
+    "expectApp": {
+      "loginAs": "admin",
+      "bypass": true
+    }
+  },
+  {
+    "id": "or",
+    "title": "名前も知らずにログインする",
+    "text": "<p>今度は、名前もパスワードも知らないとします。</p><p>どの行でも条件が正しくなるように SQL を書き換えて、ログインしてください。名前の欄に、実在する利用者の名前は入れません。</p>",
+    "setup": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  password TEXT NOT NULL,\n  role TEXT NOT NULL\n);\nINSERT INTO users (id, name, password, role) VALUES\n  (1, 'admin', 'S3cret!9', '管理者'),\n  (2, 'tanaka', 'hello123', '会員'),\n  (3, 'suzuki', 'sakura88', '会員'),\n  (4, 'sato', 'p@ssw0rd', '会員');\n",
+    "app": {
+      "kind": "login",
+      "title": "会員ログイン",
+      "button": "ログイン",
+      "query": "SELECT id, name, role FROM users WHERE name = '{name}' AND password = '{password}'",
+      "fields": [
+        {
+          "id": "name",
+          "label": "名前"
+        },
+        {
+          "id": "password",
+          "label": "パスワード"
+        }
+      ]
+    },
+    "answer": "名前: ' OR 1=1 --\nパスワード: x",
+    "hints": [
+      "WHERE の条件を「いつも正しい」にすれば、全員の行が返ります。いつも正しい式の例は 1=1 です。",
+      "名前に ' OR 1=1 -- と入れます。最初の ' で名前の文字列を閉じ、OR 1=1 を足して、-- で残りを無視させます。"
+    ],
+    "expectApp": {
+      "success": true,
+      "bypass": true,
+      "unknownName": true
+    }
+  },
+  {
+    "id": "union",
+    "title": "検索画面からパスワードを盗む",
+    "text": "<p>右は商品の検索画面です。商品名の一部を入れると、名前と値段の一覧が出ます。</p><p>この画面の入力だけで、<code>users</code> 表の全員の名前とパスワードを、検索結果に表示させてください。</p>",
+    "setup": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  password TEXT NOT NULL,\n  role TEXT NOT NULL\n);\nINSERT INTO users (id, name, password, role) VALUES\n  (1, 'admin', 'S3cret!9', '管理者'),\n  (2, 'tanaka', 'hello123', '会員'),\n  (3, 'suzuki', 'sakura88', '会員'),\n  (4, 'sato', 'p@ssw0rd', '会員');\n",
+    "app": {
+      "kind": "search",
+      "title": "商品検索",
+      "button": "検索",
+      "query": "SELECT name, price FROM products WHERE name LIKE '%{q}%'",
+      "fields": [
+        {
+          "id": "q",
+          "label": "商品名"
+        }
+      ]
+    },
+    "answer": "商品名: ' UNION SELECT name, password FROM users --",
+    "hints": [
+      "検索の SQL は2列(name, price)を返します。UNION でうしろに SELECT をつなげれば、別の表の2列を足せます。",
+      "商品名に ' UNION SELECT name, password FROM users -- と入れます。"
+    ],
+    "expectApp": {
+      "leaks": "SELECT password FROM users"
+    }
+  },
+  {
+    "id": "safe",
+    "title": "プレースホルダで防ぐ",
+    "text": "<p>右のログイン画面は、プレースホルダ(<code>?</code>)を使う安全な作りに直してあります。</p><p>課題3と同じように、名前に <code>admin' --</code> を入れてログインを試し、今度はログインできないことを確かめてください。組み立てられた SQL と、値の渡し方の違いも見ておきましょう。</p>",
+    "setup": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  password TEXT NOT NULL,\n  role TEXT NOT NULL\n);\nINSERT INTO users (id, name, password, role) VALUES\n  (1, 'admin', 'S3cret!9', '管理者'),\n  (2, 'tanaka', 'hello123', '会員'),\n  (3, 'suzuki', 'sakura88', '会員'),\n  (4, 'sato', 'p@ssw0rd', '会員');\n",
+    "app": {
+      "kind": "login",
+      "title": "会員ログイン",
+      "button": "ログイン",
+      "query": "SELECT id, name, role FROM users WHERE name = '{name}' AND password = '{password}'",
+      "fields": [
+        {
+          "id": "name",
+          "label": "名前"
+        },
+        {
+          "id": "password",
+          "label": "パスワード"
+        }
+      ],
+      "safe": true
+    },
+    "answer": "名前: admin' --\nパスワード: x",
+    "hints": [
+      "名前に admin' -- 、パスワードに何か入れて「ログイン」を押します。",
+      "安全な作りでは、admin' -- は「そういう名前の人」を探すだけなので、誰も見つからずにログインに失敗します。"
+    ],
+    "expectApp": {
+      "fail": true,
+      "inputIncludes": {
+        "name": "'"
+      }
+    }
+  }
+]

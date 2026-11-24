@@ -16,7 +16,7 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 
 ## 今の状態
 
-9分野・65レッスン(SQL 7、HTML/CSS 7、JavaScript 9、OS 6、Linux 6、ネットワーク 9、Git 6、Webアプリの道具 6、Python 9)と、各分野の最後に総合演習(計9つ、課題41個)。
+9分野・73レッスン(SQL 8、HTML/CSS 7、JavaScript 11、OS 6、Linux 6、ネットワーク 9、Git 6、Webアプリの道具 8、Python 12)と、各分野の最後に総合演習(計9つ、課題41個)。
 
 - 2026-11-22 PR #1(ネットワーク図の位置ずれ修正、PR でのビルドチェック)をマージ済み
 - 2026-11-23 `deploy.yml` の Node.js を 22 から 26(LTS、2029年4月までサポート)に上げた
@@ -29,9 +29,15 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 - 2026-11-24 公開に使う GitHub Actions を最新版に上げた(checkout v7、setup-node v7、upload-pages-artifact v5、deploy-pages v5)。Node.js 20 の終了への対応
 - 2026-11-24 JavaScript に 09 画面を書き換える(DOM)を追加。練習場に「画面」の欄(見本のページ SAMPLE_PAGE)ができ、課題は `"dom": true` と `actions`(click / fill)と `checks`(HTML と同じ)で書く。総合演習は 10-final に移した(js/09-final の進捗は消える)
 - 2026-11-24 Python に 08 クラス、09 ファイルとモジュールを追加。練習場で open が使える(練習用のファイル memo.txt / scores.csv と、課題の `files`)。総合演習は 10-final に移した
+- 2026-11-24 総合演習の番号を動かしても進捗が消えないようにした(`field.json` の `renamed` に古いフォルダ名 → 新しい名前。`progress.ts` が読み込み時に引き継ぐ)。レッスンを総合演習の前に足すときは、これを使う
+- 2026-11-24 Python に 10 内包表記、11 並べ替え(sorted の key、lambda)、12 標準ライブラリ(json、collections)を追加。総合演習は 13-final(前の 08-final / 10-final の進捗も引き継ぐ)
+- 2026-11-24 JavaScript に 10 データを保存する(localStorage)、11 フォームを受け取るを追加。練習場の localStorage は練習用の保存場所で、課題は `storage` / `expectStorage` で書く。画面の課題は `page` で自分の HTML を使える。記事の「練習場で試す」から開くと、判定しない「記事の例を試す」状態になる。総合演習は 12-final
+- 2026-11-24 Webアプリの道具に 07 コードを書かない選択肢、08 サーバーの裏側を追加。レッスンのフォルダに catalog.json を置くと、そのレッスンだけ選択肢を差し替えられる。総合演習は 09-final
+- 2026-11-24 SQL に 08 SQL インジェクションを追加。課題の `app` でログイン・検索の画面を出し、入力から組み立てた SQL を見せる(`safe` でプレースホルダ)。課題だけの表は `setup`。総合演習は 09-final
 
 ## 次にやること
 
+- [ ] 2026-11-24 にサブPCで足した練習場(Python 10〜12、JS 10・11 の保存データ欄とフォーム、Webアプリの道具 07・08、SQL 08 のログイン画面)を、メインPCの手元のビルドで目で見て確かめる。サブPCはビルドできず、Actions の browser-check(判定とスマホ幅のはみ出し)でしか見ていない
 - [ ] 分野ごとの画像の残り4枚(network、git、webdev、python)。ユーザーが Gemini でピクトグラムを作る(#555555 の単色、白背景、文字・ロゴなし)
   - Python 分野(python)の画像もまだ。Python のロゴ(2匹のヘビ)は使わない
   - 済み: sql(データベース)、js(`{ }`)、os(CPU チップ)、linux(ターミナル画面)、html(ブラウザの窓とレイアウトの箱)。2026-11-23
@@ -41,5 +47,5 @@ Claude Code がこのリポジトリで作業するときに最初に読むメ�
 
 ## いずれやるかもしれないこと
 
-- Webアプリの道具に「サーバーの裏側」「コードを書かない選択肢」
-- Python の続き: 内包表記、辞書やリストの並べ替え(sorted の key、lambda)、標準ライブラリ(collections、json)。JavaScript の続き: localStorage、フォームの送信、画面の課題に自分の HTML を使う(今は SAMPLE_PAGE だけ)
+- パスワードのハッシュ化(SQL インジェクションの続き)、XSS の体験(JavaScript の innerHTML の続き)、CSRF など Web のセキュリティをまとめた分野
+

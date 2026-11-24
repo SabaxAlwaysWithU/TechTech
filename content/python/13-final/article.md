@@ -23,7 +23,7 @@ description: 文字列、リスト、辞書、関数、例外を組み合わせ�
 | 2 合計点 | 辞書の `values()`、`sum` | 辞書 |
 | 3 合格者 | `for`、`if`、`append` | リストと繰り返し、条件分岐 |
 | 4 クラスの平均 | 辞書で集計する | 辞書、関数 |
-| 5 上位3人 | `sorted`、f文字列 | リストと繰り返し、文字列 |
+| 5 上位3人 | `sorted` の `key`、f文字列 | 並べ替え、文字列 |
 
 ## 成績のデータ
 
@@ -57,17 +57,14 @@ def is_passed(student, line):
 
 ## 並べ替えの順番を決める: sorted の key
 
-課題5で1つだけ新しいことを使います。`sorted` は数のリストなら小さい順に並べますが、辞書のリストは「何で比べるか」がわかりません。そこで `key=` に、比べる値を返す関数の名前を渡します。
+課題5では、レッスン「並べ替え」の `sorted` の `key` を使います。`key=` には、比べる値を返す関数を渡すのでした。
 
 ```python
 words = ["バナナ", "も", "りんご"]
-print(sorted(words, key=len))
 print(sorted(words, key=len, reverse=True))
 ```
 
-`key=len` は「`len` の結果(文字数)で比べて」という意味です。`reverse=True` を付けると大きい順になります。関数を呼ぶのではなく渡すので、`len()` ではなく `len` とカッコなしで書きます。
-
-生徒なら、`sorted(students, key=total_score, reverse=True)` で合計点の高い順になります。上位3人は、そのリストの `[0:3]`(または `[:3]`)です。
+課題2で作る `total_score` も関数なので、そのまま渡せます。`sorted(students, key=total_score, reverse=True)` で合計点の高い順になり、上位3人はそのリストの `[:3]` です。`lambda` を使って `key=lambda s: total_score(s)` と書いても同じです。
 
 ## 詰まったら
 

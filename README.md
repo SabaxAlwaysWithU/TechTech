@@ -47,6 +47,8 @@ public/pyodide/              Python 本体(Pyodide)。ビルドのたびに scri
 
 `content/<分野>/<番号>-<名前>/` に `article.md`、`quiz.json`、`tasks.json` を置くだけ。番号順に並ぶ。
 
+総合演習(`<番号>-final`)の前にレッスンを差し込むときは、総合演習のフォルダ名の番号を上げ、`field.json` の `renamed` に `"古いフォルダ名": "新しいフォルダ名"` を足す。利用者の進捗(localStorage のキーはフォルダ名)が新しい名前に引き継がれる([progress.ts](src/lib/progress.ts))。`check-tasks.mjs` が行き先の有無を確かめる。
+
 ### 分野を足す
 
 `content/<分野>/` に `field.json` とレッスンのフォルダを置く。`field.json` の `practice` で練習場の種類を選ぶ:
@@ -68,6 +70,8 @@ SQL(`tasks.json` の `answer` を同じ初期状態で実行して比べる):
 - `ordered: true` のときだけ行の順番を比べる
 - `mutation: true` のときは実行後の全表の中身を比べる(INSERT / UPDATE / DELETE / CREATE TABLE 用)
 - 列名は比べない。列数、行数、各セルの値が一致すれば正解
+- `setup`: 共通のデータ(`schema.sql`)のあとに実行する SQL。その課題だけの表を足す(08 の `users` 表)
+- `app`: SQL 入力欄の代わりに「アプリの画面」(ログインや検索)を出す。入力は `query` の `{欄id}` にそのまま埋め込まれ(`safe: true` ならプレースホルダ `?` で値として渡す)、組み立てた SQL を画面に見せる。判定は `expectApp`(`loginAs`、`bypass`=本当のパスワードを使っていない、`unknownName`=名前の欄に実在の名前がない、`error`、`fail`、`success`、`inputIncludes`、`leaks`=この SELECT の値が全部結果に出た)。仕組みは [sqlapp-core.js](src/lib/sqlapp-core.js) の1か所で、練習場と `check-tasks.mjs` の両方が使う。`answer` は「ラベル: 値」を1行ずつ書く(`browser-check.mjs` がそれを入れて送信する)
 
 HTML(プレビューにできたページを `checks` で調べる。すべて満たせば正解):
 
@@ -89,6 +93,10 @@ JavaScript(利用者のコードを隔離された iframe で実行し、[jsrunn
 - ページを調べる判定と操作は [dom-core.js](src/lib/dom-core.js) の1か所で、HTML の練習場(`htmljudge.ts`)と共通。iframe には文字列で埋め込む
 - 画面の課題は Node では動かせないので、`check-tasks.mjs` は形だけ確かめ、正解になるかは `browser-check.mjs` が確かめる
 - 実行が終わったあとに出た `console.log` やエラー(画面のボタンを自分で押したときなど)も、出力に足していく
+- 画面の課題に `page`(HTML)を書くと、見本のページの代わりにそれを使う(11 フォームの注文フォーム)。記事の「練習場で試す」から開いたときも、レッスンの課題に `page` があればそれを画面に出す
+- フォーム: iframe は `allow-forms` 付き(ないと submit イベントが起きない)。`preventDefault` を忘れた送信は、練習場が止めてエラーとして知らせる(本物ならページが読み込み直される)
+- `localStorage` は練習用の保存場所([jsrun-core.js](src/lib/jsrun-core.js) の `fakeStorage`。iframe が別オリジンのため本物は使えない)。中身は練習場の「ブラウザに保存されているデータ」の欄に出る。課題では実行のたびに `storage`(最初の中身)から始め、`expectStorage`(キー → 値、`null` は「ない」)で判定する。フリーモードと記事の例では、実行をまたいで残る
+- 記事の「練習場で試す」(`?code=` があって `?task=` がない)から開いたときは、課題を選ばない「記事の例を試す」状態になり、判定しない
 
 Python(Web Worker の中の Pyodide で実行し、[pyrunner.ts](src/lib/pyrunner.ts) で判定):
 
@@ -114,6 +122,7 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 - `why`: 層id → 考え方(正解でも不正解でも表示)
 - `rejects`: 層id → 選択肢id → その選択肢が合わない理由(省略時は汎用メッセージ)
 - `check-tasks.mjs` が id の存在と全層の正解の有無を検証する
+- レッスンのフォルダに `catalog.json` を置くと、そのレッスンだけ分野の選択肢の代わりにそれを使う(07 の「作り方 / 公開と運用」、08 の「入口 / 証明書 / 動かし続ける / CDN」)
 
 ### ブラウザでの確認([browser-check.mjs](scripts/browser-check.mjs))
 
@@ -156,6 +165,10 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 14. Python分野 — 練習場(Pyodide を Web Worker で実行、出力・戻り値の判定、エラーの行と日本語の補足、Tab と Enter の字下げの手助け)と7レッスン(Python を動かす、文字列、条件分岐、リストと繰り返し、辞書、関数、エラーと例外)+ 総合演習「成績表を作る」(課題5)。課題は計32(2026-11-23)
 15. JavaScript 09 画面を書き換える(DOM)— JavaScript の練習場に「画面」の欄を足し、querySelector、textContent、createElement / append、addEventListener、入力欄の value、fetch したデータを並べる、innerHTML と XSS。課題5。総合演習は 10-final に移した(2026-11-24)
 16. Python 08 クラス、09 ファイルとモジュール — Python の練習場でファイルを読み書きできるようにした(練習用のファイル、課題の files)。総合演習は 10-final に移した(2026-11-24)
+17. Python 10 内包表記(リスト・辞書の内包表記、enumerate、zip)、11 並べ替え(sorted の key、lambda、タプルで2つの条件、max / min の key)、12 標準ライブラリ(json、Counter、defaultdict)。課題15。総合演習は 13-final に移し、`field.json` の `renamed` で前の 08-final / 10-final の進捗を引き継ぐ(2026-11-24)
+18. JavaScript 10 データを保存する(localStorage、文字列だけ、JSON で配列を保存)、11 フォームを受け取る(submit と preventDefault、value、FormData、入力の確認、fetch で送る、二重送信)。練習場に localStorage の欄、課題ごとの画面(page)、フォームの送信を追加。総合演習は 12-final に移した(前の 09-final / 10-final の進捗を引き継ぐ)(2026-11-24)
+19. Webアプリの道具 07 コードを書かない選択肢(ノーコード、CMS、ネットショップ作成、フォーム、ノーコードのアプリ。課題6)、08 サーバーの裏側(Web サーバー、証明書、systemd / Docker、CDN、PaaS が肩代わりするもの。課題5)。どちらもレッスン専用の catalog.json を使う。総合演習は 09-final に移した(2026-11-24)
+20. SQL 08 SQL インジェクション — ログイン画面と検索画面を練習場に出し、`'` でエラー、`admin' --` で管理者に、`' OR 1=1 --` で名前も知らずに、`UNION` でパスワードを盗む、プレースホルダの画面では防がれる、を体験する(課題6)。他人のサイトで試すのは犯罪であることも明記。総合演習は 09-final に移した(2026-11-24)
 
 ## 未決事項
 

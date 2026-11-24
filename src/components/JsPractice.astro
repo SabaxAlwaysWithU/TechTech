@@ -67,6 +67,12 @@ for (let i = 1; i <= 3; i++) {
       <div id="screen"></div>
       <p class="muted small">実行したあとは、画面のボタンや入力欄を自分で操作できます。「実行」を押すたびに最初の状態からやり直します。</p>
     </section>
+    <section class="storage" id="storage-section" hidden>
+      <h2>ブラウザに保存されているデータ(localStorage)</h2>
+      <div id="storage-view"></div>
+      <p class="muted small" id="storage-note"></p>
+      <button type="button" class="btn secondary small-btn" id="storage-reset">保存データを最初に戻す</button>
+    </section>
     <section class="output">
       <h2>出力</h2>
       <pre id="output" class="console"><span class="muted">まだ実行していません。</span></pre>
@@ -104,11 +110,53 @@ for (let i = 1; i <= 3; i++) {
     const t = tasks[taskIndex];
     return t ? !!t.dom : true;
   }
+  // 記事の「練習場で試す」から来たとき(?code= があって ?task= がない)は、課題を選ばずに開く(taskIndex = -1)。
+  // このあいだはフリーモードと同じ動き(判定なし、保存は実行をまたいで残る)で、画面はこのレッスンのページを使う
+  function currentPage(): string {
+    if (taskIndex < 0) return tasks.find((t) => t.page)?.page ?? SAMPLE_PAGE;
+    return tasks[taskIndex]?.page ?? SAMPLE_PAGE;
+  }
   function updateScreen() {
     const on = usesScreen();
     screenSection.hidden = !on;
-    if (on) showPage(screen, SAMPLE_PAGE); else screen.replaceChildren();
+    if (on) showPage(screen, currentPage()); else screen.replaceChildren();
   }
+
+  // ---- 練習用の localStorage ----
+  // 課題では、実行のたびに課題の最初の中身(task.storage)から始める(判定がいつも同じになるように)。
+  // フリーモードでは、実行をまたいで残る(本物と同じく、もう一度実行すると前に保存したものが読める)。
+  let storage: Record<string, string> = {};
+  function initialStorage(): Record<string, string> {
+    return { ...(tasks[taskIndex]?.storage ?? {}) };
+  }
+  function usesStorage(): boolean {
+    const t = tasks[taskIndex];
+    return t ? !!(t.storage || t.expectStorage) : Object.keys(storage).length > 0;
+  }
+  function renderStorage() {
+    const section = $('storage-section');
+    section.hidden = !usesStorage();
+    const view = $('storage-view');
+    const keys = Object.keys(storage);
+    if (!keys.length) { view.innerHTML = '<p class="muted small">(何も保存されていません)</p>'; }
+    else {
+      const table = document.createElement('table');
+      table.className = 'kv';
+      table.innerHTML = '<thead><tr><th>キー</th><th>値(文字列)</th></tr></thead><tbody></tbody>';
+      for (const k of keys) {
+        const tr = document.createElement('tr');
+        const a = document.createElement('td'); a.textContent = k;
+        const b = document.createElement('td'); b.textContent = storage[k];
+        tr.append(a, b);
+        table.tBodies[0].append(tr);
+      }
+      view.replaceChildren(table);
+    }
+    $('storage-note').textContent = tasks[taskIndex]
+      ? '課題では、実行のたびにこの課題の最初の中身から始めます。'
+      : 'フリーモードでは、実行をまたいで残ります。もう一度「実行」すると、前に保存したものが読めます。';
+  }
+  document.getElementById('storage-reset')!.addEventListener('click', () => { storage = initialStorage(); renderStorage(); });
   // 実行が終わったあとに出た console.log(画面のボタンを自分で押したときなど)を出力に足す
   function appendLine(line: string) {
     output.querySelector(':scope > .muted')?.remove();
@@ -146,6 +194,8 @@ for (let i = 1; i <= 3; i++) {
     if (prog.tasks?.[t.id]) { verdict.hidden = false; verdict.classList.add('correct'); verdict.textContent = 'クリア済み。別の書き方も試してみましょう。'; }
     input.value = t.starter ?? '';
     updateScreen();
+    storage = initialStorage();
+    renderStorage();
     output.innerHTML = '<span class="muted">まだ実行していません。</span>';
   }
 
@@ -173,9 +223,12 @@ for (let i = 1; i <= 3; i++) {
     const t = currentTask();
     const onScreen = usesScreen();
     const calls = t?.calls?.map((c) => c.call) ?? [];
+    const store = { initial: t ? initialStorage() : storage, onChange: (s: Record<string, string>) => { storage = s; renderStorage(); } };
     const out = onScreen
-      ? await runJs(input.value, calls, 5000, { container: screen, page: SAMPLE_PAGE, actions: t?.actions, checks: t?.checks, onLateLog: appendLine })
-      : await runJs(input.value, calls);
+      ? await runJs(input.value, calls, 5000, { container: screen, page: currentPage(), actions: t?.actions, checks: t?.checks, onLateLog: appendLine }, store)
+      : await runJs(input.value, calls, 3000, undefined, store);
+    if (out.storage) storage = out.storage;
+    renderStorage();
     output.innerHTML = '';
     if (out.logs.length === 0 && out.ok) {
       output.innerHTML = onScreen
@@ -197,7 +250,7 @@ for (let i = 1; i <= 3; i++) {
     }
     status.textContent = `実行: ${new Date().toLocaleTimeString('ja-JP')}`;
     if (t) {
-      const j = judgeJs(out, t.expectOutput, t.calls, t.dom ? t.checks : undefined);
+      const j = judgeJs(out, t.expectOutput, t.calls, t.dom ? t.checks : undefined, t.expectStorage);
       const verdict = $('verdict');
       verdict.hidden = false;
       verdict.className = 'verdict ' + (j.correct ? 'correct' : 'wrong');
@@ -237,7 +290,15 @@ for (let i = 1; i <= 3; i++) {
   const preset = params.get('code');
   const presetTask = Number(params.get('task'));
   if (tasks.length && presetTask >= 1 && presetTask <= tasks.length) taskIndex = presetTask - 1;
-  if (tasks.length) renderTask(); else updateScreen();
+  else if (tasks.length && preset) taskIndex = -1;
+  if (taskIndex >= 0 && tasks.length) renderTask(); else updateScreen();
+  if (taskIndex < 0) {
+    // 記事の例を試す: 課題の説明の代わりに案内を出す
+    $('task-title').textContent = '記事の例を試す';
+    $('task-text').innerHTML = '<p>記事のコードが入っています。自由に書き換えて「実行」してみましょう。判定はしません。</p><p>上の「課題」を押すと、課題に切り替わります。</p>';
+    $('hint-btn').hidden = true;
+    for (const tab of document.querySelectorAll<HTMLButtonElement>('#task-tabs .tab')) tab.removeAttribute('aria-current');
+  }
   if (preset) { input.value = preset; if (!tasks.length) run(); }
 </script>
 
@@ -285,7 +346,7 @@ for (let i = 1; i <= 3; i++) {
   .actions { display: flex; gap: 0.6rem; align-items: center; margin-top: 0.6rem; }
   .actions .muted { font-size: 0.85rem; }
   .small { font-size: 0.8rem; margin: 0.4rem 0 0; }
-  #screen :global(.screen-frame) { display: block; width: 100%; height: 15rem; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
+  #screen :global(.screen-frame) { display: block; width: 100%; height: 17rem; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
   .console {
     font-family: var(--mono); font-size: 0.9rem; line-height: 1.6; margin: 0;
     padding: 0.8rem 1rem; min-height: 6rem; border: 1px solid var(--line); border-radius: var(--radius);
@@ -293,5 +354,11 @@ for (let i = 1; i <= 3; i++) {
   }
   .console :global(.err) { color: var(--error); margin-top: 0.4rem; }
   .console :global(.err .raw) { color: var(--muted); font-size: 0.85rem; }
+  .storage :global(.kv) { border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; font-family: var(--mono); font-size: 0.85rem; width: 100%; table-layout: fixed; }
+  .storage :global(.kv th), .storage :global(.kv td) { border-bottom: 1px solid var(--line); padding: 0.35rem 0.7rem; text-align: left; overflow-wrap: anywhere; vertical-align: top; }
+  .storage :global(.kv th) { background: var(--surface); font-weight: 600; }
+  .storage :global(.kv th:first-child) { width: 30%; }
+  .storage :global(.kv tr:last-child td) { border-bottom: 0; }
+  .small-btn { font-size: 0.8rem; padding: 0.25rem 0.8rem; margin-top: 0.5rem; }
   .lesson-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); }
 </style>

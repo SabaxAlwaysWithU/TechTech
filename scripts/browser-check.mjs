@@ -18,6 +18,7 @@ import { createServer } from 'node:http';
 import { readFileSync, readdirSync, statSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { join, extname, delimiter } from 'node:path';
 import { tmpdir } from 'node:os';
+import { parseAppAnswer } from '../src/lib/sqlapp-core.js';
 
 const root = join(import.meta.dirname, '..');
 const dist = join(root, 'dist');
@@ -95,9 +96,11 @@ ws.addEventListener('message', (ev) => {
   pending.delete(m.id);
   if (m.error) p.reject(new Error(m.error.message)); else p.resolve(m.result);
 });
+// タブが落ちると返事が来ないまま待ち続けてしまうので、1回の呼び出しは最大45秒で打ち切る
 const cdp = (method, params = {}, sessionId) => new Promise((resolve, reject) => {
   const id = ++seq;
-  pending.set(id, { resolve, reject });
+  const timer = setTimeout(() => { pending.delete(id); reject(new Error(`ブラウザから45秒たっても返事がありません(${method})`)); }, 45000);
+  pending.set(id, { resolve: (v) => { clearTimeout(timer); resolve(v); }, reject: (e) => { clearTimeout(timer); reject(e); } });
   ws.send(JSON.stringify(sessionId ? { id, method, params, sessionId } : { id, method, params }));
 });
 
@@ -200,6 +203,13 @@ async function runTask(tab, job) {
   await tab.goto(job.url);
   switch (practice) {
     case 'sql':
+      if (task.app) {
+        // アプリの画面(ログインや検索)に、answer の「ラベル: 値」を入れて送信する
+        await waitFor(() => tab.eval(`!document.getElementById('app-run').disabled`), 15000, 'データベースの準備');
+        for (const [id, v] of Object.entries(parseAppAnswer(task.app, code))) await tab.eval(setValue('app-' + id, v));
+        await tab.eval(`document.getElementById('app-form').requestSubmit()`);
+        break;
+      }
       await waitFor(() => tab.eval(`!document.getElementById('run').disabled`), 15000, 'データベースの準備');
       await tab.eval(setValue('sql-input', code));
       await tab.eval(`document.getElementById('run').click()`);
@@ -288,11 +298,21 @@ const started = Date.now();
 const failures = [];
 let next = 0, done = 0;
 const tabs = await Promise.all(Array.from({ length: Math.min(workers, selected.length) }, openTab));
-await Promise.all(tabs.map(async (tab) => {
+// 1つの確認は最大2分。固まったり、エラーで確かめられなかったりしたら、タブを作り直して1回だけやり直す
+const limit = (p, ms) => Promise.race([p, new Promise((_, j) => setTimeout(() => j(new Error(`${ms / 1000}秒たっても終わりませんでした`)), ms))]);
+await Promise.all(tabs.map(async (firstTab) => {
+  let tab = firstTab;
   while (next < selected.length) {
     const job = selected[next++];
     let problem;
-    try { problem = await check(tab, job); } catch (e) { problem = `確かめられませんでした: ${e.message}`; }
+    for (let attempt = 1; ; attempt++) {
+      try { problem = await limit(check(tab, job), 120000); break; } catch (e) {
+        try { await limit(tab.close(), 10000); } catch {}
+        tab = await openTab();
+        if (attempt >= 2) { problem = `確かめられませんでした: ${e.message}`; break; }
+        console.log(`  … ${job.name}: ${e.message}。タブを作り直して、もう一度試します`);
+      }
+    }
     done++;
     if (problem) { failures.push({ job, problem }); console.log(`✗ ${job.name}\n    ${problem}`); }
     if (done % 50 === 0) console.log(`  … ${done}/${selected.length}`);

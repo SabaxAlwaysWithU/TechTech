@@ -1,7 +1,12 @@
 {
   "title": "SQL(データベース)",
-  "description": "全7レッスンと総合演習。表からデータを取り出し、集計し、つなぎ、変更する。",
+  "description": "全8レッスンと総合演習。表からデータを取り出し、集計し、つなぎ、変更する。SQL インジェクションの攻撃と防ぎ方も体験する。",
   "order": 1,
   "practice": "sql",
-  "languages": ["sql"]
+  "languages": [
+    "sql"
+  ],
+  "renamed": {
+    "08-final": "09-final"
+  }
 }

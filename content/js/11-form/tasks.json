@@ -1,0 +1,165 @@
+[
+  {
+    "id": "prevent",
+    "title": "送信を受け取る",
+    "text": "<p>「注文する」を押したら、<code>#result</code> に「<code>注文を受け付けました</code>」と表示してください。</p><p>今のコードは、表示はしていますが、ページが読み込み直されてしまいます(練習場ではエラーで知らせます)。</p>",
+    "dom": true,
+    "page": "<style>#error{color:#b42318}#result{color:#1f7a5c}</style>\n<form id=\"order\">\n  <p><label>お名前 <input id=\"name\" name=\"name\"></label></p>\n  <p><label>商品 <select id=\"product\" name=\"productId\"><option value=\"4\">マウス(2,500円)</option><option value=\"5\">キーボード(6,800円)</option><option value=\"9\">USBメモリ(1,800円)</option></select></label></p>\n  <p><label>数量 <input id=\"quantity\" name=\"quantity\" type=\"number\" value=\"1\"></label></p>\n  <p><button id=\"submit\">注文する</button></p>\n</form>\n<p id=\"error\"></p>\n<p id=\"result\"></p>",
+    "starter": "const form = document.querySelector(\"#order\");\nconst result = document.querySelector(\"#result\");\nconst error = document.querySelector(\"#error\");\n\nform.addEventListener(\"submit\", (e) => {\n  result.textContent = \"注文を受け付けました\";\n});\n",
+    "answer": "const form = document.querySelector(\"#order\");\nconst result = document.querySelector(\"#result\");\nconst error = document.querySelector(\"#error\");\n\nform.addEventListener(\"submit\", (e) => {\n  e.preventDefault();\n  result.textContent = \"注文を受け付けました\";\n});",
+    "hints": [
+      "フォームのいつもの動き(送信してページを読み込み直す)を止める命令があります。",
+      "submit の処理の最初の行に e.preventDefault(); を書きます。"
+    ],
+    "actions": [
+      {
+        "click": "#submit"
+      }
+    ],
+    "checks": [
+      {
+        "selector": "#result",
+        "text": "注文を受け付けました",
+        "message": "「注文する」を押したあと、#result が「注文を受け付けました」になっていません。"
+      }
+    ]
+  },
+  {
+    "id": "values",
+    "title": "入力された値を使う",
+    "text": "<p>「注文する」を押したら、お名前(<code>#name</code>)と数量(<code>#quantity</code>)を読んで、<code>#result</code> に「<code>山田さん、数量 3 個で承りました</code>」の形で表示してください。</p><p>判定では、お名前に「山田」、数量に「3」を入れて送信します。</p>",
+    "dom": true,
+    "page": "<style>#error{color:#b42318}#result{color:#1f7a5c}</style>\n<form id=\"order\">\n  <p><label>お名前 <input id=\"name\" name=\"name\"></label></p>\n  <p><label>商品 <select id=\"product\" name=\"productId\"><option value=\"4\">マウス(2,500円)</option><option value=\"5\">キーボード(6,800円)</option><option value=\"9\">USBメモリ(1,800円)</option></select></label></p>\n  <p><label>数量 <input id=\"quantity\" name=\"quantity\" type=\"number\" value=\"1\"></label></p>\n  <p><button id=\"submit\">注文する</button></p>\n</form>\n<p id=\"error\"></p>\n<p id=\"result\"></p>",
+    "starter": "const form = document.querySelector(\"#order\");\nconst result = document.querySelector(\"#result\");\nconst error = document.querySelector(\"#error\");\n\nform.addEventListener(\"submit\", (e) => {\n  e.preventDefault();\n  // お名前と数量を読んで、result に表示する\n});\n",
+    "answer": "const form = document.querySelector(\"#order\");\nconst result = document.querySelector(\"#result\");\nconst error = document.querySelector(\"#error\");\n\nform.addEventListener(\"submit\", (e) => {\n  e.preventDefault();\n  const name = document.querySelector(\"#name\").value;\n  const quantity = document.querySelector(\"#quantity\").value;\n  result.textContent = `${name}さん、数量 ${quantity} 個で承りました`;\n});",
+    "hints": [
+      "入力欄の値は document.querySelector(\"#name\").value のように .value で読みます。",
+      "result.textContent = `${name}さん、数量 ${quantity} 個で承りました`;"
+    ],
+    "actions": [
+      {
+        "fill": "#name",
+        "value": "山田"
+      },
+      {
+        "fill": "#quantity",
+        "value": "3"
+      },
+      {
+        "click": "#submit"
+      }
+    ],
+    "checks": [
+      {
+        "selector": "#result",
+        "text": "山田さん、数量 3 個で承りました",
+        "message": "#result が「山田さん、数量 3 個で承りました」になっていません。"
+      }
+    ]
+  },
+  {
+    "id": "validate",
+    "title": "空の名前を止める",
+    "text": "<p>お名前が空(空白だけも含む)のまま送信されたら、<code>#error</code> に「<code>お名前を入れてください</code>」と表示し、<code>#result</code> には何も表示しないでください。</p><p>判定では、お名前に空白だけを入れて送信します。</p>",
+    "dom": true,
+    "page": "<style>#error{color:#b42318}#result{color:#1f7a5c}</style>\n<form id=\"order\">\n  <p><label>お名前 <input id=\"name\" name=\"name\"></label></p>\n  <p><label>商品 <select id=\"product\" name=\"productId\"><option value=\"4\">マウス(2,500円)</option><option value=\"5\">キーボード(6,800円)</option><option value=\"9\">USBメモリ(1,800円)</option></select></label></p>\n  <p><label>数量 <input id=\"quantity\" name=\"quantity\" type=\"number\" value=\"1\"></label></p>\n  <p><button id=\"submit\">注文する</button></p>\n</form>\n<p id=\"error\"></p>\n<p id=\"result\"></p>",
+    "starter": "const form = document.querySelector(\"#order\");\nconst result = document.querySelector(\"#result\");\nconst error = document.querySelector(\"#error\");\n\nform.addEventListener(\"submit\", (e) => {\n  e.preventDefault();\n  const name = document.querySelector(\"#name\").value;\n  // ここで名前を確かめる\n  result.textContent = `${name}さん、ありがとうございます`;\n});\n",
+    "answer": "const form = document.querySelector(\"#order\");\nconst result = document.querySelector(\"#result\");\nconst error = document.querySelector(\"#error\");\n\nform.addEventListener(\"submit\", (e) => {\n  e.preventDefault();\n  const name = document.querySelector(\"#name\").value.trim();\n  if (name === \"\") {\n    error.textContent = \"お名前を入れてください\";\n    return;\n  }\n  error.textContent = \"\";\n  result.textContent = `${name}さん、ありがとうございます`;\n});",
+    "hints": [
+      "空白だけの名前も止めたいので、.value.trim() で前後の空白を取ってから、=== \"\" で比べます。",
+      "if (name === \"\") { error.textContent = \"お名前を入れてください\"; return; } を、result に書く前に入れます。"
+    ],
+    "actions": [
+      {
+        "fill": "#name",
+        "value": "   "
+      },
+      {
+        "click": "#submit"
+      }
+    ],
+    "checks": [
+      {
+        "selector": "#error",
+        "text": "お名前を入れてください",
+        "message": "空白だけの名前で送信したとき、#error が「お名前を入れてください」になっていません。"
+      },
+      {
+        "selector": "#result",
+        "text": "",
+        "message": "名前が空なのに、#result に何か表示されています。エラーのときは return で止めてください。"
+      }
+    ]
+  },
+  {
+    "id": "send",
+    "title": "注文を API に送る",
+    "text": "<p>送信されたら、フォームの商品と数量で <code>https://shop.example/api/orders</code> に POST し、成功したら <code>#result</code> に「<code>注文番号 1001(合計 5000円)</code>」の形で表示してください。</p><p>練習用の API は、<code>productId</code> と <code>quantity</code> を<strong>数</strong>で受け取ります。判定では、マウス(商品番号 4)を数量 2 で送信します。</p>",
+    "dom": true,
+    "page": "<style>#error{color:#b42318}#result{color:#1f7a5c}</style>\n<form id=\"order\">\n  <p><label>お名前 <input id=\"name\" name=\"name\"></label></p>\n  <p><label>商品 <select id=\"product\" name=\"productId\"><option value=\"4\">マウス(2,500円)</option><option value=\"5\">キーボード(6,800円)</option><option value=\"9\">USBメモリ(1,800円)</option></select></label></p>\n  <p><label>数量 <input id=\"quantity\" name=\"quantity\" type=\"number\" value=\"1\"></label></p>\n  <p><button id=\"submit\">注文する</button></p>\n</form>\n<p id=\"error\"></p>\n<p id=\"result\"></p>",
+    "starter": "const form = document.querySelector(\"#order\");\nconst result = document.querySelector(\"#result\");\nconst error = document.querySelector(\"#error\");\n\nform.addEventListener(\"submit\", async (e) => {\n  e.preventDefault();\n  const data = Object.fromEntries(new FormData(form));\n  const response = await fetch(\"https://shop.example/api/orders\", {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify({ productId: data.productId, quantity: data.quantity }),\n  });\n  const body = await response.json();\n  result.textContent = `注文番号 ${body.orderId}(合計 ${body.total}円)`;\n});\n",
+    "answer": "const form = document.querySelector(\"#order\");\nconst result = document.querySelector(\"#result\");\nconst error = document.querySelector(\"#error\");\n\nform.addEventListener(\"submit\", async (e) => {\n  e.preventDefault();\n  const data = Object.fromEntries(new FormData(form));\n  const response = await fetch(\"https://shop.example/api/orders\", {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify({ productId: Number(data.productId), quantity: Number(data.quantity) }),\n  });\n  const body = await response.json();\n  result.textContent = `注文番号 ${body.orderId}(合計 ${body.total}円)`;\n});",
+    "hints": [
+      "実行して送信すると「注文番号 undefined」になります。FormData の値は文字列の \"4\" なので、API が商品を見つけられません。",
+      "送る前に数にします。JSON.stringify({ productId: Number(data.productId), quantity: Number(data.quantity) })"
+    ],
+    "actions": [
+      {
+        "fill": "#product",
+        "value": "4"
+      },
+      {
+        "fill": "#quantity",
+        "value": "2"
+      },
+      {
+        "click": "#submit"
+      }
+    ],
+    "checks": [
+      {
+        "selector": "#result",
+        "text": "注文番号 1001(合計 5000円)",
+        "message": "#result が「注文番号 1001(合計 5000円)」になっていません。商品番号と数量を数にして送っているか確認してください。"
+      }
+    ]
+  },
+  {
+    "id": "api-error",
+    "title": "断られた理由を出す",
+    "text": "<p>API に断られたとき(<code>response.ok</code> が <code>false</code> のとき)は、<code>#result</code> には何も書かず、API が返した理由(<code>error</code>)を <code>#error</code> に表示してください。</p><p>判定では、USBメモリ(在庫 60個)を数量 999 で送信します。</p>",
+    "dom": true,
+    "page": "<style>#error{color:#b42318}#result{color:#1f7a5c}</style>\n<form id=\"order\">\n  <p><label>お名前 <input id=\"name\" name=\"name\"></label></p>\n  <p><label>商品 <select id=\"product\" name=\"productId\"><option value=\"4\">マウス(2,500円)</option><option value=\"5\">キーボード(6,800円)</option><option value=\"9\">USBメモリ(1,800円)</option></select></label></p>\n  <p><label>数量 <input id=\"quantity\" name=\"quantity\" type=\"number\" value=\"1\"></label></p>\n  <p><button id=\"submit\">注文する</button></p>\n</form>\n<p id=\"error\"></p>\n<p id=\"result\"></p>",
+    "starter": "const form = document.querySelector(\"#order\");\nconst result = document.querySelector(\"#result\");\nconst error = document.querySelector(\"#error\");\n\nform.addEventListener(\"submit\", async (e) => {\n  e.preventDefault();\n  const data = Object.fromEntries(new FormData(form));\n  const response = await fetch(\"https://shop.example/api/orders\", {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify({ productId: Number(data.productId), quantity: Number(data.quantity) }),\n  });\n  const body = await response.json();\n  result.textContent = `注文番号 ${body.orderId}(合計 ${body.total}円)`;\n});\n",
+    "answer": "const form = document.querySelector(\"#order\");\nconst result = document.querySelector(\"#result\");\nconst error = document.querySelector(\"#error\");\n\nform.addEventListener(\"submit\", async (e) => {\n  e.preventDefault();\n  const data = Object.fromEntries(new FormData(form));\n  const response = await fetch(\"https://shop.example/api/orders\", {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    body: JSON.stringify({ productId: Number(data.productId), quantity: Number(data.quantity) }),\n  });\n  const body = await response.json();\n  if (response.ok) {\n    error.textContent = \"\";\n    result.textContent = `注文番号 ${body.orderId}(合計 ${body.total}円)`;\n  } else {\n    result.textContent = \"\";\n    error.textContent = body.error;\n  }\n});",
+    "hints": [
+      "await response.json() のあとで if (response.ok) { ... } else { ... } に分けます。",
+      "else の中で result.textContent = \"\"; と error.textContent = body.error; を書きます。"
+    ],
+    "actions": [
+      {
+        "fill": "#product",
+        "value": "9"
+      },
+      {
+        "fill": "#quantity",
+        "value": "999"
+      },
+      {
+        "click": "#submit"
+      }
+    ],
+    "checks": [
+      {
+        "selector": "#error",
+        "textIncludes": "在庫が足りません",
+        "message": "数量 999 で送ったとき、#error に API の理由(在庫が足りません…)が出ていません。"
+      },
+      {
+        "selector": "#result",
+        "text": "",
+        "message": "断られたのに、#result に何か表示されています。"
+      }
+    ]
+  }
+]
