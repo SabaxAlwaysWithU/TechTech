@@ -90,6 +90,19 @@ for (const field of readdirSync(root)) {
     console.log(`\n== ${field}/${lesson}`);
     if (!existsSync(articlePath)) { console.log('  !! article.md がありません'); failures++; }
     else {
+      // frontmatter(--- の間)の値が YAML の特別な記号で始まると、ビルドで読めなくなる(* & ! など)。そのときは " " で囲む
+      const fm = readFileSync(articlePath, 'utf8').match(/^---
+([\s\S]*?)
+---/);
+      for (const line of (fm ? fm[1] : '').split('
+')) {
+        const m = line.match(/^(\w+):\s*(.*)$/);
+        const v = m ? m[2] : '';
+        if (v && !/^".*"$/.test(v) && (/^[*&!%@`{[|>'"#?:,-]/.test(v) || v.includes(': ') || v.includes(' #'))) {
+          console.log(`  !! frontmatter の ${m[1]} は " " で囲んでください(YAML の記号として読まれます): ${v}`);
+          failures++;
+        }
+      }
       const body = readFileSync(articlePath, 'utf8').replace(/^---[\s\S]*?---/, '');
       const chars = body.replace(/```[\s\S]*?```/g, '').replace(/<figure[\s\S]*?<\/figure>/g, '').replace(/\s/g, '').length;
       console.log(`  記事: 約${chars}字(コード除く)`);
