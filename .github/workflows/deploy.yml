@@ -23,6 +23,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # 固まったときに何時間も待たないように(ふだんは5分ほどで終わる)
+    timeout-minutes: 20
     env:
       # ユーザーサイト(<user>.github.io リポジトリ)なら BASE は / のまま。
       # プロジェクトサイトなら /<リポジトリ名> になる。ビルドとブラウザでの確認の両方が使う。
