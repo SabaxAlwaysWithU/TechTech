@@ -69,7 +69,7 @@ form.addEventListener("submit", (e) => {
 });
 ```
 
-`{"name":"…","productId":"4","quantity":"1"}` のように、`name` をキーにしたオブジェクトになります。HTML の `name` は、このときのキーになります。値はやはり全部文字列です。
+`name`、`productId`、`quantity` をキーにしたオブジェクトになります。HTML の `name` が、そのままキーになるわけです。値は `"4"` のように、やはり全部文字列です。
 
 ## 送る前に確かめる
 
