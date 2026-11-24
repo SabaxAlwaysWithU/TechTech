@@ -91,11 +91,8 @@ for (const field of readdirSync(root)) {
     if (!existsSync(articlePath)) { console.log('  !! article.md がありません'); failures++; }
     else {
       // frontmatter(--- の間)の値が YAML の特別な記号で始まると、ビルドで読めなくなる(* & ! など)。そのときは " " で囲む
-      const fm = readFileSync(articlePath, 'utf8').match(/^---
-([\s\S]*?)
----/);
-      for (const line of (fm ? fm[1] : '').split('
-')) {
+      const fm = readFileSync(articlePath, 'utf8').match(/^---\n([\s\S]*?)\n---/);
+      for (const line of (fm ? fm[1] : '').split('\n')) {
         const m = line.match(/^(\w+):\s*(.*)$/);
         const v = m ? m[2] : '';
         if (v && !/^".*"$/.test(v) && (/^[*&!%@`{[|>'"#?:,-]/.test(v) || v.includes(': ') || v.includes(' #'))) {
