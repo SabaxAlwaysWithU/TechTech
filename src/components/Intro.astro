@@ -22,6 +22,7 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     } catch {}
   </script>
   <div class="crt">
+    <div class="crt-inner">
     <div class="crt-screen">
       <div class="intro-screen">
         <pre id="intro-logo" class="intro-logo" aria-label="TechTech">{`████████╗███████╗ ██████╗██╗  ██╗████████╗███████╗ ██████╗██╗  ██╗
@@ -40,6 +41,7 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     <div class="crt-glitch" aria-hidden="true"></div>
     <div class="crt-scan" aria-hidden="true"></div>
     <div class="crt-glass" aria-hidden="true"></div>
+    </div>
   </div>
 </div>
 
@@ -175,12 +177,12 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
 
   /* ブラウン管。四隅が丸く、中央がふくらんで見えるように、枠・影・ハイライトで作る */
   .crt {
+    --crt-radius: 8% / 11%;
     position: relative;
     width: min(66rem, 100%);
     height: min(80vh, 46rem);
-    border-radius: 8% / 11%;
+    border-radius: var(--crt-radius);
     background: #0b0e12;
-    overflow: hidden;
     box-shadow:
       0 0 0 clamp(6px, 1vw, 14px) #15181d,
       0 0 0 calc(clamp(6px, 1vw, 14px) + 2px) #23272e,
@@ -195,6 +197,17 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     55% { transform: perspective(1200px) scale(1, 0.004); filter: brightness(4); }
     75% { transform: perspective(1200px) scale(1.02, 0.6); filter: brightness(2); }
     100% { transform: perspective(1200px) rotateX(1.2deg) scale(1); filter: brightness(1); }
+  }
+  /* 画面の板。砂嵐や走査線は動き続けるので、ブラウザが別に描く。.crt を傾けていると、
+     overflow: hidden と border-radius だけでは丸い角で切られず、四角くはみ出す。
+     clip-path で丸い形に切り抜くと、必ず角の内側に収まる(外枠の影は .crt にあるので切られない) */
+  .crt-inner {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    clip-path: inset(0 round var(--crt-radius));
+    isolation: isolate;
   }
   .crt-screen {
     position: absolute;
@@ -228,10 +241,12 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     80% { transform: perspective(900px) translateZ(14px); text-shadow: -1px 0 rgba(255, 60, 110, 0.18), 1px 0 rgba(60, 170, 255, 0.18); }
   }
 
-  /* 砂嵐。SVGのノイズを敷き、細かく位置を動かして常にざわつかせる */
+  /* 砂嵐。SVGのノイズを敷き、模様の位置を細かく動かして常にざわつかせる。
+     画面より大きな層を transform で動かすと、ブラウザが層の端まで描ききれず、画面の中に四角い線が出るので、
+     層は画面と同じ大きさにして background-position を動かす */
   .crt-noise {
     position: absolute;
-    inset: -40%;
+    inset: 0;
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 280px 280px;
@@ -240,12 +255,12 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     animation: noise 0.22s steps(5) infinite;
   }
   @keyframes noise {
-    0% { transform: translate(0, 0); }
-    20% { transform: translate(-4%, 3%); }
-    40% { transform: translate(3%, -5%); }
-    60% { transform: translate(-2%, -2%); }
-    80% { transform: translate(5%, 4%); }
-    100% { transform: translate(1%, -3%); }
+    0% { background-position: 0 0; }
+    20% { background-position: -97px 61px; }
+    40% { background-position: 83px -131px; }
+    60% { background-position: -41px -53px; }
+    80% { background-position: 139px 107px; }
+    100% { background-position: 23px -79px; }
   }
 
   /* 横に走るノイズ帯。数秒に一度、上から下へ一瞬で駆け抜ける */
@@ -357,7 +372,7 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
   @keyframes blink { 50% { opacity: 0; } }
 
   @media (max-width: 600px) {
-    .crt { height: min(88vh, 46rem); border-radius: 7% / 5%; }
+    .crt { height: min(88vh, 46rem); --crt-radius: 7% / 5%; }
   }
   @media (prefers-reduced-motion: reduce) {
     .intro { transition: none; }
