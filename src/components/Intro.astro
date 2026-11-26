@@ -6,8 +6,9 @@ interface Props {
   fieldCount: number;
   lessonCount: number;
   lessons: { id: string; quiz: number; tasks: number }[];
+  practices: string[]; // 練習場の種類(field.json の practice)。起動ログに並べる
 }
-const { fieldCount, lessonCount, lessons } = Astro.props;
+const { fieldCount, lessonCount, lessons, practices } = Astro.props;
 ---
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -45,7 +46,7 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
   </div>
 </div>
 
-<script type="application/json" id="intro-data" set:html={JSON.stringify({ fieldCount, lessonCount, lessons })} />
+<script type="application/json" id="intro-data" set:html={JSON.stringify({ fieldCount, lessonCount, lessons, practices })} />
 
 <script>
   import { getProgress, lessonScore } from '../lib/progress';
@@ -53,7 +54,7 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
   const intro = document.getElementById('intro');
   if (intro) {
     const data = JSON.parse(document.getElementById('intro-data')!.textContent!) as {
-      fieldCount: number; lessonCount: number; lessons: { id: string; quiz: number; tasks: number }[];
+      fieldCount: number; lessonCount: number; lessons: { id: string; quiz: number; tasks: number }[]; practices: string[];
     };
     const log = document.getElementById('intro-log')!;
     const promptEl = document.getElementById('intro-prompt')!;
@@ -76,7 +77,7 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
       'boot v1.0',
       '',
       '[ OK ] カーネルを読み込みました',
-      '[ OK ] 練習場を起動しました: sql, html, js, shell, stack',
+      `[ OK ] 練習場を起動しました: ${data.practices.join(', ')}`,
       `[ OK ] コンテンツ: ${data.fieldCount}分野 ${data.lessonCount}レッスン`,
       started ? `[ OK ] 進捗を読み込みました: 達成率 ${pct}%` : '[ OK ] 進捗: まだ記録はありません。ここから始めましょう',
       '',
@@ -347,7 +348,8 @@ const { fieldCount, lessonCount, lessons } = Astro.props;
     font-size: clamp(0.9rem, 2.8vw, 1.12rem);
     line-height: 1.7;
     white-space: pre-wrap;
-    word-break: break-all;
+    /* 英単語(js など)の途中では折り返さない。収まらない長い単語だけ途中で折る */
+    overflow-wrap: anywhere;
     min-height: 14.5em;
   }
   @media (max-height: 640px) {
