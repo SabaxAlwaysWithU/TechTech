@@ -1,0 +1,103 @@
+[
+  {
+    "id": "register",
+    "title": "ハッシュで保存する",
+    "text": "<p>関数 <code>register(users, name, password)</code> を完成させてください。<code>users</code> の配列に、<code>{ name, hash }</code> の形で利用者を足します。<code>hash</code> には、パスワードを <code>hash()</code> にかけた値を入れます。パスワードそのものは保存しません。</p>",
+    "starter": "// 練習用の小さなハッシュ関数(本物のサイトでは使えない。しくみを見るためのもの)\nfunction hash(text) {\n  let h = 2166136261;\n  for (const ch of text) {\n    h ^= ch.codePointAt(0);\n    h = Math.imul(h, 16777619) >>> 0;\n  }\n  return h.toString(16).padStart(8, \"0\");\n}\n\nfunction register(users, name, password) {\n  users.push({ name: name, password: password });\n}\n\nconst users = [];\nregister(users, \"tanaka\", \"hello123\");\nconsole.log(users);\n",
+    "answer": "// 練習用の小さなハッシュ関数(本物のサイトでは使えない。しくみを見るためのもの)\nfunction hash(text) {\n  let h = 2166136261;\n  for (const ch of text) {\n    h ^= ch.codePointAt(0);\n    h = Math.imul(h, 16777619) >>> 0;\n  }\n  return h.toString(16).padStart(8, \"0\");\n}\n\nfunction register(users, name, password) {\n  users.push({ name: name, hash: hash(password) });\n}\n\nconst users = [];\nregister(users, \"tanaka\", \"hello123\");\nconsole.log(users);",
+    "hints": [
+      "保存する形は { name: name, hash: hash(password) } です。",
+      "users.push({ name: name, hash: hash(password) });"
+    ],
+    "calls": [
+      {
+        "call": "(() => { const u = []; register(u, \"tanaka\", \"hello123\"); return [u.length, u[0].name, u[0].hash === hash(\"hello123\"), \"password\" in u[0]]; })()",
+        "expect": [
+          1,
+          "tanaka",
+          true,
+          false
+        ]
+      },
+      {
+        "call": "(() => { const u = []; register(u, \"tanaka\", \"hello123\"); return JSON.stringify(u).includes(\"hello123\"); })()",
+        "expect": false
+      }
+    ]
+  },
+  {
+    "id": "login",
+    "title": "ハッシュで比べる",
+    "text": "<p>関数 <code>login(users, name, password)</code> を完成させてください。<code>users</code>(<code>{ name, hash }</code> の配列)から名前が同じ人を探し、入力されたパスワードを <code>hash()</code> にかけた値が、保存してある <code>hash</code> と同じなら <code>true</code>、違うか、その名前の人がいなければ <code>false</code> を返します。</p>",
+    "starter": "// 練習用の小さなハッシュ関数(本物のサイトでは使えない。しくみを見るためのもの)\nfunction hash(text) {\n  let h = 2166136261;\n  for (const ch of text) {\n    h ^= ch.codePointAt(0);\n    h = Math.imul(h, 16777619) >>> 0;\n  }\n  return h.toString(16).padStart(8, \"0\");\n}\n\nconst users = [{ name: \"tanaka\", hash: hash(\"hello123\") }];\n\nfunction login(users, name, password) {\n  const user = users.find((u) => u.name === name);\n  return user.hash === password;\n}\n\nconsole.log(login(users, \"tanaka\", \"hello123\"));\n",
+    "answer": "// 練習用の小さなハッシュ関数(本物のサイトでは使えない。しくみを見るためのもの)\nfunction hash(text) {\n  let h = 2166136261;\n  for (const ch of text) {\n    h ^= ch.codePointAt(0);\n    h = Math.imul(h, 16777619) >>> 0;\n  }\n  return h.toString(16).padStart(8, \"0\");\n}\n\nconst users = [{ name: \"tanaka\", hash: hash(\"hello123\") }];\n\nfunction login(users, name, password) {\n  const user = users.find((u) => u.name === name);\n  if (!user) return false;\n  return user.hash === hash(password);\n}\n\nconsole.log(login(users, \"tanaka\", \"hello123\"));",
+    "hints": [
+      "保存してあるのはハッシュなので、入力されたパスワードも hash() にかけてから比べます。",
+      "その名前の人がいないと user は undefined です。if (!user) return false; のあと return user.hash === hash(password);"
+    ],
+    "calls": [
+      {
+        "call": "login(users, \"tanaka\", \"hello123\")",
+        "expect": true
+      },
+      {
+        "call": "login(users, \"tanaka\", \"hello124\")",
+        "expect": false
+      },
+      {
+        "call": "login(users, \"suzuki\", \"hello123\")",
+        "expect": false
+      }
+    ]
+  },
+  {
+    "id": "salt",
+    "title": "ソルトを付ける",
+    "text": "<p>関数 <code>registerWithSalt(users, name, password, salt)</code> を完成させてください。<code>{ name, salt, hash }</code> の形で足します。<code>hash</code> は、<code>salt + password</code> を <code>hash()</code> にかけた値です(本物では、ソルトはサーバーがランダムに作りますが、ここでは引数で渡します)。</p><p>同じパスワードでも、ソルトが違えば違う値になることを確かめましょう。</p>",
+    "starter": "// 練習用の小さなハッシュ関数(本物のサイトでは使えない。しくみを見るためのもの)\nfunction hash(text) {\n  let h = 2166136261;\n  for (const ch of text) {\n    h ^= ch.codePointAt(0);\n    h = Math.imul(h, 16777619) >>> 0;\n  }\n  return h.toString(16).padStart(8, \"0\");\n}\n\nfunction registerWithSalt(users, name, password, salt) {\n  users.push({ name: name, salt: salt, hash: hash(password) });\n}\n\nconst users = [];\nregisterWithSalt(users, \"tanaka\", \"hello123\", \"x7Qp\");\nregisterWithSalt(users, \"suzuki\", \"hello123\", \"Lm2z\");\nconsole.log(users[0].hash, users[1].hash);\n",
+    "answer": "// 練習用の小さなハッシュ関数(本物のサイトでは使えない。しくみを見るためのもの)\nfunction hash(text) {\n  let h = 2166136261;\n  for (const ch of text) {\n    h ^= ch.codePointAt(0);\n    h = Math.imul(h, 16777619) >>> 0;\n  }\n  return h.toString(16).padStart(8, \"0\");\n}\n\nfunction registerWithSalt(users, name, password, salt) {\n  users.push({ name: name, salt: salt, hash: hash(salt + password) });\n}\n\nconst users = [];\nregisterWithSalt(users, \"tanaka\", \"hello123\", \"x7Qp\");\nregisterWithSalt(users, \"suzuki\", \"hello123\", \"Lm2z\");\nconsole.log(users[0].hash, users[1].hash);",
+    "hints": [
+      "今のコードはソルトを保存しているだけで、ハッシュに使っていません。",
+      "hash: hash(salt + password)"
+    ],
+    "calls": [
+      {
+        "call": "(() => { const u = []; registerWithSalt(u, \"a\", \"hello123\", \"x7Qp\"); registerWithSalt(u, \"b\", \"hello123\", \"Lm2z\"); return u[0].hash !== u[1].hash; })()",
+        "expect": true
+      },
+      {
+        "call": "(() => { const u = []; registerWithSalt(u, \"a\", \"pw\", \"s1\"); return u[0].hash === hash(\"s1pw\"); })()",
+        "expect": true
+      },
+      {
+        "call": "(() => { const u = []; registerWithSalt(u, \"a\", \"pw\", \"s1\"); return u[0].salt; })()",
+        "expect": "s1"
+      }
+    ]
+  },
+  {
+    "id": "salt-login",
+    "title": "ソルト付きで比べる",
+    "text": "<p>関数 <code>loginWithSalt(users, name, password)</code> を完成させてください。名前が同じ人の <code>salt</code> を使って <code>hash(salt + password)</code> を計算し、保存してある <code>hash</code> と同じなら <code>true</code> を返します。</p>",
+    "starter": "// 練習用の小さなハッシュ関数(本物のサイトでは使えない。しくみを見るためのもの)\nfunction hash(text) {\n  let h = 2166136261;\n  for (const ch of text) {\n    h ^= ch.codePointAt(0);\n    h = Math.imul(h, 16777619) >>> 0;\n  }\n  return h.toString(16).padStart(8, \"0\");\n}\n\nconst users = [{ name: \"tanaka\", salt: \"x7Qp\", hash: hash(\"x7Qp\" + \"hello123\") }];\n\nfunction loginWithSalt(users, name, password) {\n  const user = users.find((u) => u.name === name);\n  if (!user) return false;\n  return user.hash === hash(password);\n}\n\nconsole.log(loginWithSalt(users, \"tanaka\", \"hello123\"));\n",
+    "answer": "// 練習用の小さなハッシュ関数(本物のサイトでは使えない。しくみを見るためのもの)\nfunction hash(text) {\n  let h = 2166136261;\n  for (const ch of text) {\n    h ^= ch.codePointAt(0);\n    h = Math.imul(h, 16777619) >>> 0;\n  }\n  return h.toString(16).padStart(8, \"0\");\n}\n\nconst users = [{ name: \"tanaka\", salt: \"x7Qp\", hash: hash(\"x7Qp\" + \"hello123\") }];\n\nfunction loginWithSalt(users, name, password) {\n  const user = users.find((u) => u.name === name);\n  if (!user) return false;\n  return user.hash === hash(user.salt + password);\n}\n\nconsole.log(loginWithSalt(users, \"tanaka\", \"hello123\"));",
+    "hints": [
+      "登録のときと同じ計算をしないと、同じ値になりません。その人の salt を前に付けます。",
+      "return user.hash === hash(user.salt + password);"
+    ],
+    "calls": [
+      {
+        "call": "loginWithSalt(users, \"tanaka\", \"hello123\")",
+        "expect": true
+      },
+      {
+        "call": "loginWithSalt(users, \"tanaka\", \"x7Qphello123\")",
+        "expect": false
+      },
+      {
+        "call": "loginWithSalt(users, \"nobody\", \"hello123\")",
+        "expect": false
+      }
+    ]
+  }
+]

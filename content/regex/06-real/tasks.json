@@ -1,0 +1,97 @@
+[
+  {
+    "id": "email",
+    "title": "メールアドレスのだいたいの形",
+    "text": "<p>メールアドレスの「だいたいの形」の全体に一致させてください。@ の前は英数字と <code>. + - _</code>、@ のあとは英数字と <code>-</code>、ドット、そのあとに英数字と <code>. -</code> です。</p>",
+    "starter": "",
+    "answer": "[\\w.+-]+@[\\w-]+\\.[\\w.-]+",
+    "hints": [
+      "@ の前は [\\w.+-]+ です。@ のあとは [\\w-]+ のあとに \\. が必要です。",
+      "[\\w.+-]+@[\\w-]+\\.[\\w.-]+"
+    ],
+    "regex": {
+      "full": true,
+      "match": [
+        "taro@example.com",
+        "taro+shop@example.co.jp",
+        "a.b-c@ex-ample.org"
+      ],
+      "noMatch": [
+        "taro@",
+        "@example.com",
+        "taro example.com",
+        "taro@example"
+      ]
+    }
+  },
+  {
+    "id": "hiragana",
+    "title": "ひらがなだけ",
+    "text": "<p>ひらがなだけでできた文字列の全体に一致させてください。</p>",
+    "starter": "",
+    "answer": "[ぁ-ん]+",
+    "hints": [
+      "ひらがなは [ぁ-ん] の範囲で書けます。",
+      "[ぁ-ん]+"
+    ],
+    "regex": {
+      "full": true,
+      "match": [
+        "さば",
+        "ねこ",
+        "こんにちは"
+      ],
+      "noMatch": [
+        "サバ",
+        "saba",
+        "猫",
+        "ねこ2"
+      ]
+    }
+  },
+  {
+    "id": "log",
+    "title": "エラーか警告の行",
+    "text": "<p>ログの行のうち、<code>ERROR</code> か <code>WARN</code> を含む行に一致させてください(grep で探すときと同じです)。</p>",
+    "starter": "",
+    "answer": "ERROR|WARN",
+    "hints": [
+      "| で「または」です。",
+      "ERROR|WARN"
+    ],
+    "regex": {
+      "match": [
+        "ERROR: disk full",
+        "2026-11-25 WARN slow"
+      ],
+      "noMatch": [
+        "INFO ok",
+        "error in lowercase"
+      ]
+    }
+  },
+  {
+    "id": "ignore-case",
+    "title": "大文字小文字を区別しない",
+    "text": "<p>この課題は、大文字と小文字を区別しない設定(i フラグ)になっています。<code>hello</code> と打つだけで、<code>HELLO</code> にも一致することを確かめてください(全体一致)。</p>",
+    "starter": "",
+    "answer": "hello",
+    "hints": [
+      "i フラグがあると、大文字と小文字を同じ文字として扱います。",
+      "hello"
+    ],
+    "regex": {
+      "full": true,
+      "flags": "i",
+      "match": [
+        "hello",
+        "Hello",
+        "HELLO"
+      ],
+      "noMatch": [
+        "help",
+        "hell"
+      ]
+    }
+  }
+]

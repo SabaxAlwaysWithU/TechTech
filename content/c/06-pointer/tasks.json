@@ -1,0 +1,131 @@
+[
+  {
+    "id": "deref",
+    "title": "ポインタを通して書き換える",
+    "text": "<p>ポインタ <code>p</code> は <code>x</code> を指しています。<code>x</code> に直接代入せず、<code>p</code> を使って <code>x</code> を 25 にしてください。</p><pre>x = 25</pre>",
+    "starter": "#include <stdio.h>\n\nint main() {\n    int x = 10;\n    int *p = &x;\n    // p を使って x を 25 にする\n    printf(\"x = %d\\n\", x);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint main() {\n    int x = 10;\n    int *p = &x;\n    *p = 25;\n    printf(\"x = %d\\n\", x);\n    return 0;\n}\n",
+    "hints": [
+      "p が指している先の箱は *p で表します。",
+      "*p = 25;"
+    ],
+    "expectOutput": [
+      "x = 25"
+    ]
+  },
+  {
+    "id": "swap",
+    "title": "入れ替える関数",
+    "text": "<p>関数 <code>swap(a, b)</code> を完成させてください。2つの <code>int</code> の住所を受け取り、その中身を入れ替えます。</p>",
+    "starter": "#include <stdio.h>\n\nvoid swap(int *a, int *b) {\n    int tmp = *a;\n}\n\nint main() {\n    int x = 1;\n    int y = 2;\n    swap(&x, &y);\n    printf(\"%d %d\\n\", x, y);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nvoid swap(int *a, int *b) {\n    int tmp = *a;\n    *a = *b;\n    *b = tmp;\n}\n\nint main() {\n    int x = 1;\n    int y = 2;\n    swap(&x, &y);\n    printf(\"%d %d\\n\", x, y);\n    return 0;\n}\n",
+    "hints": [
+      "*a の値を tmp に取っておいてから、*a に *b を入れ、*b に tmp を入れます。",
+      "int tmp = *a; *a = *b; *b = tmp;"
+    ],
+    "tests": [
+      {
+        "label": "x=1, y=2",
+        "main": "int main() { int x = 1; int y = 2; swap(&x, &y); printf(\"%d %d\\n\", x, y); return 0; }",
+        "expectOutput": [
+          "2 1"
+        ]
+      },
+      {
+        "label": "x=-7, y=30",
+        "main": "int main() { int x = -7; int y = 30; swap(&x, &y); printf(\"%d %d\\n\", x, y); return 0; }",
+        "expectOutput": [
+          "30 -7"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "minmax",
+    "title": "最小と最大を両方返す",
+    "text": "<p>関数 <code>min_max(a, n, min, max)</code> を完成させてください。配列 <code>a</code> の <code>n</code> 個の中の最小値を <code>*min</code> に、最大値を <code>*max</code> に入れます。<code>n</code> は 1 以上です。</p>",
+    "starter": "#include <stdio.h>\n\nvoid min_max(int a[], int n, int *min, int *max) {\n}\n\nint main() {\n    int a[5] = {4, 9, 1, 7, 3};\n    int lo;\n    int hi;\n    min_max(a, 5, &lo, &hi);\n    printf(\"%d %d\\n\", lo, hi);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nvoid min_max(int a[], int n, int *min, int *max) {\n    *min = a[0];\n    *max = a[0];\n    for (int i = 1; i < n; i++) {\n        if (a[i] < *min) {\n            *min = a[i];\n        }\n        if (a[i] > *max) {\n            *max = a[i];\n        }\n    }\n}\n\nint main() {\n    int a[5] = {4, 9, 1, 7, 3};\n    int lo;\n    int hi;\n    min_max(a, 5, &lo, &hi);\n    printf(\"%d %d\\n\", lo, hi);\n    return 0;\n}\n",
+    "hints": [
+      "*min と *max を、まず a[0] にします。そこから for で1つずつ比べて、小さければ *min、大きければ *max を書き換えます。",
+      "*min = a[0]; *max = a[0]; for (int i = 1; i < n; i++) { if (a[i] < *min) { *min = a[i]; } if (a[i] > *max) { *max = a[i]; } }"
+    ],
+    "tests": [
+      {
+        "label": "{4, 9, 1, 7, 3}",
+        "main": "int main() { int a[5]; a[0] = 4; a[1] = 9; a[2] = 1; a[3] = 7; a[4] = 3; int lo = 0; int hi = 0; min_max(a, 5, &lo, &hi); printf(\"%d %d\\n\", lo, hi); return 0; }",
+        "expectOutput": [
+          "1 9"
+        ]
+      },
+      {
+        "label": "{-2, -5}",
+        "main": "int main() { int a[2]; a[0] = -2; a[1] = -5; int lo = 0; int hi = 0; min_max(a, 2, &lo, &hi); printf(\"%d %d\\n\", lo, hi); return 0; }",
+        "expectOutput": [
+          "-5 -2"
+        ]
+      },
+      {
+        "label": "{6}",
+        "main": "int main() { int a[1]; a[0] = 6; int lo = 0; int hi = 0; min_max(a, 1, &lo, &hi); printf(\"%d %d\\n\", lo, hi); return 0; }",
+        "expectOutput": [
+          "6 6"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "double",
+    "title": "配列を2倍にする",
+    "text": "<p>関数 <code>double_all(p, n)</code> を完成させてください。ポインタ <code>p</code> が指す配列の <code>n</code> 個の値を、すべて2倍に書き換えます。値は返しません。</p>",
+    "starter": "#include <stdio.h>\n\nvoid double_all(int *p, int n) {\n    for (int i = 0; i < n; i++) {\n        int v = p[i] * 2;\n    }\n}\n\nint main() {\n    int a[3] = {1, 5, 10};\n    double_all(a, 3);\n    printf(\"%d %d %d\\n\", a[0], a[1], a[2]);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nvoid double_all(int *p, int n) {\n    for (int i = 0; i < n; i++) {\n        p[i] = p[i] * 2;\n    }\n}\n\nint main() {\n    int a[3] = {1, 5, 10};\n    double_all(a, 3);\n    printf(\"%d %d %d\\n\", a[0], a[1], a[2]);\n    return 0;\n}\n",
+    "hints": [
+      "今のコードは、2倍にした値を v に入れただけで、配列には書き戻していません。",
+      "p[i] = p[i] * 2;(*(p + i) *= 2; と書いても同じです)"
+    ],
+    "tests": [
+      {
+        "label": "{1, 5, 10}",
+        "main": "int main() { int a[3]; a[0] = 1; a[1] = 5; a[2] = 10; double_all(a, 3); printf(\"%d %d %d\\n\", a[0], a[1], a[2]); return 0; }",
+        "expectOutput": [
+          "2 10 20"
+        ]
+      },
+      {
+        "label": "{-4, 0}",
+        "main": "int main() { int a[2]; a[0] = -4; a[1] = 0; double_all(a, 2); printf(\"%d %d\\n\", a[0], a[1]); return 0; }",
+        "expectOutput": [
+          "-8 0"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "null",
+    "title": "NULL を確かめる",
+    "text": "<p>関数 <code>value_or(p, fallback)</code> を完成させてください。<code>p</code> がどこかを指していればその先の値を、<code>NULL</code> なら <code>fallback</code> を返します。</p>",
+    "starter": "#include <stdio.h>\n\nint value_or(int *p, int fallback) {\n    return *p;\n}\n\nint main() {\n    int x = 7;\n    printf(\"%d %d\\n\", value_or(&x, 0), value_or(NULL, -1));\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint value_or(int *p, int fallback) {\n    if (p == NULL) {\n        return fallback;\n    }\n    return *p;\n}\n\nint main() {\n    int x = 7;\n    printf(\"%d %d\\n\", value_or(&x, 0), value_or(NULL, -1));\n    return 0;\n}\n",
+    "hints": [
+      "NULL のポインタの先(*p)を読むと、エラーで止まります。読む前に p == NULL かどうかを確かめます。",
+      "if (p == NULL) { return fallback; } return *p;"
+    ],
+    "tests": [
+      {
+        "label": "value_or(&x, 0)",
+        "main": "int main() { int x = 7; printf(\"%d\\n\", value_or(&x, 0)); return 0; }",
+        "expectOutput": [
+          "7"
+        ]
+      },
+      {
+        "label": "value_or(NULL, -1)",
+        "main": "int main() { printf(\"%d\\n\", value_or(NULL, -1)); return 0; }",
+        "expectOutput": [
+          "-1"
+        ]
+      }
+    ]
+  }
+]

@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "predev": "node scripts/copy-pyodide.mjs",
+    "predev": "node scripts/copy-pyodide.mjs && node scripts/prepare-picoc.mjs",
     "dev": "astro dev",
-    "prebuild": "node scripts/copy-pyodide.mjs",
+    "prebuild": "node scripts/copy-pyodide.mjs && node scripts/prepare-picoc.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "check:tasks": "node scripts/check-tasks.mjs",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "astro": "^7.4.8",
+    "picoc-js": "1.0.12",
     "pyodide": "314.0.7",
     "sql.js": "^1.16.0"
   }

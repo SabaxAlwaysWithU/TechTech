@@ -8,6 +8,39 @@ import { runUserCode } from '../src/lib/jsrun-core.js';
 import { runPython } from '../src/lib/pyrun-core.js';
 import { runApp, judgeApp, parseAppAnswer } from '../src/lib/sqlapp-core.js';
 import { loadPyodide } from 'pyodide';
+import { runCCode, replaceMain } from '../src/lib/crun-core.js';
+import { runBitsAnswer, judgeBits, fromString } from '../src/lib/bits-core.js';
+import { judgeRegex } from '../src/lib/regex-core.js';
+import { preparePicoc, generated as picocPath } from './prepare-picoc.mjs';
+import { pathToFileURL } from 'node:url';
+
+/** 練習場と同じ crun-core.js を、Node の picoc で動かす(初めて使うときに picoc.gen.js を作って読み込む) */
+let picocFactory = null;
+async function runC(code) {
+  if (!picocFactory) {
+    preparePicoc();
+    process.setMaxListeners(0); // picoc は作るたびに process に後片付けの関数を足すので、警告を出さない
+    picocFactory = (await import(pathToFileURL(picocPath).href)).picoc;
+  }
+  return runCCode(picocFactory, code);
+}
+/** C の判定(crunner.ts の judgeC と同じ比べ方)。正解なら null、違えば理由 */
+async function judgeCTask(code, t) {
+  const out = await runC(code);
+  if (!out.ok) return `エラー: ${out.error}${out.line ? `(${out.line}行目)` : ''}`;
+  const same = (got, exp) => JSON.stringify(got.map((s) => s.trimEnd())) === JSON.stringify(exp.map((s) => s.trimEnd()));
+  if (t.expectOutput && !same(out.logs, t.expectOutput)) return `出力が違います
+     期待 ${JSON.stringify(t.expectOutput)}
+     実際 ${JSON.stringify(out.logs)}`;
+  for (const test of t.tests ?? []) {
+    const r = await runC(replaceMain(code, test.main));
+    if (!r.ok) return `確かめ用の main(${test.label})でエラー: ${r.error}`;
+    if (!same(r.logs, test.expectOutput)) return `確かめ用の main(${test.label})の出力が違います
+     期待 ${JSON.stringify(test.expectOutput)}
+     実際 ${JSON.stringify(r.logs)}`;
+  }
+  return null;
+}
 
 /** 練習場と同じ jsrun-core.js の関数を、vm の別環境で動かす(await、setTimeout、練習用の fetch が使える) */
 function runJsInVm(code, calls, storage) {
@@ -57,8 +90,18 @@ for (const field of readdirSync(root)) {
     console.log(`\n== ${field}/${lesson}`);
     if (!existsSync(articlePath)) { console.log('  !! article.md がありません'); failures++; }
     else {
+      // frontmatter(--- の間)の値が YAML の特別な記号で始まると、ビルドで読めなくなる(* & ! など)。そのときは " " で囲む
+      const fm = readFileSync(articlePath, 'utf8').match(/^---\n([\s\S]*?)\n---/);
+      for (const line of (fm ? fm[1] : '').split('\n')) {
+        const m = line.match(/^(\w+):\s*(.*)$/);
+        const v = m ? m[2] : '';
+        if (v && !/^".*"$/.test(v) && (/^[*&!%@`{[|>'"#?:,-]/.test(v) || v.includes(': ') || v.includes(' #'))) {
+          console.log(`  !! frontmatter の ${m[1]} は " " で囲んでください(YAML の記号として読まれます): ${v}`);
+          failures++;
+        }
+      }
       const body = readFileSync(articlePath, 'utf8').replace(/^---[\s\S]*?---/, '');
-      const chars = body.replace(/```[\s\S]*?```/g, '').replace(/\s/g, '').length;
+      const chars = body.replace(/```[\s\S]*?```/g, '').replace(/<figure[\s\S]*?<\/figure>/g, '').replace(/\s/g, '').length;
       console.log(`  記事: 約${chars}字(コード除く)`);
     }
     if (existsSync(quizPath)) {
@@ -110,6 +153,49 @@ for (const field of readdirSync(root)) {
           console.log(`  !! 課題 ${t.id}: ${e.message}`);
           failures++;
         }
+      }
+    }
+    if (existsSync(tasksPath) && practice === 'regex') {
+      // 正規表現: 模範解答のパターンが正解になり、最初のパターン(starter、なければ空)は正解にならないことを確かめる
+      const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
+      for (const t of tasks) {
+        let ok = true;
+        if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); ok = false; }
+        if (!t.regex) { console.log(`  !! 課題 ${t.id}: regex がありません`); failures++; continue; }
+        const a = judgeRegex(t.answer ?? '', t);
+        if (!a.correct) { console.log(`  !! 課題 ${t.id}: 模範解答 /${t.answer}/ で正解になりません: ${a.message} ${a.error ?? ''}`); ok = false; }
+        if (judgeRegex(t.starter ?? '', t).correct) { console.log(`  !! 課題 ${t.id}: 最初のパターンのままで正解になってしまいます`); ok = false; }
+        if (ok) console.log(`  課題 ${t.id}: OK /${t.answer}/`); else failures++;
+      }
+    }
+    if (existsSync(tasksPath) && practice === 'bits') {
+      // ビット: 模範解答の手順を実行して bitChecks を満たすか、最初の状態では満たさないかを確かめる
+      const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
+      for (const t of tasks) {
+        let ok = true;
+        if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); ok = false; }
+        if (!Array.isArray(t.bitChecks) || !t.bitChecks.length) { console.log(`  !! 課題 ${t.id}: bitChecks がありません`); failures++; continue; }
+        const r = runBitsAnswer(t.bits ?? {}, t.answer);
+        if (r.error) { console.log(`  !! 課題 ${t.id}: ${r.error}`); ok = false; }
+        else {
+          const j = judgeBits(r.state, t.bits ?? {}, t.bitChecks);
+          if (!j.correct) { console.log(`  !! 課題 ${t.id}: 模範解答で正解になりません: ${j.message}`); ok = false; }
+        }
+        const w = t.bits?.width ?? 8;
+        if (judgeBits({ bits: fromString(t.bits?.start ?? '', w), used: {} }, t.bits ?? {}, t.bitChecks).correct) { console.log(`  !! 課題 ${t.id}: 最初の状態のままで正解になってしまいます`); ok = false; }
+        if (ok) console.log(`  課題 ${t.id}: OK(${w}ビット、条件 ${t.bitChecks.length}件)`); else failures++;
+      }
+    }
+    if (existsSync(tasksPath) && practice === 'c') {
+      // C: 模範解答が正解になり、初期状態(starter)は正解にならないことを、練習場と同じ picoc で確かめる
+      const tasks = JSON.parse(readFileSync(tasksPath, 'utf8'));
+      for (const t of tasks) {
+        if (!t.hints || t.hints.length !== 2) { console.log(`  !! 課題 ${t.id}: ヒントは2つ必要です`); failures++; }
+        if (!t.expectOutput && !t.tests) { console.log(`  !! 課題 ${t.id}: expectOutput か tests が必要です`); failures++; continue; }
+        const bad = await judgeCTask(t.answer ?? '', t);
+        if (bad) { console.log(`  !! 課題 ${t.id}: 模範解答が正解になりません: ${bad}`); failures++; continue; }
+        if (t.starter && !(await judgeCTask(t.starter, t))) { console.log(`  !! 課題 ${t.id}: 初期状態(starter)のままで正解になってしまいます`); failures++; continue; }
+        console.log(`  課題 ${t.id}: OK(出力${t.expectOutput?.length ?? 0}行、確かめ ${t.tests?.length ?? 0}件)`);
       }
     }
     if (existsSync(tasksPath) && practice === 'stack') {

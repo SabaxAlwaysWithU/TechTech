@@ -1,0 +1,27 @@
+[
+  {
+    "question": "typedef struct { int x; int y; } Point; Point a; のあと、x に 5 を入れる書き方はどれですか？",
+    "options": ["a.x = 5;", "a->x = 5;", "Point.x = 5;", "a[x] = 5;"],
+    "explanation": "構造体の変数そのもののメンバーは、. でつなげて読み書きします。-> は構造体へのポインタのときに使います。"
+  },
+  {
+    "question": "Product *p = &item; のとき、p が指す構造体の price を読む書き方はどれですか？",
+    "options": ["p->price", "p.price", "*p.price", "&p.price"],
+    "explanation": "ポインタの先の構造体のメンバーは p->price です。(*p).price と同じ意味です。*p.price は *(p.price) と読まれるのでまちがいです。"
+  },
+  {
+    "question": "Point a; a.x = 1; Point b; b = a; b.x = 9; のあと、a.x はいくつですか？",
+    "options": ["1", "9", "0", "エラーになる"],
+    "explanation": "構造体の = はまるごとコピーです。b は a とは別の箱なので、b.x を変えても a.x は 1 のままです。"
+  },
+  {
+    "question": "関数の中から、呼んだ側の構造体の値を書き換えたいです。どう渡しますか？",
+    "options": [
+      "構造体の住所(&item)を渡し、関数ではポインタで受け取る",
+      "構造体をそのまま渡す",
+      "構造体の名前を文字列で渡す",
+      "グローバル変数にしか書き換えられない"
+    ],
+    "explanation": "構造体をそのまま渡すとコピーになります。住所を渡せば、関数の中の p->price などで呼んだ側の構造体を書き換えられます。"
+  }
+]

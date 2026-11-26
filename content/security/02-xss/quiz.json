@@ -1,0 +1,32 @@
+[
+  {
+    "question": "XSS で、攻撃者の JavaScript が動いてしまうのは誰のブラウザですか？",
+    "options": ["そのページを見た、ほかの利用者のブラウザ", "攻撃者のブラウザだけ", "サーバーの中", "管理者のパソコンだけ"],
+    "explanation": "書き込まれたものがページに入ると、そのページを見たすべての人のブラウザで、そのサイトの JavaScript として動きます。"
+  },
+  {
+    "question": "利用者が書いた文を、安全に画面に入れる書き方はどれですか？",
+    "options": ["li.textContent = text;", "li.innerHTML = text;", "document.write(text);", "li.outerHTML = text;"],
+    "explanation": "textContent は文字として入れるので、< や > はただの記号として表示され、タグにはなりません。"
+  },
+  {
+    "question": "XSS と SQL インジェクションに共通する原因はどれですか？",
+    "options": [
+      "入力を、命令(HTML や SQL)の中にそのまま貼り付けていること",
+      "パスワードが短いこと",
+      "HTTPS を使っていないこと",
+      "サーバーが遅いこと"
+    ],
+    "explanation": "どちらも、入力がデータとしてではなく、命令の一部として読まれてしまうのが原因です。"
+  },
+  {
+    "question": "利用者が書いた URL をリンクにするとき、確かめることはどれですか？",
+    "options": [
+      "https:// か http:// で始まっているか",
+      "URL が短いか",
+      "URL に日本語が入っていないか",
+      "何も確かめなくてよい"
+    ],
+    "explanation": "javascript: で始まる URL は、押すと JavaScript が動きます。許すものを決めて(許可リスト)、それ以外はリンクにしません。"
+  }
+]

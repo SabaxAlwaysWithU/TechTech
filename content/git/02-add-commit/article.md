@@ -12,10 +12,7 @@ Git のセーブ(コミット)は、1回の操作ではなく2段階です。
 
 旅行の荷造りで言えば、`add` は「持っていくものをカバンに詰める」、`commit` は「カバンを閉じて封をする」です。詰める場所を**ステージ**(またはインデックス)と呼びます。
 
-```
-作業フォルダ ──git add──→ ステージ ──git commit──→ リポジトリ(履歴)
- (編集中)              (次に記録するもの)         (記録済み)
-```
+<figure class="fig"><svg viewBox="0 0 480 104" role="img" aria-label="作業フォルダから git add でステージへ、git commit でリポジトリの履歴へ"><defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><rect x="8" y="34" width="120" height="56" rx="8" class="bx"/><text x="68.0" y="59.0" class="t" text-anchor="middle">作業フォルダ</text><text x="68.0" y="78.0" class="t-s" text-anchor="middle">編集中</text><rect x="180" y="34" width="120" height="56" rx="8" class="bx"/><text x="240.0" y="59.0" class="t" text-anchor="middle">ステージ</text><text x="240.0" y="78.0" class="t-s" text-anchor="middle">次に記録する</text><rect x="352" y="34" width="120" height="56" rx="8" class="bx-hl"/><text x="412.0" y="59.0" class="t" text-anchor="middle">リポジトリ</text><text x="412.0" y="78.0" class="t-s" text-anchor="middle">記録済みの履歴</text><line x1="132" y1="62" x2="176" y2="62" class="ln" marker-end="url(#ah4)"/><text x="154.0" y="26" class="t-s t-hl" text-anchor="middle">git add</text><line x1="304" y1="62" x2="348" y2="62" class="ln" marker-end="url(#ah4)"/><text x="326.0" y="26" class="t-s t-hl" text-anchor="middle">git commit</text></svg><figcaption>変更は「作業フォルダ → ステージ → リポジトリ」の順に進む</figcaption></figure>
 
 なぜ2段階なのか。「今日は3つのファイルを直したが、記録として残したいのはそのうち2つのまとまりだけ」ということがよくあるからです。`add` で選べるおかげで、1つのコミットを意味のある単位にできます。
 

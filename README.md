@@ -41,6 +41,7 @@ src/
   lib/content.ts             コンテンツの読み込み
 public/sql-wasm-browser.wasm sql.js 本体(node_modules/sql.js/dist/ からコピー)
 public/pyodide/              Python 本体(Pyodide)。ビルドのたびに scripts/copy-pyodide.mjs が node_modules からコピーする。git には入れない
+src/lib/picoc.gen.js         C のインタプリタ(picoc-js、MIT)。scripts/prepare-picoc.mjs が node_modules から3か所だけ書き換えて作る。git には入れない
 ```
 
 ### レッスンを足す
@@ -56,6 +57,9 @@ public/pyodide/              Python 本体(Pyodide)。ビルドのたびに scri
 - `"sql"`: [Practice.astro](src/components/Practice.astro)。`schema.sql` が必要
 - `"html"`: [HtmlPractice.astro](src/components/HtmlPractice.astro)。入力欄の横にプレビュー
 - `"js"`: [JsPractice.astro](src/components/JsPractice.astro)。sandbox 付き iframe でコードを実行し、出力を表示
+- `"regex"`: [RegexPractice.astro](src/components/RegexPractice.astro)。パターンを打つたびに、確かめ用の文字列で一致したところに色が付く。判定は [regex-core.js](src/lib/regex-core.js)
+- `"bits"`: [BitsPractice.astro](src/components/BitsPractice.astro)。ビットのボタンを押して 0 / 1 を切り替え、10進・16進・8進・文字・符号あり・小数での値を見る。計算と判定は [bits-core.js](src/lib/bits-core.js)
+- `"c"`: [CPractice.astro](src/components/CPractice.astro)。ブラウザの中の C のインタプリタ(picoc)でコードを実行し、出力を表示する
 - `"python"`: [PyPractice.astro](src/components/PyPractice.astro)。ブラウザの中の本物の Python(Pyodide)でコードを実行し、出力を表示
 - `"shell"`: [ShellPractice.astro](src/components/ShellPractice.astro)。疑似ターミナル。仮想のファイル・プロセス・ユーザー・Gitリポジトリは [shell.ts](src/lib/shell.ts)。OS分野と Git分野で共用
 - `"stack"`: [StackPractice.astro](src/components/StackPractice.astro)。要件に合わせて層ごとに道具を選ぶ。選択肢は `content/<分野>/catalog.json`
@@ -107,6 +111,29 @@ Python(Web Worker の中の Pyodide で実行し、[pyrunner.ts](src/lib/pyrunne
 - `input()` は使えない(呼ぶとエラーで知らせる)。標準ライブラリは使えるが、numpy などの追加パッケージは読み込まない
 - Pyodide の版は package.json で固定(`pyodide`)。上げるときは `npm install --save-exact pyodide@版` のあと、check-tasks と browser-check を通す
 - 初回は約12MB を読み込む(2回目からはブラウザのキャッシュ)。読み込みが終わるまで「実行」は押せない
+
+正規表現([regex-core.js](src/lib/regex-core.js) の1か所で、画面と `check-tasks.mjs` の両方が使う。JavaScript の RegExp に u フラグを付けて動かす):
+
+- 課題の `regex` をすべて満たせば正解: `match`(どれにも一致する)、`noMatch`(どれにも一致しない)、`full`(全体が一致するかで調べる。`^(?:…)$` で包む)、`extract`(`text` から一致を全部取り出すと `expect` になる。`group` でグループの番号)、`replace`(`text` の一致を全部 `with` に置き換えると `expect` になる。`$1` が使える)、`flags`(`i` など)
+- `answer` は模範のパターン、`starter` は最初に入っているパターン。`check-tasks.mjs` が、模範で正解・最初のパターンでは不正解を確かめる。パターンを打つたびに判定し、一度正解したら残る
+
+ビット(コンピュータの中の数。[bits-core.js](src/lib/bits-core.js) の1か所で、画面と `check-tasks.mjs` の両方が使う):
+
+- 課題の `bits` で練習場を決める: `width`(ビットの数、既定 8)、`fraction`(小数点より右のビットの数)、`start`(最初の並び)、`ops`(使える操作のボタン: `inc` +1、`dec` -1、`shl` 左へずらす、`shr` 右へずらす、`not` 反転)。あふれたビットは捨てる(オーバーフロー)
+- `bitChecks` をすべて満たせば正解: `value`(符号なしの値)、`signed`(2の補数の値)、`fixed`(小数の値)、`usedOp`(その操作を使った)、`ones`(1 の数)。ボタンを押すたびに判定し、一度正解したら残る
+- `bytesTool: true` で「文字のバイト(UTF-8)」の欄を出す(フリーモードではいつも出る)
+- `answer` は1行に1つ、`0000 1101` のような並びか、`操作: inc`(または `操作: +1`)。`check-tasks.mjs` が手順を実行して正解になること、最初の状態では正解にならないことを確かめ、`browser-check.mjs` はボタンを押して確かめる
+- 区切りは4ビットずつ(16進数の1文字)。9ビットのように3の倍数のときは3ビットずつで、8進数も出す(ファイルの権限)
+
+C(Web Worker の中の picoc で実行し、[crunner.ts](src/lib/crunner.ts) で判定):
+
+- picoc は小さな C のインタプリタ(npm の `picoc-js`、約0.8MB。wasm が中に埋め込まれている)。本物の C(gcc / clang)とは違い、`const`、`long long`、構造体の `{ }` での初期化、構造体を値で返す関数、配列の引数へのポインタ渡し(`f(&a[2])`)が使えない。NULL への `*p` は検出するが、`p[i]` や範囲外への書き込みは検出しない。`scanf` は入力なし
+- `scripts/prepare-picoc.mjs` が `node_modules/picoc-js/dist/bundle.js` を `src/lib/picoc.gen.js` に書き出す。そのとき3か所だけ書き換える: (1) 中の作り手の関数 `picoc` を export する(出力の受け取り方と終わり方を自分で指定するため。元の `runC` はエラーで Node ごと終了する) (2) TTY にたまった出力を出す `flushTTY` を足す (3) 先頭の Node の import(path / fs / crypto / child_process)を、Node でだけ `process.getBuiltinModule` で取り出す形にする(ブラウザでは読み込めないため)。`npm run dev` / `build` の前と、`check-tasks.mjs` の最初に自動で走る
+- 実際に動かす部分は [crun-core.js](src/lib/crun-core.js) の1か所で、ブラウザ([cworker.ts](src/lib/cworker.ts))と `check-tasks.mjs` の両方が使う。実行のたびに新しい picoc を作る。改行で終わらない最後の `printf` が消えないよう、利用者の `main` を `__techtech_main` に改名し、それを呼んでから `fflush(stdout)` する本当の `main` を後ろに足す(行番号はずれない。列は直す)
+- picoc のエラーは「ソースの行 / ^ / file.c:行:列 メッセージ」で出るので、出力から取り除いて行・列・メッセージにし、`translateCError` が日本語の補足を付ける。`main` の 0 以外の return や `exit` は終了コードとして表示する
+- 判定: `expectOutput`(出力が1行ずつ同じ。行末の空白は無視)と、`tests`(`{ label, main, expectOutput }`。利用者の `main` を取り除いて確かめ用の `main` に差し替え、関数だけを確かめる。`replaceMain` は文字列・コメントの中の `{ }` を数えない)
+- 3秒で打ち切り、Web Worker ごと止めて作り直す
+- `check-tasks.mjs` は、模範解答が正解になることと、`starter` が正解にならないことを、Node の picoc で確かめる
 
 OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellChecks` で調べる。すべて満たせば正解):
 
@@ -169,7 +196,12 @@ OS / シェル(コマンドを打つたびに仮想マシンの状態を `shellC
 18. JavaScript 10 データを保存する(localStorage、文字列だけ、JSON で配列を保存)、11 フォームを受け取る(submit と preventDefault、value、FormData、入力の確認、fetch で送る、二重送信)。練習場に localStorage の欄、課題ごとの画面(page)、フォームの送信を追加。総合演習は 12-final に移した(前の 09-final / 10-final の進捗を引き継ぐ)(2026-11-24)
 19. Webアプリの道具 07 コードを書かない選択肢(ノーコード、CMS、ネットショップ作成、フォーム、ノーコードのアプリ。課題6)、08 サーバーの裏側(Web サーバー、証明書、systemd / Docker、CDN、PaaS が肩代わりするもの。課題5)。どちらもレッスン専用の catalog.json を使う。総合演習は 09-final に移した(2026-11-24)
 20. SQL 08 SQL インジェクション — ログイン画面と検索画面を練習場に出し、`'` でエラー、`admin' --` で管理者に、`' OR 1=1 --` で名前も知らずに、`UNION` でパスワードを盗む、プレースホルダの画面では防がれる、を体験する(課題6)。他人のサイトで試すのは犯罪であることも明記。総合演習は 09-final に移した(2026-11-24)
+21. C 分野 — 練習場(picoc を Web Worker で実行、printf の出力と、確かめ用の main に差し替えた関数の判定、エラーの行・列と日本語の補足)と8レッスン(C を動かす、変数と型、条件と繰り返し、関数、配列と文字列、ポインタ、構造体、メモリの確保)+ 総合演習「図書室の貸し出し係」。課題42(2026-11-25)
 
 ## 未決事項
 
 - (なし)サイト名は TechTech に決定(2026-11-15)
+22. コンピュータの中の数 — 新しい練習場(ビットのボタン、読み方の表、+1・ずらす・反転、小数、文字のバイト)と6レッスン(2進数とビット、16進数、負の数とオーバーフロー、ビットをずらす・反転する、文字とバイト、小数とその誤差)+ 総合演習「数の係」。課題32(2026-11-25)
+23. アルゴリズム — Python の練習場で6レッスン(アルゴリズムと計算量、二分探索、並べ替え、速い並べ替え、スタックとキュー、辞書と集合で速くする)+ 総合演習「注文処理の係」。課題29。O(n²) の書き方が時間切れ(5秒)になるよう、判定に大きなデータを入れた課題もある。期待する値は、模範解答を実際に動かして作った(2026-11-25)
+24. 正規表現 — 新しい練習場(パターンを打つと一致したところに色、✓ / ✗、取り出し、置き換え)と6レッスン(正規表現とは、くり返し、位置と入力チェック、グループと取り出し、置き換え、実際に使う)+ 総合演習「データ整理の係」。課題31(2026-11-25)
+25. Webのセキュリティ — JavaScript の練習場で6レッスン(安全なWebアプリの考え方、XSS、エスケープ、パスワードの保存、なりすましを防ぐ、秘密の情報の扱い)+ 総合演習「掲示板の安全点検」。XSS の課題は掲示板の画面(課題の page)で、攻撃の書き込みが HTML として動かないことを確かめる。パスワードの課題は練習用の小さなハッシュ関数を使う(本物では bcrypt / Argon2 と記事に明記)。課題27(2026-11-25)

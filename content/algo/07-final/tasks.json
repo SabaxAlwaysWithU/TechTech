@@ -1,0 +1,153 @@
+[
+  {
+    "id": "find",
+    "title": "1 注文番号で探す",
+    "text": "<p>注文は番号(<code>id</code>)の小さい順に並んでいます。関数 <code>find_order(orders, oid)</code> を完成させてください。二分探索で番号 <code>oid</code> の注文(辞書)を探して返し、なければ <code>None</code> を返します。</p>",
+    "starter": "orders = [\n    {\"id\": 1001, \"customer\": \"山田\", \"product\": \"マウス\", \"qty\": 2},\n    {\"id\": 1002, \"customer\": \"佐藤\", \"product\": \"モニター\", \"qty\": 1},\n    {\"id\": 1003, \"customer\": \"山田\", \"product\": \"キーボード\", \"qty\": 1},\n    {\"id\": 1004, \"customer\": \"鈴木\", \"product\": \"マウス\", \"qty\": 3},\n    {\"id\": 1005, \"customer\": \"佐藤\", \"product\": \"USBメモリ\", \"qty\": 5},\n    {\"id\": 1006, \"customer\": \"高橋\", \"product\": \"キーボード\", \"qty\": 2},\n]\n\ndef find_order(orders, oid):\n    return None\n\nprint(find_order(orders, 1004))\n",
+    "answer": "orders = [\n    {\"id\": 1001, \"customer\": \"山田\", \"product\": \"マウス\", \"qty\": 2},\n    {\"id\": 1002, \"customer\": \"佐藤\", \"product\": \"モニター\", \"qty\": 1},\n    {\"id\": 1003, \"customer\": \"山田\", \"product\": \"キーボード\", \"qty\": 1},\n    {\"id\": 1004, \"customer\": \"鈴木\", \"product\": \"マウス\", \"qty\": 3},\n    {\"id\": 1005, \"customer\": \"佐藤\", \"product\": \"USBメモリ\", \"qty\": 5},\n    {\"id\": 1006, \"customer\": \"高橋\", \"product\": \"キーボード\", \"qty\": 2},\n]\n\ndef find_order(orders, oid):\n    low = 0\n    high = len(orders) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if orders[mid][\"id\"] == oid:\n            return orders[mid]\n        elif orders[mid][\"id\"] < oid:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return None\n\nprint(find_order(orders, 1004))",
+    "hints": [
+      "レッスン「二分探索」と同じです。比べるのは orders[mid][\"id\"] と oid です。",
+      "見つかったら番号ではなく orders[mid] そのものを返し、なければ None です。"
+    ],
+    "calls": [
+      {
+        "call": "find_order(orders, 1004)[\"customer\"]",
+        "expect": "鈴木"
+      },
+      {
+        "call": "find_order(orders, 1001)[\"product\"]",
+        "expect": "マウス"
+      },
+      {
+        "call": "find_order(orders, 9999)",
+        "expect": null
+      },
+      {
+        "call": "find_order([{\"id\": n} for n in range(0, 200000, 2)], 123456)",
+        "expect": {
+          "id": 123456
+        }
+      }
+    ]
+  },
+  {
+    "id": "customers",
+    "title": "2 お客さんの一覧",
+    "text": "<p>関数 <code>customers(orders)</code> を完成させてください。注文したお客さんの名前を、重なりなしで、初めて出てきた順のリストにして返します。集合で「もう入れたか」を調べます。</p>",
+    "starter": "orders = [\n    {\"id\": 1001, \"customer\": \"山田\", \"product\": \"マウス\", \"qty\": 2},\n    {\"id\": 1002, \"customer\": \"佐藤\", \"product\": \"モニター\", \"qty\": 1},\n    {\"id\": 1003, \"customer\": \"山田\", \"product\": \"キーボード\", \"qty\": 1},\n    {\"id\": 1004, \"customer\": \"鈴木\", \"product\": \"マウス\", \"qty\": 3},\n    {\"id\": 1005, \"customer\": \"佐藤\", \"product\": \"USBメモリ\", \"qty\": 5},\n    {\"id\": 1006, \"customer\": \"高橋\", \"product\": \"キーボード\", \"qty\": 2},\n]\n\ndef customers(orders):\n    names = []\n    for o in orders:\n        names.append(o[\"customer\"])\n    return names\n\nprint(customers(orders))\n",
+    "answer": "orders = [\n    {\"id\": 1001, \"customer\": \"山田\", \"product\": \"マウス\", \"qty\": 2},\n    {\"id\": 1002, \"customer\": \"佐藤\", \"product\": \"モニター\", \"qty\": 1},\n    {\"id\": 1003, \"customer\": \"山田\", \"product\": \"キーボード\", \"qty\": 1},\n    {\"id\": 1004, \"customer\": \"鈴木\", \"product\": \"マウス\", \"qty\": 3},\n    {\"id\": 1005, \"customer\": \"佐藤\", \"product\": \"USBメモリ\", \"qty\": 5},\n    {\"id\": 1006, \"customer\": \"高橋\", \"product\": \"キーボード\", \"qty\": 2},\n]\n\ndef customers(orders):\n    names = []\n    seen = set()\n    for o in orders:\n        if o[\"customer\"] not in seen:\n            seen.add(o[\"customer\"])\n            names.append(o[\"customer\"])\n    return names\n\nprint(customers(orders))",
+    "hints": [
+      "seen = set() を用意し、まだ seen にない名前だけを append します。",
+      "if o[\"customer\"] not in seen: seen.add(…); names.append(…)"
+    ],
+    "calls": [
+      {
+        "call": "customers(orders)",
+        "expect": [
+          "山田",
+          "佐藤",
+          "鈴木",
+          "高橋"
+        ]
+      },
+      {
+        "call": "customers([])",
+        "expect": []
+      }
+    ]
+  },
+  {
+    "id": "qty",
+    "title": "3 商品ごとの数",
+    "text": "<p>関数 <code>qty_by_product(orders)</code> を完成させてください。商品ごとに、注文された数(<code>qty</code>)の合計を辞書で返します。</p>",
+    "starter": "orders = [\n    {\"id\": 1001, \"customer\": \"山田\", \"product\": \"マウス\", \"qty\": 2},\n    {\"id\": 1002, \"customer\": \"佐藤\", \"product\": \"モニター\", \"qty\": 1},\n    {\"id\": 1003, \"customer\": \"山田\", \"product\": \"キーボード\", \"qty\": 1},\n    {\"id\": 1004, \"customer\": \"鈴木\", \"product\": \"マウス\", \"qty\": 3},\n    {\"id\": 1005, \"customer\": \"佐藤\", \"product\": \"USBメモリ\", \"qty\": 5},\n    {\"id\": 1006, \"customer\": \"高橋\", \"product\": \"キーボード\", \"qty\": 2},\n]\n\ndef qty_by_product(orders):\n    totals = {}\n    return totals\n\nprint(qty_by_product(orders))\n",
+    "answer": "orders = [\n    {\"id\": 1001, \"customer\": \"山田\", \"product\": \"マウス\", \"qty\": 2},\n    {\"id\": 1002, \"customer\": \"佐藤\", \"product\": \"モニター\", \"qty\": 1},\n    {\"id\": 1003, \"customer\": \"山田\", \"product\": \"キーボード\", \"qty\": 1},\n    {\"id\": 1004, \"customer\": \"鈴木\", \"product\": \"マウス\", \"qty\": 3},\n    {\"id\": 1005, \"customer\": \"佐藤\", \"product\": \"USBメモリ\", \"qty\": 5},\n    {\"id\": 1006, \"customer\": \"高橋\", \"product\": \"キーボード\", \"qty\": 2},\n]\n\ndef qty_by_product(orders):\n    totals = {}\n    for o in orders:\n        totals[o[\"product\"]] = totals.get(o[\"product\"], 0) + o[\"qty\"]\n    return totals\n\nprint(qty_by_product(orders))",
+    "hints": [
+      "for で注文を見て、totals[商品] に qty を足していきます。",
+      "totals[o[\"product\"]] = totals.get(o[\"product\"], 0) + o[\"qty\"]"
+    ],
+    "calls": [
+      {
+        "call": "qty_by_product(orders)",
+        "expect": {
+          "マウス": 5,
+          "モニター": 1,
+          "キーボード": 3,
+          "USBメモリ": 5
+        }
+      },
+      {
+        "call": "qty_by_product([])",
+        "expect": {}
+      }
+    ]
+  },
+  {
+    "id": "top",
+    "title": "4 売れた上位",
+    "text": "<p>関数 <code>top_products(orders, k)</code> を完成させてください。注文された数の合計が多い順に、上位 <code>k</code> 個の商品名のリストを返します。合計が同じなら、商品名の順(<code>sorted</code> のふつうの順)にします。</p>",
+    "starter": "orders = [\n    {\"id\": 1001, \"customer\": \"山田\", \"product\": \"マウス\", \"qty\": 2},\n    {\"id\": 1002, \"customer\": \"佐藤\", \"product\": \"モニター\", \"qty\": 1},\n    {\"id\": 1003, \"customer\": \"山田\", \"product\": \"キーボード\", \"qty\": 1},\n    {\"id\": 1004, \"customer\": \"鈴木\", \"product\": \"マウス\", \"qty\": 3},\n    {\"id\": 1005, \"customer\": \"佐藤\", \"product\": \"USBメモリ\", \"qty\": 5},\n    {\"id\": 1006, \"customer\": \"高橋\", \"product\": \"キーボード\", \"qty\": 2},\n]\n\ndef top_products(orders, k):\n    totals = {}\n    for o in orders:\n        totals[o[\"product\"]] = totals.get(o[\"product\"], 0) + o[\"qty\"]\n    return list(totals)[:k]\n\nprint(top_products(orders, 2))\n",
+    "answer": "orders = [\n    {\"id\": 1001, \"customer\": \"山田\", \"product\": \"マウス\", \"qty\": 2},\n    {\"id\": 1002, \"customer\": \"佐藤\", \"product\": \"モニター\", \"qty\": 1},\n    {\"id\": 1003, \"customer\": \"山田\", \"product\": \"キーボード\", \"qty\": 1},\n    {\"id\": 1004, \"customer\": \"鈴木\", \"product\": \"マウス\", \"qty\": 3},\n    {\"id\": 1005, \"customer\": \"佐藤\", \"product\": \"USBメモリ\", \"qty\": 5},\n    {\"id\": 1006, \"customer\": \"高橋\", \"product\": \"キーボード\", \"qty\": 2},\n]\n\ndef top_products(orders, k):\n    totals = {}\n    for o in orders:\n        totals[o[\"product\"]] = totals.get(o[\"product\"], 0) + o[\"qty\"]\n    ranked = sorted(totals, key=lambda name: (-totals[name], name))\n    return ranked[:k]\n\nprint(top_products(orders, 2))",
+    "hints": [
+      "sorted の key で、(数の大きい順, 名前の順) のタプルを返します。数は - を付けると大きい順になります(Python の分野の「並べ替え」)。",
+      "ranked = sorted(totals, key=lambda name: (-totals[name], name)) のあと return ranked[:k]"
+    ],
+    "calls": [
+      {
+        "call": "top_products(orders, 2)",
+        "expect": [
+          "USBメモリ",
+          "マウス"
+        ]
+      },
+      {
+        "call": "top_products(orders, 10)",
+        "expect": [
+          "USBメモリ",
+          "マウス",
+          "キーボード",
+          "モニター"
+        ]
+      },
+      {
+        "call": "top_products([{\"product\": \"B\", \"qty\": 1}, {\"product\": \"A\", \"qty\": 1}], 1)",
+        "expect": [
+          "A"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ship",
+    "title": "5 在庫を見ながら出荷する",
+    "text": "<p>関数 <code>ship(orders, stock)</code> を完成させてください。<code>deque</code> を使い、注文を来た順に1つずつ取り出して、在庫(<code>stock</code>、商品名 → 個数)が足りれば在庫を減らして出荷し、足りなければその注文は飛ばします。出荷した注文の番号のリストを返します。</p>",
+    "starter": "orders = [\n    {\"id\": 1001, \"customer\": \"山田\", \"product\": \"マウス\", \"qty\": 2},\n    {\"id\": 1002, \"customer\": \"佐藤\", \"product\": \"モニター\", \"qty\": 1},\n    {\"id\": 1003, \"customer\": \"山田\", \"product\": \"キーボード\", \"qty\": 1},\n    {\"id\": 1004, \"customer\": \"鈴木\", \"product\": \"マウス\", \"qty\": 3},\n    {\"id\": 1005, \"customer\": \"佐藤\", \"product\": \"USBメモリ\", \"qty\": 5},\n    {\"id\": 1006, \"customer\": \"高橋\", \"product\": \"キーボード\", \"qty\": 2},\n]\n\nfrom collections import deque\n\ndef ship(orders, stock):\n    queue = deque(orders)\n    shipped = []\n    while queue:\n        o = queue.popleft()\n        shipped.append(o[\"id\"])\n    return shipped\n\nprint(ship(orders, {\"マウス\": 4, \"モニター\": 1, \"キーボード\": 2, \"USBメモリ\": 10}))\n",
+    "answer": "orders = [\n    {\"id\": 1001, \"customer\": \"山田\", \"product\": \"マウス\", \"qty\": 2},\n    {\"id\": 1002, \"customer\": \"佐藤\", \"product\": \"モニター\", \"qty\": 1},\n    {\"id\": 1003, \"customer\": \"山田\", \"product\": \"キーボード\", \"qty\": 1},\n    {\"id\": 1004, \"customer\": \"鈴木\", \"product\": \"マウス\", \"qty\": 3},\n    {\"id\": 1005, \"customer\": \"佐藤\", \"product\": \"USBメモリ\", \"qty\": 5},\n    {\"id\": 1006, \"customer\": \"高橋\", \"product\": \"キーボード\", \"qty\": 2},\n]\n\nfrom collections import deque\n\ndef ship(orders, stock):\n    queue = deque(orders)\n    shipped = []\n    while queue:\n        o = queue.popleft()\n        if stock.get(o[\"product\"], 0) >= o[\"qty\"]:\n            stock[o[\"product\"]] -= o[\"qty\"]\n            shipped.append(o[\"id\"])\n    return shipped\n\nprint(ship(orders, {\"マウス\": 4, \"モニター\": 1, \"キーボード\": 2, \"USBメモリ\": 10}))",
+    "hints": [
+      "取り出した注文 o について、stock.get(o[\"product\"], 0) >= o[\"qty\"] のときだけ出荷します。",
+      "出荷するときに stock[o[\"product\"]] -= o[\"qty\"] で在庫を減らしてから、番号を shipped に足します。"
+    ],
+    "calls": [
+      {
+        "call": "ship(orders, {\"マウス\": 4, \"モニター\": 1, \"キーボード\": 2, \"USBメモリ\": 10})",
+        "expect": [
+          1001,
+          1002,
+          1003,
+          1005
+        ]
+      },
+      {
+        "call": "ship(orders, {})",
+        "expect": []
+      },
+      {
+        "call": "ship(orders, {\"マウス\": 100})",
+        "expect": [
+          1001,
+          1004
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,139 @@
+[
+  {
+    "id": "max",
+    "title": "配列の最大値",
+    "text": "<p>関数 <code>max_of(a, n)</code> を完成させてください。<code>n</code> 個の整数が入った配列 <code>a</code> の中で、いちばん大きい値を返します。<code>n</code> は 1 以上です。</p>",
+    "starter": "#include <stdio.h>\n\nint max_of(int a[], int n) {\n    int m = 0;\n    return m;\n}\n\nint main() {\n    int a[5] = {3, 9, 2, 7, 5};\n    printf(\"%d\\n\", max_of(a, 5));\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint max_of(int a[], int n) {\n    int m = a[0];\n    for (int i = 1; i < n; i++) {\n        if (a[i] > m) {\n            m = a[i];\n        }\n    }\n    return m;\n}\n\nint main() {\n    int a[5] = {3, 9, 2, 7, 5};\n    printf(\"%d\\n\", max_of(a, 5));\n    return 0;\n}\n",
+    "hints": [
+      "最初の要素 a[0] を「今の最大」にして、残りを for で1つずつ比べます。最初を 0 にすると、全部が負の数のときにまちがえます。",
+      "int m = a[0]; for (int i = 1; i < n; i++) { if (a[i] > m) { m = a[i]; } } return m;"
+    ],
+    "tests": [
+      {
+        "label": "{3, 9, 2, 7, 5}",
+        "main": "int main() { int a[5]; a[0] = 3; a[1] = 9; a[2] = 2; a[3] = 7; a[4] = 5; printf(\"%d\\n\", max_of(a, 5)); return 0; }",
+        "expectOutput": [
+          "9"
+        ]
+      },
+      {
+        "label": "{-8, -3, -12}",
+        "main": "int main() { int a[3]; a[0] = -8; a[1] = -3; a[2] = -12; printf(\"%d\\n\", max_of(a, 3)); return 0; }",
+        "expectOutput": [
+          "-3"
+        ]
+      },
+      {
+        "label": "{42}",
+        "main": "int main() { int a[1]; a[0] = 42; printf(\"%d\\n\", max_of(a, 1)); return 0; }",
+        "expectOutput": [
+          "42"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "average",
+    "title": "配列の平均",
+    "text": "<p>関数 <code>average(a, n)</code> を完成させてください。<code>n</code> 個の点数の平均を、小数(<code>double</code>)で返します。</p><pre>{80, 65, 92} → 79.0(小数点以下1けたで表示)</pre>",
+    "starter": "#include <stdio.h>\n\ndouble average(int a[], int n) {\n    int sum = 0;\n    for (int i = 0; i < n; i++) {\n        sum += a[i];\n    }\n    return sum / n;\n}\n\nint main() {\n    int a[3] = {80, 65, 92};\n    printf(\"%.1f\\n\", average(a, 3));\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\ndouble average(int a[], int n) {\n    int sum = 0;\n    for (int i = 0; i < n; i++) {\n        sum += a[i];\n    }\n    return (double)sum / n;\n}\n\nint main() {\n    int a[3] = {80, 65, 92};\n    printf(\"%.1f\\n\", average(a, 3));\n    return 0;\n}\n",
+    "hints": [
+      "sum / n は int どうしの割り算なので、小数点以下が切り捨てられます。",
+      "return (double)sum / n;"
+    ],
+    "tests": [
+      {
+        "label": "{80, 65, 92}",
+        "main": "int main() { int a[3]; a[0] = 80; a[1] = 65; a[2] = 92; printf(\"%.1f\\n\", average(a, 3)); return 0; }",
+        "expectOutput": [
+          "79.0"
+        ]
+      },
+      {
+        "label": "{1, 2}",
+        "main": "int main() { int a[2]; a[0] = 1; a[1] = 2; printf(\"%.1f\\n\", average(a, 2)); return 0; }",
+        "expectOutput": [
+          "1.5"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "count",
+    "title": "文字を数える",
+    "text": "<p>関数 <code>count_char(s, c)</code> を完成させてください。文字列 <code>s</code> の中に、文字 <code>c</code> がいくつあるかを返します。<code>strlen</code> を使わず、<code>'\\0'</code> が来るまで1文字ずつ見ていきましょう。</p><pre>count_char(\"banana\", 'a') → 3</pre>",
+    "starter": "#include <stdio.h>\n\nint count_char(char s[], char c) {\n    int count = 0;\n    return count;\n}\n\nint main() {\n    printf(\"%d\\n\", count_char(\"banana\", 'a'));\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint count_char(char s[], char c) {\n    int count = 0;\n    for (int i = 0; s[i] != '\\0'; i++) {\n        if (s[i] == c) {\n            count++;\n        }\n    }\n    return count;\n}\n\nint main() {\n    printf(\"%d\\n\", count_char(\"banana\", 'a'));\n    return 0;\n}\n",
+    "hints": [
+      "for (int i = 0; s[i] != '\\0'; i++) で、終わりの印が来るまで回せます。",
+      "ループの中で if (s[i] == c) { count++; } です。"
+    ],
+    "tests": [
+      {
+        "label": "\"banana\" の 'a'",
+        "main": "int main() { printf(\"%d\\n\", count_char(\"banana\", 'a')); return 0; }",
+        "expectOutput": [
+          "3"
+        ]
+      },
+      {
+        "label": "\"hello world\" の 'o' と 'z'",
+        "main": "int main() { printf(\"%d %d\\n\", count_char(\"hello world\", 'o'), count_char(\"hello world\", 'z')); return 0; }",
+        "expectOutput": [
+          "2 0"
+        ]
+      },
+      {
+        "label": "\"\"(空の文字列)",
+        "main": "int main() { printf(\"%d\\n\", count_char(\"\", 'a')); return 0; }",
+        "expectOutput": [
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reverse",
+    "title": "逆から表示する",
+    "text": "<p>関数 <code>print_reverse(s)</code> を完成させてください。英字の文字列 <code>s</code> を、うしろから1文字ずつ表示し、最後に改行します。</p><pre>print_reverse(\"hello\") → olleh</pre>",
+    "starter": "#include <stdio.h>\n\n#include <string.h>\n\nvoid print_reverse(char s[]) {\n    printf(\"%s\\n\", s);\n}\n\nint main() {\n    print_reverse(\"hello\");\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\n#include <string.h>\n\nvoid print_reverse(char s[]) {\n    int n = strlen(s);\n    for (int i = n - 1; i >= 0; i--) {\n        printf(\"%c\", s[i]);\n    }\n    printf(\"\\n\");\n}\n\nint main() {\n    print_reverse(\"hello\");\n    return 0;\n}\n",
+    "hints": [
+      "strlen(s) で長さ n を求めると、最後の文字は s[n - 1] です。そこから 0 まで、i-- で戻ります。",
+      "for (int i = n - 1; i >= 0; i--) { printf(\"%c\", s[i]); } のあとに改行します。"
+    ],
+    "tests": [
+      {
+        "label": "\"hello\"",
+        "main": "int main() { print_reverse(\"hello\"); return 0; }",
+        "expectOutput": [
+          "olleh"
+        ]
+      },
+      {
+        "label": "\"C\" と \"abcdef\"",
+        "main": "int main() { print_reverse(\"C\"); print_reverse(\"abcdef\"); return 0; }",
+        "expectOutput": [
+          "C",
+          "fedcba"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "strcmp",
+    "title": "あいことばを比べる",
+    "text": "<p>入力された文字列 <code>input</code> が、あいことば <code>\"sesame\"</code> と同じなら「通ってよし」、違えば「ちがいます」と出すつもりのコードです。同じ文字なのに「ちがいます」と出てしまいます。直してください。</p><pre>通ってよし</pre>",
+    "starter": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char input[] = \"sesame\";\n    if (input == \"sesame\") {\n        printf(\"通ってよし\\n\");\n    } else {\n        printf(\"ちがいます\\n\");\n    }\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char input[] = \"sesame\";\n    if (strcmp(input, \"sesame\") == 0) {\n        printf(\"通ってよし\\n\");\n    } else {\n        printf(\"ちがいます\\n\");\n    }\n    return 0;\n}\n",
+    "hints": [
+      "文字列を == で比べても、中身は比べられません。",
+      "if (strcmp(input, \"sesame\") == 0) にします。strcmp は同じなら 0 を返します。"
+    ],
+    "expectOutput": [
+      "通ってよし"
+    ]
+  }
+]

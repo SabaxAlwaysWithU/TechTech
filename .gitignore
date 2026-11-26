@@ -2,3 +2,4 @@ node_modules/
 dist/
 .astro/
 public/pyodide/
+src/lib/picoc.gen.js

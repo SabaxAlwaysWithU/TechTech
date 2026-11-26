@@ -1,0 +1,135 @@
+[
+  {
+    "id": "dup",
+    "title": "同じ値があるか",
+    "text": "<p>関数 <code>has_duplicate(items)</code> を完成させてください。同じ値が2回以上出てくれば <code>True</code> を返します。集合を使い、前から1回見るだけ(O(n))で調べます。</p>",
+    "starter": "def has_duplicate(items):\n    for i in range(len(items)):\n        if items[i] in items[i + 1:]:\n            return True\n    return False\n\nprint(has_duplicate([3, 1, 4, 1, 5]))\n",
+    "answer": "def has_duplicate(items):\n    seen = set()\n    for x in items:\n        if x in seen:\n            return True\n        seen.add(x)\n    return False\n\nprint(has_duplicate([3, 1, 4, 1, 5]))",
+    "hints": [
+      "今のコードも正しい答えを出しますが、O(n²) です。判定では 10万個のデータで試すので、時間内に終わりません。",
+      "seen = set() に「今までに見た値」を入れ、if x in seen: return True、そうでなければ seen.add(x)。"
+    ],
+    "calls": [
+      {
+        "call": "has_duplicate([3, 1, 4, 1, 5])",
+        "expect": true
+      },
+      {
+        "call": "has_duplicate([3, 1, 4])",
+        "expect": false
+      },
+      {
+        "call": "has_duplicate([])",
+        "expect": false
+      },
+      {
+        "call": "has_duplicate(list(range(100000)) + [99999])",
+        "expect": true
+      },
+      {
+        "call": "has_duplicate(list(range(100000)))",
+        "expect": false
+      }
+    ]
+  },
+  {
+    "id": "twosum",
+    "title": "2つの数の和",
+    "text": "<p>関数 <code>two_sum(nums, target)</code> を完成させてください。足すと <code>target</code> になる2つの数の番号を <code>[前の番号, うしろの番号]</code> で返します。なければ <code>None</code> です。辞書を使って、前から1回見るだけで求めます。</p>",
+    "starter": "def two_sum(nums, target):\n    seen = {}\n    for i, x in enumerate(nums):\n        seen[x] = i\n    return None\n\nprint(two_sum([2500, 6800, 1800, 4200], 6000))\n",
+    "answer": "def two_sum(nums, target):\n    seen = {}\n    for i, x in enumerate(nums):\n        need = target - x\n        if need in seen:\n            return [seen[need], i]\n        seen[x] = i\n    return None\n\nprint(two_sum([2500, 6800, 1800, 4200], 6000))",
+    "hints": [
+      "相手に必要な数 need = target - x が、今までに見た数(seen)の中にあるかを、seen に入れる前に調べます。",
+      "if need in seen: return [seen[need], i] のあとで seen[x] = i"
+    ],
+    "calls": [
+      {
+        "call": "two_sum([2500, 6800, 1800, 4200], 6000)",
+        "expect": [
+          2,
+          3
+        ]
+      },
+      {
+        "call": "two_sum([1, 2, 3], 100)",
+        "expect": null
+      },
+      {
+        "call": "two_sum([5, 5], 10)",
+        "expect": [
+          0,
+          1
+        ]
+      },
+      {
+        "call": "two_sum(list(range(30000)), 59997)",
+        "expect": [
+          29998,
+          29999
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique",
+    "title": "1回だけ出てくる最初のもの",
+    "text": "<p>関数 <code>first_unique(items)</code> を完成させてください。1回だけ出てくる値のうち、いちばん前にあるものを返します。なければ <code>None</code> です。まず辞書で数え、もう一度前から見ます。</p><pre>first_unique([\"a\", \"b\", \"a\", \"c\", \"b\"]) → \"c\"</pre>",
+    "starter": "def first_unique(items):\n    counts = {}\n    return None\n\nprint(first_unique([\"a\", \"b\", \"a\", \"c\", \"b\"]))\n",
+    "answer": "def first_unique(items):\n    counts = {}\n    for x in items:\n        counts[x] = counts.get(x, 0) + 1\n    for x in items:\n        if counts[x] == 1:\n            return x\n    return None\n\nprint(first_unique([\"a\", \"b\", \"a\", \"c\", \"b\"]))",
+    "hints": [
+      "1回目の for で counts[x] = counts.get(x, 0) + 1 と数えます。",
+      "2回目の for で前から見て、counts[x] == 1 のものを見つけたら返します。"
+    ],
+    "calls": [
+      {
+        "call": "first_unique([\"a\", \"b\", \"a\", \"c\", \"b\"])",
+        "expect": "c"
+      },
+      {
+        "call": "first_unique([1, 1])",
+        "expect": null
+      },
+      {
+        "call": "first_unique([7, 8, 7])",
+        "expect": 8
+      },
+      {
+        "call": "first_unique([])",
+        "expect": null
+      }
+    ]
+  },
+  {
+    "id": "common",
+    "title": "両方にあるもの",
+    "text": "<p>関数 <code>common(a, b)</code> を完成させてください。リスト <code>a</code> と <code>b</code> の両方に入っている値を、重なりなしで、小さい順のリストにして返します。集合を使いましょう。</p>",
+    "starter": "def common(a, b):\n    result = []\n    for x in a:\n        if x in b:\n            result.append(x)\n    return result\n\nprint(common([3, 1, 2, 3], [2, 3, 4]))\n",
+    "answer": "def common(a, b):\n    return sorted(set(a) & set(b))\n\nprint(common([3, 1, 2, 3], [2, 3, 4]))",
+    "hints": [
+      "今のコードは、重なり(3 が2回)が残り、並びも小さい順ではありません。b がリストなので in も遅くなります。",
+      "集合どうしの & で、両方にあるものだけが残ります。return sorted(set(a) & set(b))"
+    ],
+    "calls": [
+      {
+        "call": "common([3, 1, 2, 3], [2, 3, 4])",
+        "expect": [
+          2,
+          3
+        ]
+      },
+      {
+        "call": "common([1, 2], [3, 4])",
+        "expect": []
+      },
+      {
+        "call": "common(list(range(0, 100000, 2)), list(range(0, 100000, 3)))[:4]",
+        "expect": [
+          0,
+          6,
+          12,
+          18
+        ]
+      }
+    ]
+  }
+]

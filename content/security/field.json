@@ -1,0 +1,7 @@
+{
+  "title": "Webのセキュリティ",
+  "description": "全6レッスンと総合演習。入力を信用しない、XSS とエスケープ、パスワードのハッシュ、なりすましと CSRF、秘密の情報。攻撃を練習場の中で体験して、守り方を書く。",
+  "order": 14,
+  "practice": "js",
+  "languages": ["js", "javascript"]
+}

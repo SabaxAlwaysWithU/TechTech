@@ -9,15 +9,7 @@ description: "ボックスモデル: padding、border、margin"
 
 Webページの要素も同じ作りです。`h1` も `p` も `div` も、ブラウザの中ではすべて**四角い箱**として扱われ、中身の周りに3種類の空きを持っています。これを**ボックスモデル**と言います。
 
-```
-┌─ margin(外側の余白)───────────────┐
-│  ┌─ border(枠線)───────────────┐  │
-│  │  ┌─ padding(内側の余白)──┐  │  │
-│  │  │       中身            │  │  │
-│  │  └───────────────────────┘  │  │
-│  └─────────────────────────────┘  │
-└───────────────────────────────────┘
-```
+<figure class="fig"><svg viewBox="0 0 480 208" role="img" aria-label="外側から margin、border、padding、中身の順に入れ子になっている"><defs><marker id="ah6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs><rect x="6" y="6" width="468" height="196" rx="6" class="bx-dash"/><text x="18" y="28" class="t-s" text-anchor="start">margin(外側の余白)</text><rect x="40" y="40" width="400" height="140" rx="4" class="bx-border"/><text x="52" y="62" class="t-s" text-anchor="start">border(枠線)</text><rect x="58" y="72" width="364" height="96" rx="4" class="bx"/><text x="70" y="94" class="t-s" text-anchor="start">padding(内側の余白)</text><rect x="150" y="104" width="180" height="48" rx="4" class="bx-hl"/><text x="240" y="134" class="t" text-anchor="middle">中身</text></svg><figcaption>箱は外側から margin → border → padding → 中身の順に重なっている</figcaption></figure>
 
 - **padding**: 中身と枠線の間。台紙の余白
 - **border**: 枠線。額縁

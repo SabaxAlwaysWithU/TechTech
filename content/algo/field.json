@@ -1,0 +1,7 @@
+{
+  "title": "アルゴリズム",
+  "description": "全6レッスンと総合演習。同じ答えでも、手順しだいで速さが何千倍も変わる。探す、並べる、ためる、引くを Python で書いて、手間の数を比べる。",
+  "order": 12,
+  "practice": "python",
+  "languages": ["python", "py"]
+}

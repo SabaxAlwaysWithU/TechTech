@@ -1,0 +1,163 @@
+[
+  {
+    "id": "find",
+    "title": "1 書名で探す",
+    "text": "<p>関数 <code>find_book(books, n, title)</code> を完成させてください。<code>n</code> 冊の本の中から、書名が <code>title</code> と同じ本を探し、その番号を返します。見つからなければ <code>-1</code> を返します。</p>",
+    "starter": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char title[32];\n    int available;\n    int count;\n} Book;\n\n// 本に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Book *b, char *title, int available, int count) {\n    strcpy(b->title, title);\n    b->available = available;\n    b->count = count;\n}\n\nint find_book(Book books[], int n, char *title) {\n    return 0;\n}\n\nint main() {\n    Book books[4];\n    set(&books[0], \"はじめてのC\", 1, 12);\n    set(&books[1], \"星の図鑑\", 0, 30);\n    set(&books[2], \"料理の科学\", 1, 5);\n    set(&books[3], \"昆虫の世界\", 0, 18);\n    printf(\"%d\\n\", find_book(books, 4, \"料理の科学\"));\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char title[32];\n    int available;\n    int count;\n} Book;\n\n// 本に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Book *b, char *title, int available, int count) {\n    strcpy(b->title, title);\n    b->available = available;\n    b->count = count;\n}\n\nint find_book(Book books[], int n, char *title) {\n    for (int i = 0; i < n; i++) {\n        if (strcmp(books[i].title, title) == 0) {\n            return i;\n        }\n    }\n    return -1;\n}\n\nint main() {\n    Book books[4];\n    set(&books[0], \"はじめてのC\", 1, 12);\n    set(&books[1], \"星の図鑑\", 0, 30);\n    set(&books[2], \"料理の科学\", 1, 5);\n    set(&books[3], \"昆虫の世界\", 0, 18);\n    printf(\"%d\\n\", find_book(books, 4, \"料理の科学\"));\n    return 0;\n}\n",
+    "hints": [
+      "for で1冊ずつ見て、strcmp(books[i].title, title) == 0 なら、その番号 i を返します。",
+      "for (int i = 0; i < n; i++) { if (strcmp(books[i].title, title) == 0) { return i; } } return -1;"
+    ],
+    "tests": [
+      {
+        "label": "\"料理の科学\" と \"はじめてのC\"",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); printf(\"%d %d\\n\", find_book(books, 4, \"料理の科学\"), find_book(books, 4, \"はじめてのC\")); return 0; }",
+        "expectOutput": [
+          "2 0"
+        ]
+      },
+      {
+        "label": "ない本",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); printf(\"%d\\n\", find_book(books, 4, \"宇宙の旅\")); return 0; }",
+        "expectOutput": [
+          "-1"
+        ]
+      },
+      {
+        "label": "最初の2冊だけから \"昆虫の世界\"",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); printf(\"%d\\n\", find_book(books, 2, \"昆虫の世界\")); return 0; }",
+        "expectOutput": [
+          "-1"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "borrow",
+    "title": "2 貸し出す",
+    "text": "<p>関数 <code>borrow(b)</code> を完成させてください。本 <code>b</code> が借りられる(<code>available</code> が 1)なら、貸し出し中(0)にして貸し出し回数 <code>count</code> を1増やし、<code>1</code> を返します。貸し出し中なら何も変えずに <code>0</code> を返します。</p>",
+    "starter": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char title[32];\n    int available;\n    int count;\n} Book;\n\n// 本に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Book *b, char *title, int available, int count) {\n    strcpy(b->title, title);\n    b->available = available;\n    b->count = count;\n}\n\nint borrow(Book *b) {\n    b->available = 0;\n    return 1;\n}\n\nint main() {\n    Book books[4];\n    set(&books[0], \"はじめてのC\", 1, 12);\n    set(&books[1], \"星の図鑑\", 0, 30);\n    set(&books[2], \"料理の科学\", 1, 5);\n    set(&books[3], \"昆虫の世界\", 0, 18);\n    printf(\"%d %d\\n\", borrow(&books[0]), books[0].count);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char title[32];\n    int available;\n    int count;\n} Book;\n\n// 本に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Book *b, char *title, int available, int count) {\n    strcpy(b->title, title);\n    b->available = available;\n    b->count = count;\n}\n\nint borrow(Book *b) {\n    if (b->available == 0) {\n        return 0;\n    }\n    b->available = 0;\n    b->count++;\n    return 1;\n}\n\nint main() {\n    Book books[4];\n    set(&books[0], \"はじめてのC\", 1, 12);\n    set(&books[1], \"星の図鑑\", 0, 30);\n    set(&books[2], \"料理の科学\", 1, 5);\n    set(&books[3], \"昆虫の世界\", 0, 18);\n    printf(\"%d %d\\n\", borrow(&books[0]), books[0].count);\n    return 0;\n}\n",
+    "hints": [
+      "最初に if (b->available == 0) { return 0; } で、貸し出し中なら断ります。",
+      "そのあと b->available = 0; b->count++; return 1; です。"
+    ],
+    "tests": [
+      {
+        "label": "借りられる本を借りる",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); int r = borrow(&books[0]); printf(\"%d %d %d\\n\", r, books[0].available, books[0].count); return 0; }",
+        "expectOutput": [
+          "1 0 13"
+        ]
+      },
+      {
+        "label": "貸し出し中の本を借りる",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); int r = borrow(&books[1]); printf(\"%d %d %d\\n\", r, books[1].available, books[1].count); return 0; }",
+        "expectOutput": [
+          "0 0 30"
+        ]
+      },
+      {
+        "label": "同じ本を2回借りる",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); int a = borrow(&books[2]); int b = borrow(&books[2]); printf(\"%d %d %d\\n\", a, b, books[2].count); return 0; }",
+        "expectOutput": [
+          "1 0 6"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "available",
+    "title": "3 借りられる本を数える",
+    "text": "<p>関数 <code>count_available(books, n)</code> を完成させてください。今借りられる本(<code>available</code> が 1)が何冊あるかを返します。</p>",
+    "starter": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char title[32];\n    int available;\n    int count;\n} Book;\n\n// 本に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Book *b, char *title, int available, int count) {\n    strcpy(b->title, title);\n    b->available = available;\n    b->count = count;\n}\n\nint count_available(Book books[], int n) {\n    return n;\n}\n\nint main() {\n    Book books[4];\n    set(&books[0], \"はじめてのC\", 1, 12);\n    set(&books[1], \"星の図鑑\", 0, 30);\n    set(&books[2], \"料理の科学\", 1, 5);\n    set(&books[3], \"昆虫の世界\", 0, 18);\n    printf(\"%d\\n\", count_available(books, 4));\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char title[32];\n    int available;\n    int count;\n} Book;\n\n// 本に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Book *b, char *title, int available, int count) {\n    strcpy(b->title, title);\n    b->available = available;\n    b->count = count;\n}\n\nint count_available(Book books[], int n) {\n    int c = 0;\n    for (int i = 0; i < n; i++) {\n        if (books[i].available) {\n            c++;\n        }\n    }\n    return c;\n}\n\nint main() {\n    Book books[4];\n    set(&books[0], \"はじめてのC\", 1, 12);\n    set(&books[1], \"星の図鑑\", 0, 30);\n    set(&books[2], \"料理の科学\", 1, 5);\n    set(&books[3], \"昆虫の世界\", 0, 18);\n    printf(\"%d\\n\", count_available(books, 4));\n    return 0;\n}\n",
+    "hints": [
+      "for で1冊ずつ見て、books[i].available が 1 なら数を増やします。",
+      "int c = 0; for (int i = 0; i < n; i++) { if (books[i].available) { c++; } } return c;"
+    ],
+    "tests": [
+      {
+        "label": "4冊",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); printf(\"%d\\n\", count_available(books, 4)); return 0; }",
+        "expectOutput": [
+          "2"
+        ]
+      },
+      {
+        "label": "1冊借りたあと",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); books[0].available = 0; printf(\"%d\\n\", count_available(books, 4)); return 0; }",
+        "expectOutput": [
+          "1"
+        ]
+      },
+      {
+        "label": "全部返されたあと",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); for (int i = 0; i < 4; i++) { books[i].available = 1; } printf(\"%d\\n\", count_available(books, 4)); return 0; }",
+        "expectOutput": [
+          "4"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "popular",
+    "title": "4 いちばん人気の本",
+    "text": "<p>関数 <code>most_popular(books, n)</code> を完成させてください。貸し出し回数 <code>count</code> がいちばん多い本の番号を返します。同じ回数の本が複数あるときは、前にあるほうの番号です。<code>n</code> は 1 以上です。</p>",
+    "starter": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char title[32];\n    int available;\n    int count;\n} Book;\n\n// 本に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Book *b, char *title, int available, int count) {\n    strcpy(b->title, title);\n    b->available = available;\n    b->count = count;\n}\n\nint most_popular(Book books[], int n) {\n    return 0;\n}\n\nint main() {\n    Book books[4];\n    set(&books[0], \"はじめてのC\", 1, 12);\n    set(&books[1], \"星の図鑑\", 0, 30);\n    set(&books[2], \"料理の科学\", 1, 5);\n    set(&books[3], \"昆虫の世界\", 0, 18);\n    int i = most_popular(books, 4);\n    printf(\"%s\\n\", books[i].title);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char title[32];\n    int available;\n    int count;\n} Book;\n\n// 本に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Book *b, char *title, int available, int count) {\n    strcpy(b->title, title);\n    b->available = available;\n    b->count = count;\n}\n\nint most_popular(Book books[], int n) {\n    int best = 0;\n    for (int i = 1; i < n; i++) {\n        if (books[i].count > books[best].count) {\n            best = i;\n        }\n    }\n    return best;\n}\n\nint main() {\n    Book books[4];\n    set(&books[0], \"はじめてのC\", 1, 12);\n    set(&books[1], \"星の図鑑\", 0, 30);\n    set(&books[2], \"料理の科学\", 1, 5);\n    set(&books[3], \"昆虫の世界\", 0, 18);\n    int i = most_popular(books, 4);\n    printf(\"%s\\n\", books[i].title);\n    return 0;\n}\n",
+    "hints": [
+      "今いちばん多い番号を best = 0 として、残りを for で比べます。前にあるほうを選ぶので、比べるのは > (等しいときは入れ替えない)です。",
+      "int best = 0; for (int i = 1; i < n; i++) { if (books[i].count > books[best].count) { best = i; } } return best;"
+    ],
+    "tests": [
+      {
+        "label": "4冊",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); printf(\"%d\\n\", most_popular(books, 4)); return 0; }",
+        "expectOutput": [
+          "1"
+        ]
+      },
+      {
+        "label": "同じ回数がある",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); books[3].count = 30; books[0].count = 30; printf(\"%d\\n\", most_popular(books, 4)); return 0; }",
+        "expectOutput": [
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "report",
+    "title": "5 一覧を表示する",
+    "text": "<p>関数 <code>report(books, n)</code> を完成させてください。本を1冊1行で、次の形で表示します。状態は、借りられるなら「貸出可」、貸し出し中なら「貸出中」です。</p><pre>1. はじめてのC [貸出可] 12回\n2. 星の図鑑 [貸出中] 30回\n3. 料理の科学 [貸出可] 5回\n4. 昆虫の世界 [貸出中] 18回</pre><p>番号は 1 から数えます。</p>",
+    "starter": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char title[32];\n    int available;\n    int count;\n} Book;\n\n// 本に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Book *b, char *title, int available, int count) {\n    strcpy(b->title, title);\n    b->available = available;\n    b->count = count;\n}\n\nvoid report(Book books[], int n) {\n    for (int i = 0; i < n; i++) {\n        printf(\"%s\\n\", books[i].title);\n    }\n}\n\nint main() {\n    Book books[4];\n    set(&books[0], \"はじめてのC\", 1, 12);\n    set(&books[1], \"星の図鑑\", 0, 30);\n    set(&books[2], \"料理の科学\", 1, 5);\n    set(&books[3], \"昆虫の世界\", 0, 18);\n    report(books, 4);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char title[32];\n    int available;\n    int count;\n} Book;\n\n// 本に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Book *b, char *title, int available, int count) {\n    strcpy(b->title, title);\n    b->available = available;\n    b->count = count;\n}\n\nvoid report(Book books[], int n) {\n    for (int i = 0; i < n; i++) {\n        char *state = \"貸出中\";\n        if (books[i].available) {\n            state = \"貸出可\";\n        }\n        printf(\"%d. %s [%s] %d回\\n\", i + 1, books[i].title, state, books[i].count);\n    }\n}\n\nint main() {\n    Book books[4];\n    set(&books[0], \"はじめてのC\", 1, 12);\n    set(&books[1], \"星の図鑑\", 0, 30);\n    set(&books[2], \"料理の科学\", 1, 5);\n    set(&books[3], \"昆虫の世界\", 0, 18);\n    report(books, 4);\n    return 0;\n}\n",
+    "hints": [
+      "状態の文字列を char *state = \"貸出中\"; として、借りられるなら state = \"貸出可\"; に変えます。番号は i + 1 です。",
+      "printf(\"%d. %s [%s] %d回\\n\", i + 1, books[i].title, state, books[i].count);"
+    ],
+    "tests": [
+      {
+        "label": "4冊",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); report(books, 4); return 0; }",
+        "expectOutput": [
+          "1. はじめてのC [貸出可] 12回",
+          "2. 星の図鑑 [貸出中] 30回",
+          "3. 料理の科学 [貸出可] 5回",
+          "4. 昆虫の世界 [貸出中] 18回"
+        ]
+      },
+      {
+        "label": "貸し出したあとの2冊",
+        "main": "int main() { Book books[4]; set(&books[0], \"はじめてのC\", 1, 12); set(&books[1], \"星の図鑑\", 0, 30); set(&books[2], \"料理の科学\", 1, 5); set(&books[3], \"昆虫の世界\", 0, 18); books[2].available = 0; books[2].count = 6; report(books, 3); return 0; }",
+        "expectOutput": [
+          "1. はじめてのC [貸出可] 12回",
+          "2. 星の図鑑 [貸出中] 30回",
+          "3. 料理の科学 [貸出中] 6回"
+        ]
+      }
+    ]
+  }
+]

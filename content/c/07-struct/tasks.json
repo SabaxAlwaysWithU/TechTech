@@ -1,0 +1,133 @@
+[
+  {
+    "id": "make",
+    "title": "商品を1つ作る",
+    "text": "<p><code>Product</code> 型の変数 <code>p</code> を作り、名前を「マウス」、値段を 2500、在庫を 40 にして表示してください。<code>set</code> は使わず、<code>.</code> で1つずつ入れます(名前は <code>strcpy</code>)。</p><pre>マウス 2500 円(在庫 40)</pre>",
+    "starter": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char name[20];\n    int price;\n    int stock;\n} Product;\n\n// 商品に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Product *p, char *name, int price, int stock) {\n    strcpy(p->name, name);\n    p->price = price;\n    p->stock = stock;\n}\n\nint main() {\n    Product p;\n    // ここで p の名前・値段・在庫を入れる\n    printf(\"%s %d 円(在庫 %d)\\n\", p.name, p.price, p.stock);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char name[20];\n    int price;\n    int stock;\n} Product;\n\n// 商品に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Product *p, char *name, int price, int stock) {\n    strcpy(p->name, name);\n    p->price = price;\n    p->stock = stock;\n}\n\nint main() {\n    Product p;\n    strcpy(p.name, \"マウス\");\n    p.price = 2500;\n    p.stock = 40;\n    printf(\"%s %d 円(在庫 %d)\\n\", p.name, p.price, p.stock);\n    return 0;\n}\n",
+    "hints": [
+      "値段と在庫は p.price = 2500; のように代入します。名前は文字列なので = では入れられません。",
+      "strcpy(p.name, \"マウス\"); p.price = 2500; p.stock = 40;"
+    ],
+    "expectOutput": [
+      "マウス 2500 円(在庫 40)"
+    ]
+  },
+  {
+    "id": "value",
+    "title": "在庫の金額",
+    "text": "<p>関数 <code>stock_value(p)</code> を完成させてください。商品 <code>p</code> の「値段 × 在庫」を返します。</p>",
+    "starter": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char name[20];\n    int price;\n    int stock;\n} Product;\n\n// 商品に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Product *p, char *name, int price, int stock) {\n    strcpy(p->name, name);\n    p->price = price;\n    p->stock = stock;\n}\n\nint stock_value(Product p) {\n    return 0;\n}\n\nint main() {\n    Product p;\n    set(&p, \"マウス\", 2500, 40);\n    printf(\"%d\\n\", stock_value(p));\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char name[20];\n    int price;\n    int stock;\n} Product;\n\n// 商品に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Product *p, char *name, int price, int stock) {\n    strcpy(p->name, name);\n    p->price = price;\n    p->stock = stock;\n}\n\nint stock_value(Product p) {\n    return p.price * p.stock;\n}\n\nint main() {\n    Product p;\n    set(&p, \"マウス\", 2500, 40);\n    printf(\"%d\\n\", stock_value(p));\n    return 0;\n}\n",
+    "hints": [
+      "p は構造体そのもの(ポインタではない)なので、p.price と p.stock で読めます。",
+      "return p.price * p.stock;"
+    ],
+    "tests": [
+      {
+        "label": "マウス 2500 円 × 40",
+        "main": "int main() { Product p; set(&p, \"マウス\", 2500, 40); printf(\"%d\\n\", stock_value(p)); return 0; }",
+        "expectOutput": [
+          "100000"
+        ]
+      },
+      {
+        "label": "在庫 0 の商品",
+        "main": "int main() { Product p; set(&p, \"モニター\", 32000, 0); printf(\"%d\\n\", stock_value(p)); return 0; }",
+        "expectOutput": [
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "cheapest",
+    "title": "いちばん安い商品",
+    "text": "<p>関数 <code>cheapest(items, n)</code> を完成させてください。<code>n</code> 個の商品の中で、いちばん値段の安い商品の<strong>番号</strong>(添字)を返します。<code>n</code> は 1 以上です。</p>",
+    "starter": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char name[20];\n    int price;\n    int stock;\n} Product;\n\n// 商品に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Product *p, char *name, int price, int stock) {\n    strcpy(p->name, name);\n    p->price = price;\n    p->stock = stock;\n}\n\nint cheapest(Product items[], int n) {\n    return 0;\n}\n\nint main() {\n    Product items[4];\n    set(&items[0], \"マウス\", 2500, 40);\n    set(&items[1], \"モニター\", 32000, 3);\n    set(&items[2], \"USBメモリ\", 1800, 60);\n    set(&items[3], \"キーボード\", 6800, 8);\n    int i = cheapest(items, 4);\n    printf(\"%s\\n\", items[i].name);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char name[20];\n    int price;\n    int stock;\n} Product;\n\n// 商品に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Product *p, char *name, int price, int stock) {\n    strcpy(p->name, name);\n    p->price = price;\n    p->stock = stock;\n}\n\nint cheapest(Product items[], int n) {\n    int best = 0;\n    for (int i = 1; i < n; i++) {\n        if (items[i].price < items[best].price) {\n            best = i;\n        }\n    }\n    return best;\n}\n\nint main() {\n    Product items[4];\n    set(&items[0], \"マウス\", 2500, 40);\n    set(&items[1], \"モニター\", 32000, 3);\n    set(&items[2], \"USBメモリ\", 1800, 60);\n    set(&items[3], \"キーボード\", 6800, 8);\n    int i = cheapest(items, 4);\n    printf(\"%s\\n\", items[i].name);\n    return 0;\n}\n",
+    "hints": [
+      "今いちばん安い番号を best = 0 として、残りを for で比べます。比べるのは items[i].price と items[best].price です。",
+      "int best = 0; for (int i = 1; i < n; i++) { if (items[i].price < items[best].price) { best = i; } } return best;"
+    ],
+    "tests": [
+      {
+        "label": "4つの商品",
+        "main": "int main() { Product items[4]; set(&items[0], \"マウス\", 2500, 40); set(&items[1], \"モニター\", 32000, 3); set(&items[2], \"USBメモリ\", 1800, 60); set(&items[3], \"キーボード\", 6800, 8); printf(\"%d\\n\", cheapest(items, 4)); return 0; }",
+        "expectOutput": [
+          "2"
+        ]
+      },
+      {
+        "label": "最初の2つだけ",
+        "main": "int main() { Product items[4]; set(&items[0], \"マウス\", 2500, 40); set(&items[1], \"モニター\", 32000, 3); set(&items[2], \"USBメモリ\", 1800, 60); set(&items[3], \"キーボード\", 6800, 8); printf(\"%d\\n\", cheapest(items, 2)); return 0; }",
+        "expectOutput": [
+          "0"
+        ]
+      },
+      {
+        "label": "最後がいちばん安い3つ",
+        "main": "int main() { Product b[3]; set(&b[0], \"A\", 500, 1); set(&b[1], \"B\", 300, 1); set(&b[2], \"C\", 100, 1); printf(\"%d\\n\", cheapest(b, 3)); return 0; }",
+        "expectOutput": [
+          "2"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "restock",
+    "title": "入荷して在庫を増やす",
+    "text": "<p>関数 <code>restock(p, n)</code> を完成させてください。商品へのポインタ <code>p</code> を受け取り、その在庫を <code>n</code> 個増やします。値は返しません。</p>",
+    "starter": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char name[20];\n    int price;\n    int stock;\n} Product;\n\n// 商品に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Product *p, char *name, int price, int stock) {\n    strcpy(p->name, name);\n    p->price = price;\n    p->stock = stock;\n}\n\nvoid restock(Product *p, int n) {\n}\n\nint main() {\n    Product p;\n    set(&p, \"モニター\", 32000, 3);\n    restock(&p, 10);\n    printf(\"%d\\n\", p.stock);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char name[20];\n    int price;\n    int stock;\n} Product;\n\n// 商品に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Product *p, char *name, int price, int stock) {\n    strcpy(p->name, name);\n    p->price = price;\n    p->stock = stock;\n}\n\nvoid restock(Product *p, int n) {\n    p->stock += n;\n}\n\nint main() {\n    Product p;\n    set(&p, \"モニター\", 32000, 3);\n    restock(&p, 10);\n    printf(\"%d\\n\", p.stock);\n    return 0;\n}\n",
+    "hints": [
+      "p は構造体へのポインタなので、メンバーは -> で読み書きします。",
+      "p->stock += n;"
+    ],
+    "tests": [
+      {
+        "label": "在庫 3 に 10 入荷",
+        "main": "int main() { Product p; set(&p, \"モニター\", 32000, 3); restock(&p, 10); printf(\"%d\\n\", p.stock); return 0; }",
+        "expectOutput": [
+          "13"
+        ]
+      },
+      {
+        "label": "配列の中の商品に2回入荷",
+        "main": "int main() { Product items[4]; set(&items[0], \"マウス\", 2500, 40); set(&items[1], \"モニター\", 32000, 3); set(&items[2], \"USBメモリ\", 1800, 60); set(&items[3], \"キーボード\", 6800, 8); restock(&items[3], 2); restock(&items[3], 5); printf(\"%d %d\\n\", items[3].stock, items[0].stock); return 0; }",
+        "expectOutput": [
+          "15 40"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "low",
+    "title": "在庫が少ない商品を数える",
+    "text": "<p>関数 <code>count_low(items, n, limit)</code> を完成させてください。在庫が <code>limit</code> 未満の商品がいくつあるかを返し、あわせてその商品の名前を1行ずつ表示します。</p><pre>count_low(items, 4, 10) の表示\nモニター\nキーボード\n(戻り値は 2)</pre>",
+    "starter": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char name[20];\n    int price;\n    int stock;\n} Product;\n\n// 商品に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Product *p, char *name, int price, int stock) {\n    strcpy(p->name, name);\n    p->price = price;\n    p->stock = stock;\n}\n\nint count_low(Product items[], int n, int limit) {\n    int count = 0;\n    return count;\n}\n\nint main() {\n    Product items[4];\n    set(&items[0], \"マウス\", 2500, 40);\n    set(&items[1], \"モニター\", 32000, 3);\n    set(&items[2], \"USBメモリ\", 1800, 60);\n    set(&items[3], \"キーボード\", 6800, 8);\n    int c = count_low(items, 4, 10);\n    printf(\"%d 個\\n\", c);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n#include <string.h>\n\ntypedef struct {\n    char name[20];\n    int price;\n    int stock;\n} Product;\n\n// 商品に値をまとめて入れる(この練習場では { } での初期化が使えないため)\nvoid set(Product *p, char *name, int price, int stock) {\n    strcpy(p->name, name);\n    p->price = price;\n    p->stock = stock;\n}\n\nint count_low(Product items[], int n, int limit) {\n    int count = 0;\n    for (int i = 0; i < n; i++) {\n        if (items[i].stock < limit) {\n            printf(\"%s\\n\", items[i].name);\n            count++;\n        }\n    }\n    return count;\n}\n\nint main() {\n    Product items[4];\n    set(&items[0], \"マウス\", 2500, 40);\n    set(&items[1], \"モニター\", 32000, 3);\n    set(&items[2], \"USBメモリ\", 1800, 60);\n    set(&items[3], \"キーボード\", 6800, 8);\n    int c = count_low(items, 4, 10);\n    printf(\"%d 個\\n\", c);\n    return 0;\n}\n",
+    "hints": [
+      "for で items[i] を順に見て、items[i].stock < limit なら、名前を表示して count を増やします。",
+      "if (items[i].stock < limit) { printf(\"%s\\n\", items[i].name); count++; }"
+    ],
+    "tests": [
+      {
+        "label": "limit = 10",
+        "main": "int main() { Product items[4]; set(&items[0], \"マウス\", 2500, 40); set(&items[1], \"モニター\", 32000, 3); set(&items[2], \"USBメモリ\", 1800, 60); set(&items[3], \"キーボード\", 6800, 8); int c = count_low(items, 4, 10); printf(\"%d\\n\", c); return 0; }",
+        "expectOutput": [
+          "モニター",
+          "キーボード",
+          "2"
+        ]
+      },
+      {
+        "label": "limit = 3",
+        "main": "int main() { Product items[4]; set(&items[0], \"マウス\", 2500, 40); set(&items[1], \"モニター\", 32000, 3); set(&items[2], \"USBメモリ\", 1800, 60); set(&items[3], \"キーボード\", 6800, 8); int c = count_low(items, 4, 3); printf(\"%d\\n\", c); return 0; }",
+        "expectOutput": [
+          "0"
+        ]
+      }
+    ]
+  }
+]

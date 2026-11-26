@@ -1,0 +1,141 @@
+[
+  {
+    "id": "max",
+    "title": "大きいほうを返す",
+    "text": "<p>関数 <code>max2(a, b)</code> を完成させてください。2つの整数のうち、大きいほうを返します。同じなら、その値を返します。</p><p>判定では、<code>main</code> を確かめ用のものに差し替えて呼びます。</p>",
+    "starter": "#include <stdio.h>\n\nint max2(int a, int b) {\n    return a;\n}\n\nint main() {\n    printf(\"%d\\n\", max2(3, 8));\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint max2(int a, int b) {\n    if (a > b) {\n        return a;\n    }\n    return b;\n}\n\nint main() {\n    printf(\"%d\\n\", max2(3, 8));\n    return 0;\n}\n",
+    "hints": [
+      "if (a > b) で比べて、大きいほうを return します。",
+      "if (a > b) { return a; } のあとに return b; です。"
+    ],
+    "tests": [
+      {
+        "label": "max2(3, 8)",
+        "main": "int main() { printf(\"%d\\n\", max2(3, 8)); return 0; }",
+        "expectOutput": [
+          "8"
+        ]
+      },
+      {
+        "label": "max2(9, 2)",
+        "main": "int main() { printf(\"%d\\n\", max2(9, 2)); return 0; }",
+        "expectOutput": [
+          "9"
+        ]
+      },
+      {
+        "label": "max2(-5, -1)、max2(4, 4)",
+        "main": "int main() { printf(\"%d %d\\n\", max2(-5, -1), max2(4, 4)); return 0; }",
+        "expectOutput": [
+          "-1 4"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "even",
+    "title": "偶数かどうか",
+    "text": "<p>関数 <code>is_even(n)</code> を完成させてください。<code>n</code> が偶数なら <code>1</code>、奇数なら <code>0</code> を返します。</p>",
+    "starter": "#include <stdio.h>\n\nint is_even(int n) {\n    return 0;\n}\n\nint main() {\n    printf(\"%d %d\\n\", is_even(4), is_even(7));\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint is_even(int n) {\n    return n % 2 == 0;\n}\n\nint main() {\n    printf(\"%d %d\\n\", is_even(4), is_even(7));\n    return 0;\n}\n",
+    "hints": [
+      "偶数は「2 で割った余りが 0」の数です。比べた結果(1 か 0)をそのまま返せます。",
+      "return n % 2 == 0;"
+    ],
+    "tests": [
+      {
+        "label": "is_even(4)、is_even(7)",
+        "main": "int main() { printf(\"%d %d\\n\", is_even(4), is_even(7)); return 0; }",
+        "expectOutput": [
+          "1 0"
+        ]
+      },
+      {
+        "label": "is_even(0)、is_even(100)、is_even(-3)",
+        "main": "int main() { printf(\"%d %d %d\\n\", is_even(0), is_even(100), is_even(-3)); return 0; }",
+        "expectOutput": [
+          "1 1 0"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "stars",
+    "title": "星を並べる",
+    "text": "<p>関数 <code>stars(n)</code> を完成させてください。<code>*</code> を <code>n</code> 個並べて表示し、最後に改行します。値は返しません(<code>void</code>)。</p><pre>stars(3) → ***</pre>",
+    "starter": "#include <stdio.h>\n\nvoid stars(int n) {\n    printf(\"*\\n\");\n}\n\nint main() {\n    stars(3);\n    stars(5);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nvoid stars(int n) {\n    for (int i = 0; i < n; i++) {\n        printf(\"*\");\n    }\n    printf(\"\\n\");\n}\n\nint main() {\n    stars(3);\n    stars(5);\n    return 0;\n}\n",
+    "hints": [
+      "for で n 回くり返し、ループの中では改行せずに * だけを出します。",
+      "for (int i = 0; i < n; i++) { printf(\"*\"); } のあとに printf(\"\\n\"); です。"
+    ],
+    "tests": [
+      {
+        "label": "stars(3)、stars(1)",
+        "main": "int main() { stars(3); stars(1); return 0; }",
+        "expectOutput": [
+          "***",
+          "*"
+        ]
+      },
+      {
+        "label": "stars(7)",
+        "main": "int main() { stars(7); return 0; }",
+        "expectOutput": [
+          "*******"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "fact",
+    "title": "階乗を再帰で",
+    "text": "<p>関数 <code>fact(n)</code> を、再帰(自分自身を呼ぶ)で完成させてください。<code>n</code> の階乗(n × (n-1) × … × 1)を返します。<code>fact(0)</code> と <code>fact(1)</code> は <code>1</code> です。</p>",
+    "starter": "#include <stdio.h>\n\nint fact(int n) {\n    return n;\n}\n\nint main() {\n    printf(\"%d\\n\", fact(5));\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint fact(int n) {\n    if (n <= 1) {\n        return 1;\n    }\n    return n * fact(n - 1);\n}\n\nint main() {\n    printf(\"%d\\n\", fact(5));\n    return 0;\n}\n",
+    "hints": [
+      "終わりの条件は「n が 1 以下なら 1 を返す」。それ以外は n × fact(n - 1) です。",
+      "if (n <= 1) { return 1; } return n * fact(n - 1);"
+    ],
+    "tests": [
+      {
+        "label": "fact(5)",
+        "main": "int main() { printf(\"%d\\n\", fact(5)); return 0; }",
+        "expectOutput": [
+          "120"
+        ]
+      },
+      {
+        "label": "fact(0)、fact(1)、fact(10)",
+        "main": "int main() { printf(\"%d %d %d\\n\", fact(0), fact(1), fact(10)); return 0; }",
+        "expectOutput": [
+          "1 1 3628800"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "copy",
+    "title": "書き換えた結果を返す",
+    "text": "<p>関数 <code>add_tax(price)</code> は、値段を税込み(1.1 倍、小数点以下切り捨て)にするつもりで作りましたが、<code>main</code> の値段が変わりません。</p><p><code>add_tax</code> が税込みの値段を<strong>返す</strong>ように直し、<code>main</code> でその値を受け取ってください。</p><pre>税込み 2200 円</pre>",
+    "starter": "#include <stdio.h>\n\nvoid add_tax(int price) {\n    price = price * 11 / 10;\n}\n\nint main() {\n    int price = 2000;\n    add_tax(price);\n    printf(\"税込み %d 円\\n\", price);\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint add_tax(int price) {\n    return price * 11 / 10;\n}\n\nint main() {\n    int price = 2000;\n    price = add_tax(price);\n    printf(\"税込み %d 円\\n\", price);\n    return 0;\n}\n",
+    "hints": [
+      "引数はコピーで渡るので、関数の中で price を書き換えても、main の price は変わりません。値を return で返します。",
+      "int add_tax(int price) { return price * 11 / 10; } にして、main では price = add_tax(price); と受け取ります。"
+    ],
+    "expectOutput": [
+      "税込み 2200 円"
+    ],
+    "tests": [
+      {
+        "label": "add_tax(1000)、add_tax(1980)",
+        "main": "int main() { printf(\"%d %d\\n\", add_tax(1000), add_tax(1980)); return 0; }",
+        "expectOutput": [
+          "1100 2178"
+        ]
+      }
+    ]
+  }
+]

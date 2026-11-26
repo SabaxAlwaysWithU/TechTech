@@ -6,7 +6,7 @@
 // content/<分野>/schema.sql           分野共通の練習用データ(SQLのみ)
 import { getCollection } from 'astro:content';
 
-export type PracticeKind = 'sql' | 'html' | 'js' | 'python' | 'shell' | 'stack' | 'net';
+export type PracticeKind = 'sql' | 'html' | 'js' | 'python' | 'c' | 'bits' | 'regex' | 'shell' | 'stack' | 'net';
 
 export interface Field {
   id: string;
@@ -71,6 +71,14 @@ export interface Task {
   page?: string; // JS の画面の課題: 見本のページ(SAMPLE_PAGE)の代わりに使う HTML
   storage?: Record<string, string>; // JS: 実行を始めるときの localStorage の中身(課題では実行のたびにここから始める)
   expectStorage?: Record<string, string | null>; // JS: 実行後の localStorage の中身がこの通りなら正解(null は「ない」)
+  // 正規表現用。仕組みは lib/regex-core.js。answer はパターン、starter は最初のパターン
+  regex?: { match?: string[]; noMatch?: string[]; full?: boolean; flags?: string; extract?: { text: string; expect: string[]; group?: number }; replace?: { text: string; with: string; expect: string } };
+  // ビット(コンピュータの中の数)用。仕組みは lib/bits-core.js
+  bits?: { width?: number; fraction?: number; start?: string; ops?: string[] }; // 練習場の設定
+  bitChecks?: { value?: number; signed?: number; fixed?: number; usedOp?: string; ones?: number; message: string }[];
+  bytesTool?: boolean; // 「文字のバイト」の欄を出す
+  // C: 関数の課題で、利用者の main を取り除いて差し替える確かめ用の main と、その出力(lib/crunner.ts)
+  tests?: CTest[];
   // Python: 練習用のファイル(名前 → 中身)。pyrun-core.js の SAMPLE_FILES に足して、実行のたびに作り直す
   files?: Record<string, string>;
   // シェル(OS)用。ShellCheck は lib/shell.ts
@@ -93,6 +101,13 @@ export interface SqlApp {
   query: string; // {欄id} に入力が入る
   safe?: boolean; // プレースホルダ(?)で値として渡す
   fields: { id: string; label: string; type?: string }[];
+}
+
+/** C の課題の確かめ。利用者の main の代わりに main を付けて実行し、出力を expectOutput と比べる */
+export interface CTest {
+  label: string; // 判定のメッセージに出す名前(例: "add(2, 3)")
+  main: string; // 例: int main() { printf("%d\n", add(2, 3)); return 0; }
+  expectOutput: string[];
 }
 
 export interface NetCheckLike {

@@ -1,6 +1,6 @@
 // 本物のブラウザ(ヘッドレスの Chrome / Edge)で、サイトを確かめる。
 //   1. 全課題の模範解答(tasks.json の answer)を練習場に入れて実行し、「正解です」になるか
-//   2. HTML、JavaScript、Python の課題は、初期状態(starter)のままでは正解にならないか
+//   2. HTML、JavaScript、Python、C の課題は、初期状態(starter)のままでは正解にならないか
 //   3. 全ページをスマホ幅(375px)で開き、横にはみ出していないか
 //
 // 使い方: npm run build のあと node scripts/browser-check.mjs
@@ -19,6 +19,7 @@ import { readFileSync, readdirSync, statSync, existsSync, mkdtempSync, rmSync } 
 import { join, extname, delimiter } from 'node:path';
 import { tmpdir } from 'node:os';
 import { parseAppAnswer } from '../src/lib/sqlapp-core.js';
+import { parseBitsAnswer } from '../src/lib/bits-core.js';
 
 const root = join(import.meta.dirname, '..');
 const dist = join(root, 'dist');
@@ -228,6 +229,26 @@ async function runTask(tab, job) {
       await tab.eval(setValue('code-input', code));
       await tab.eval(`document.getElementById('run').click()`);
       break;
+    case 'regex':
+      await tab.eval(setValue('pattern', code));
+      return waitFor(async () => { const v = await verdict(tab); return v.startsWith('正解') && v; }, 3000, '判定').catch(() => verdict(tab));
+    case 'bits':
+      // 模範解答の手順: 0 と 1 の並びにする(違うビットを押す)、または「操作: +1」のボタンを押す
+      for (const step of parseBitsAnswer(code)) {
+        if (step.set !== undefined) {
+          await tab.eval(`(() => { const want = ${js(step.set)}; const n = document.querySelectorAll('#bits .bit').length; const w = want.padStart(n, '0').slice(-n); for (let i = 0; i < n; i++) { const b = document.getElementById('bit-' + i); if (b.querySelector('.v').textContent !== w[i]) b.click(); } })()`);
+        } else if (step.op) {
+          await tab.eval(`document.querySelector('#ops [data-op="${step.op}"]').click()`);
+        } else {
+          throw new Error(`模範解答の手順を読み取れません: ${step.raw}`);
+        }
+      }
+      return waitFor(async () => { const v = await verdict(tab); return v.startsWith('正解') && v; }, 3000, '判定').catch(() => verdict(tab));
+    case 'c':
+      await waitFor(() => tab.eval(`!document.getElementById('run').disabled`), 15000, 'C の準備');
+      await tab.eval(setValue('code-input', code));
+      await tab.eval(`document.getElementById('run').click()`);
+      break;
     case 'stack':
       for (const [layer, ids] of Object.entries(task.picks)) {
         await tab.eval(`(() => { const s = document.getElementById(${js('sel-' + layer)}); s.value = ${js(ids[0])}; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
@@ -257,7 +278,7 @@ for (const field of readdirSync(content).sort()) {
       const name = `${field}/${lesson} 課題${i + 1}(${task.id})`;
       const url = `${origin}/${field}/${lesson}/practice/?task=${i + 1}`;
       jobs.push({ kind: 'answer', name, url, practice, task, code: task.answer ?? '' });
-      if (['html', 'js', 'python'].includes(practice) && task.starter?.trim()) {
+      if (['html', 'js', 'python', 'c'].includes(practice) && task.starter?.trim()) {
         jobs.push({ kind: 'starter', name: `${name} の初期状態`, url, practice, task, code: task.starter });
       }
     });

@@ -1,0 +1,125 @@
+[
+  {
+    "id": "linear",
+    "title": "線形探索を書く",
+    "text": "<p>関数 <code>linear_search(items, target)</code> を完成させてください。前から順に見て、<code>target</code> と同じ値があればその番号を、なければ <code>-1</code> を返します。<code>index</code> や <code>in</code> は使わずに書きましょう。</p>",
+    "starter": "def linear_search(items, target):\n    return -1\n\nprint(linear_search([\"佐藤\", \"鈴木\", \"高橋\"], \"鈴木\"))\n",
+    "answer": "def linear_search(items, target):\n    for i in range(len(items)):\n        if items[i] == target:\n            return i\n    return -1\n\nprint(linear_search([\"佐藤\", \"鈴木\", \"高橋\"], \"鈴木\"))",
+    "hints": [
+      "for i in range(len(items)): で番号を回し、items[i] == target なら return i です。",
+      "ループを最後まで回りきったら見つからなかったので、ループのあとで return -1 です。"
+    ],
+    "calls": [
+      {
+        "call": "linear_search([\"佐藤\", \"鈴木\", \"高橋\"], \"鈴木\")",
+        "expect": 1
+      },
+      {
+        "call": "linear_search([\"佐藤\", \"鈴木\", \"高橋\"], \"伊藤\")",
+        "expect": -1
+      },
+      {
+        "call": "linear_search([5, 3, 5], 5)",
+        "expect": 0
+      },
+      {
+        "call": "linear_search([], 1)",
+        "expect": -1
+      }
+    ]
+  },
+  {
+    "id": "steps",
+    "title": "比べた回数を数える",
+    "text": "<p>関数 <code>search_steps(items, target)</code> を完成させてください。線形探索をして、<code>[見つかった番号, 比べた回数]</code> を返します。見つからなければ番号は <code>-1</code> で、比べた回数は全部の個数です。</p>",
+    "starter": "def search_steps(items, target):\n    steps = 0\n    return [-1, steps]\n\nprint(search_steps(list(range(1, 1001)), 500))\n",
+    "answer": "def search_steps(items, target):\n    steps = 0\n    for i in range(len(items)):\n        steps += 1\n        if items[i] == target:\n            return [i, steps]\n    return [-1, steps]\n\nprint(search_steps(list(range(1, 1001)), 500))",
+    "hints": [
+      "1つ比べるたびに steps += 1 します。見つかったら、そのときの番号と steps を返します。",
+      "for i in range(len(items)): steps += 1; if items[i] == target: return [i, steps] … ループのあとで return [-1, steps]"
+    ],
+    "calls": [
+      {
+        "call": "search_steps(list(range(1, 1001)), 1)",
+        "expect": [
+          0,
+          1
+        ]
+      },
+      {
+        "call": "search_steps(list(range(1, 1001)), 500)",
+        "expect": [
+          499,
+          500
+        ]
+      },
+      {
+        "call": "search_steps(list(range(1, 1001)), 5000)",
+        "expect": [
+          -1,
+          1000
+        ]
+      }
+    ]
+  },
+  {
+    "id": "all",
+    "title": "全部の場所を探す",
+    "text": "<p>関数 <code>find_all(items, target)</code> を完成させてください。<code>target</code> と同じ値がある番号を、すべてリストにして返します。1つもなければ空のリストです。</p>",
+    "starter": "def find_all(items, target):\n    result = []\n    return result\n\nprint(find_all([\"A\", \"B\", \"A\", \"C\", \"A\"], \"A\"))\n",
+    "answer": "def find_all(items, target):\n    result = []\n    for i in range(len(items)):\n        if items[i] == target:\n            result.append(i)\n    return result\n\nprint(find_all([\"A\", \"B\", \"A\", \"C\", \"A\"], \"A\"))",
+    "hints": [
+      "見つかっても return せずに、番号を result に append して最後まで見ます。",
+      "for i in range(len(items)): if items[i] == target: result.append(i)"
+    ],
+    "calls": [
+      {
+        "call": "find_all([\"A\", \"B\", \"A\", \"C\", \"A\"], \"A\")",
+        "expect": [
+          0,
+          2,
+          4
+        ]
+      },
+      {
+        "call": "find_all([1, 2, 3], 9)",
+        "expect": []
+      },
+      {
+        "call": "find_all([7], 7)",
+        "expect": [
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "id": "max",
+    "title": "いちばん大きいものの場所",
+    "text": "<p>関数 <code>max_index(items)</code> を完成させてください。いちばん大きい値の番号を返します(同じ値が複数あれば、前にあるほう)。<code>max</code> は使わずに、前から1回見るだけで求めます。<code>items</code> は1つ以上あります。</p>",
+    "starter": "def max_index(items):\n    return 0\n\nprint(max_index([3, 9, 2, 9]))\n",
+    "answer": "def max_index(items):\n    best = 0\n    for i in range(1, len(items)):\n        if items[i] > items[best]:\n            best = i\n    return best\n\nprint(max_index([3, 9, 2, 9]))",
+    "hints": [
+      "今までで最大の番号 best を 0 から始め、1番から順に比べます。",
+      "if items[i] > items[best]: best = i(> なので、同じ値なら前のまま)"
+    ],
+    "calls": [
+      {
+        "call": "max_index([3, 9, 2, 9])",
+        "expect": 1
+      },
+      {
+        "call": "max_index([-5, -2, -8])",
+        "expect": 1
+      },
+      {
+        "call": "max_index([4, 1, 2, 3])",
+        "expect": 0
+      },
+      {
+        "call": "max_index([1, 2, 3, 10])",
+        "expect": 3
+      }
+    ]
+  }
+]

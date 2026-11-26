@@ -1,0 +1,61 @@
+[
+  {
+    "id": "hello",
+    "title": "あいさつを出す",
+    "text": "<p><code>printf</code> を使って、<code>Hello, C!</code> と表示してください。最後は改行(<code>\\n</code>)で終えます。</p>",
+    "starter": "#include <stdio.h>\n\nint main() {\n    // ここに printf を書く\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint main() {\n    printf(\"Hello, C!\\n\");\n    return 0;\n}\n",
+    "hints": [
+      "printf(\"表示したい文字\\n\"); の形です。文の終わりの ; を忘れずに。",
+      "printf(\"Hello, C!\\n\");"
+    ],
+    "expectOutput": [
+      "Hello, C!"
+    ]
+  },
+  {
+    "id": "newline",
+    "title": "改行を入れる",
+    "text": "<p>今のコードを実行すると、2つの文が1行につながって表示されます。それぞれが1行ずつになるように直してください。</p><pre>おはよう\nこんにちは</pre>",
+    "starter": "#include <stdio.h>\n\nint main() {\n    printf(\"おはよう\");\n    printf(\"こんにちは\");\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint main() {\n    printf(\"おはよう\\n\");\n    printf(\"こんにちは\\n\");\n    return 0;\n}\n",
+    "hints": [
+      "printf は、自分では改行しません。改行したいところに改行の印を書きます。",
+      "それぞれの文字の最後に \\n を足します。printf(\"おはよう\\n\");"
+    ],
+    "expectOutput": [
+      "おはよう",
+      "こんにちは"
+    ]
+  },
+  {
+    "id": "semicolon",
+    "title": "エラーを直す",
+    "text": "<p>このコードは、実行するとエラーになります。エラーの行番号と補足を手がかりに直して、2行を表示させてください。</p>",
+    "starter": "#include <stdio.h>\n\nint main() {\n    printf(\"C は速い\\n\")\n    printf(\"C は小さい\\n\");\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint main() {\n    printf(\"C は速い\\n\");\n    printf(\"C は小さい\\n\");\n    return 0;\n}\n",
+    "hints": [
+      "エラーは5行目と出ますが、本当の原因はその1つ前の行にあります。",
+      "4行目の終わりに ; を足します。"
+    ],
+    "expectOutput": [
+      "C は速い",
+      "C は小さい"
+    ]
+  },
+  {
+    "id": "format",
+    "title": "%d で計算の答えを出す",
+    "text": "<p>1時間の秒数と、1日の秒数を、<code>%d</code> を使って表示してください。数は自分で計算せず、<code>60 * 60</code> のような式で書きます。</p><pre>1時間は 3600 秒\n1日は 86400 秒</pre>",
+    "starter": "#include <stdio.h>\n\nint main() {\n    printf(\"1時間は %d 秒\\n\");\n    return 0;\n}\n",
+    "answer": "#include <stdio.h>\n\nint main() {\n    printf(\"1時間は %d 秒\\n\", 60 * 60);\n    printf(\"1日は %d 秒\\n\", 60 * 60 * 24);\n    return 0;\n}\n",
+    "hints": [
+      "%d を書いたら、文字のうしろにカンマで区切って、そこに入れる値を書きます。printf(\"…%d…\\n\", 値);",
+      "printf(\"1時間は %d 秒\\n\", 60 * 60); と、もう1行 printf(\"1日は %d 秒\\n\", 60 * 60 * 24);"
+    ],
+    "expectOutput": [
+      "1時間は 3600 秒",
+      "1日は 86400 秒"
+    ]
+  }
+]

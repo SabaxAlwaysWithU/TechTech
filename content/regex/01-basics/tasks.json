@@ -1,0 +1,115 @@
+[
+  {
+    "id": "cat",
+    "title": "文字そのもので探す",
+    "text": "<p><code>cat</code> という並びがあるところに一致するパターンを書いてください。右の表で、一致してほしいものが全部 ✓ になれば正解です。</p>",
+    "starter": "",
+    "answer": "cat",
+    "hints": [
+      "文字そのものは、そのまま書きます。",
+      "cat"
+    ],
+    "regex": {
+      "match": [
+        "cat",
+        "concat",
+        "my cat"
+      ],
+      "noMatch": [
+        "dog",
+        "ca t",
+        "CAT"
+      ]
+    }
+  },
+  {
+    "id": "dot",
+    "title": "なんでも1文字",
+    "text": "<p><code>c</code> と <code>t</code> の間に、<strong>ちょうど1文字</strong>何かがあるものに一致させてください。</p>",
+    "starter": "",
+    "answer": "c.t",
+    "hints": [
+      ". はどんな文字でも1文字に一致します。",
+      "c.t"
+    ],
+    "regex": {
+      "match": [
+        "cat",
+        "cut",
+        "c9t"
+      ],
+      "noMatch": [
+        "ct",
+        "cart",
+        "coat"
+      ]
+    }
+  },
+  {
+    "id": "gray",
+    "title": "どれか1文字",
+    "text": "<p><code>gray</code> と <code>grey</code> の両方に一致し、ほかには一致しないパターンを書いてください。</p>",
+    "starter": "",
+    "answer": "gr[ae]y",
+    "hints": [
+      "違うのは3文字目だけです。[ ] の中に、入ってよい文字を並べます。",
+      "gr[ae]y"
+    ],
+    "regex": {
+      "match": [
+        "gray",
+        "grey"
+      ],
+      "noMatch": [
+        "gry",
+        "graey",
+        "groy"
+      ]
+    }
+  },
+  {
+    "id": "digits",
+    "title": "数字が3つ続く",
+    "text": "<p>数字が3つ続いているところに一致させてください。</p>",
+    "starter": "",
+    "answer": "\\d\\d\\d",
+    "hints": [
+      "数字1文字は \\d です(または [0-9])。",
+      "\\d\\d\\d"
+    ],
+    "regex": {
+      "match": [
+        "123",
+        "abc456",
+        "03-123"
+      ],
+      "noMatch": [
+        "12",
+        "1-2-3",
+        "abc"
+      ]
+    }
+  },
+  {
+    "id": "escape",
+    "title": "ドットそのもの",
+    "text": "<p>「数字、ドット、数字」の並び(<code>3.14</code> の <code>3.1</code> のような部分)に一致させてください。ドットは文字そのものの「.」です。</p>",
+    "starter": "\\d.\\d",
+    "answer": "\\d\\.\\d",
+    "hints": [
+      ". は特別な意味があるので、そのままでは「なんでも1文字」になってしまいます。",
+      "ドットの前に \\ を付けます。\\d\\.\\d"
+    ],
+    "regex": {
+      "match": [
+        "3.14",
+        "1.5"
+      ],
+      "noMatch": [
+        "314",
+        "3,14",
+        "3x14"
+      ]
+    }
+  }
+]

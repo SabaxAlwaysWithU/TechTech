@@ -1,0 +1,94 @@
+[
+  {
+    "id": "escape",
+    "title": "エスケープの関数",
+    "text": "<p>関数 <code>escapeHtml(s)</code> を完成させてください。<code>&amp; &lt; &gt; \" '</code> の5つを、<code>&amp;amp; &amp;lt; &amp;gt; &amp;quot; &amp;#39;</code> に置き換えた文字列を返します。</p>",
+    "starter": "function escapeHtml(s) {\n  return s;\n}\n\nconsole.log(escapeHtml(\"<b>\"));\n",
+    "answer": "function escapeHtml(s) {\n  return s\n    .replaceAll(\"&\", \"&amp;\")\n    .replaceAll(\"<\", \"&lt;\")\n    .replaceAll(\">\", \"&gt;\")\n    .replaceAll('\"', \"&quot;\")\n    .replaceAll(\"'\", \"&#39;\");\n}\n\nconsole.log(escapeHtml(\"<b>\"));",
+    "hints": [
+      "replaceAll(\"&\", \"&amp;\") のように、1つずつ置き換えます。& を最初にします。",
+      "return s.replaceAll(\"&\", \"&amp;\").replaceAll(\"<\", \"&lt;\").replaceAll(\">\", \"&gt;\").replaceAll('\"', \"&quot;\").replaceAll(\"'\", \"&#39;\");"
+    ],
+    "calls": [
+      {
+        "call": "escapeHtml(\"<b>\")",
+        "expect": "&lt;b&gt;"
+      },
+      {
+        "call": "escapeHtml(\"Tom & Jerry\")",
+        "expect": "Tom &amp; Jerry"
+      },
+      {
+        "call": "escapeHtml('<a href=\"x\">it\\'s</a>')",
+        "expect": "&lt;a href=&quot;x&quot;&gt;it&#39;s&lt;/a&gt;"
+      },
+      {
+        "call": "escapeHtml(\"ふつうの文\")",
+        "expect": "ふつうの文"
+      }
+    ]
+  },
+  {
+    "id": "order",
+    "title": "置き換えの順番",
+    "text": "<p>この <code>escapeHtml</code> は、<code>&lt;</code> を置き換えてから <code>&amp;</code> を置き換えているので、<code>&lt;</code> が二重に置き換わってしまいます。正しい順番に直してください。</p>",
+    "starter": "function escapeHtml(s) {\n  return s\n    .replaceAll(\"<\", \"&lt;\")\n    .replaceAll(\">\", \"&gt;\")\n    .replaceAll(\"&\", \"&amp;\")\n    .replaceAll('\"', \"&quot;\")\n    .replaceAll(\"'\", \"&#39;\");\n}\n\nconsole.log(escapeHtml(\"<b>\"));\n",
+    "answer": "function escapeHtml(s) {\n  return s\n    .replaceAll(\"&\", \"&amp;\")\n    .replaceAll(\"<\", \"&lt;\")\n    .replaceAll(\">\", \"&gt;\")\n    .replaceAll('\"', \"&quot;\")\n    .replaceAll(\"'\", \"&#39;\");\n}\n\nconsole.log(escapeHtml(\"<b>\"));",
+    "hints": [
+      "実行すると &amp;lt;b&amp;gt; になります。&lt; の & まで置き換えているためです。",
+      "replaceAll(\"&\", \"&amp;\") をいちばん最初にします。"
+    ],
+    "calls": [
+      {
+        "call": "escapeHtml(\"<b>\")",
+        "expect": "&lt;b&gt;"
+      },
+      {
+        "call": "escapeHtml(\"a & b < c\")",
+        "expect": "a &amp; b &lt; c"
+      }
+    ]
+  },
+  {
+    "id": "template",
+    "title": "安全なテンプレート",
+    "text": "<p>関数 <code>commentHtml(name, body)</code> を完成させてください。<code>&lt;li&gt;&lt;strong&gt;名前&lt;/strong&gt; ひとこと&lt;/li&gt;</code> の形の HTML の文字列を返します。名前とひとことは、<code>escapeHtml</code> でエスケープしてから入れます。</p>",
+    "starter": "function escapeHtml(s) {\n  return s\n    .replaceAll(\"&\", \"&amp;\")\n    .replaceAll(\"<\", \"&lt;\")\n    .replaceAll(\">\", \"&gt;\")\n    .replaceAll('\"', \"&quot;\")\n    .replaceAll(\"'\", \"&#39;\");\n}\n\nfunction commentHtml(name, body) {\n  return `<li><strong>${name}</strong> ${body}</li>`;\n}\n\nconsole.log(commentHtml(\"さば\", \"こんにちは\"));\n",
+    "answer": "function escapeHtml(s) {\n  return s\n    .replaceAll(\"&\", \"&amp;\")\n    .replaceAll(\"<\", \"&lt;\")\n    .replaceAll(\">\", \"&gt;\")\n    .replaceAll('\"', \"&quot;\")\n    .replaceAll(\"'\", \"&#39;\");\n}\n\nfunction commentHtml(name, body) {\n  return `<li><strong>${escapeHtml(name)}</strong> ${escapeHtml(body)}</li>`;\n}\n\nconsole.log(commentHtml(\"さば\", \"こんにちは\"));",
+    "hints": [
+      "テンプレートの ${ } の中で、escapeHtml(name) のように呼びます。",
+      "return `<li><strong>${escapeHtml(name)}</strong> ${escapeHtml(body)}</li>`;"
+    ],
+    "calls": [
+      {
+        "call": "commentHtml(\"さば\", \"こんにちは\")",
+        "expect": "<li><strong>さば</strong> こんにちは</li>"
+      },
+      {
+        "call": "commentHtml(\"<script>\", \"a&b\")",
+        "expect": "<li><strong>&lt;script&gt;</strong> a&amp;b</li>"
+      }
+    ]
+  },
+  {
+    "id": "url",
+    "title": "URL の中は別のやり方で",
+    "text": "<p>関数 <code>searchUrl(word)</code> を完成させてください。<code>https://shop.example/search?q=</code> のうしろに検索語を付けた URL を返します。検索語は、URL 用に <code>encodeURIComponent</code> で置き換えてから付けます(HTML のエスケープとは別物です)。</p>",
+    "starter": "function searchUrl(word) {\n  return \"https://shop.example/search?q=\" + word;\n}\n\nconsole.log(searchUrl(\"マウス & キーボード\"));\n",
+    "answer": "function searchUrl(word) {\n  return \"https://shop.example/search?q=\" + encodeURIComponent(word);\n}\n\nconsole.log(searchUrl(\"マウス & キーボード\"));",
+    "hints": [
+      "URL の中では & や ? や空白に特別な意味があります。そのまま付けると、& のうしろが別の値だと読まれてしまいます。",
+      "return \"https://shop.example/search?q=\" + encodeURIComponent(word);"
+    ],
+    "calls": [
+      {
+        "call": "searchUrl(\"a&b=c\")",
+        "expect": "https://shop.example/search?q=a%26b%3Dc"
+      },
+      {
+        "call": "searchUrl(\"mouse\")",
+        "expect": "https://shop.example/search?q=mouse"
+      }
+    ]
+  }
+]
